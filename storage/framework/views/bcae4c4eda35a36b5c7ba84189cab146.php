@@ -140,7 +140,7 @@
 
             </h3>
             
-            <div class="bracket-wrapper" style="min-width: 800px;">
+            <div class="bracket-wrapper" style="width: 100%;">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tournament->baganLiveMatches->isNotEmpty()): ?>
                     <?php echo $__env->make('_partials.bracket-tree', ['bracketRounds' => $tournament->baganLiveMatches->toArray()], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -339,7 +339,7 @@
                         <h4 style="font-weight: 700; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem;">
                             🌳 Bagan Pertandingan
                         </h4>
-                        <div class="bracket-wrapper" style="min-width: 800px;">
+                        <div class="bracket-wrapper" style="width: 100%;">
                             <?php echo $__env->make('_partials.bracket-tree', ['bracketRounds' => $latestTournament->baganLiveMatches->toArray()], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                         </div>
                     </div>

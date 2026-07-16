@@ -136,7 +136,7 @@
                 {{ $tournament->name }}
             </h3>
             
-            <div class="bracket-wrapper" style="min-width: 800px;">
+            <div class="bracket-wrapper" style="width: 100%;">
                 @if($tournament->baganLiveMatches->isNotEmpty())
                     @include('_partials.bracket-tree', ['bracketRounds' => $tournament->baganLiveMatches->toArray()])
                 @endif
@@ -329,7 +329,7 @@
                         <h4 style="font-weight: 700; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem;">
                             🌳 Bagan Pertandingan
                         </h4>
-                        <div class="bracket-wrapper" style="min-width: 800px;">
+                        <div class="bracket-wrapper" style="width: 100%;">
                             @include('_partials.bracket-tree', ['bracketRounds' => $latestTournament->baganLiveMatches->toArray()])
                         </div>
                     </div>

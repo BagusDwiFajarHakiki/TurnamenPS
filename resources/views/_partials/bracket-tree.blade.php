@@ -117,8 +117,8 @@
 @else
 
 {{-- DESKTOP: 2-SIDED BRACKET --}}
-<div class="bracket-tree-desktop" style="max-width: 100%; overflow-x: auto; padding: 1.5rem; border-radius: 12px; background: rgba(128,128,128,0.03); border: 1px solid rgba(128,128,128,0.1);">
-    <div style="display: flex; align-items: stretch; gap: 0; height: calc(100vh - 180px);">
+<div class="bracket-tree-desktop" style="width: 100%; overflow-x: auto; padding: 1.5rem 0; border-radius: 12px; background: transparent; border: none;">
+    <div style="display: flex; align-items: stretch; gap: 0; height: calc(100vh - 180px); min-width: 800px;">
 
         {{-- ===== LEFT SIDE → ===== --}}
         @if($leftGrid)
