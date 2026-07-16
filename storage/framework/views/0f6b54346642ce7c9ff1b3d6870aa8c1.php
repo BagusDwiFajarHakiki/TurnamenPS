@@ -15,6 +15,8 @@
         <span class="text-emerald-500" style="font-weight: 800;">SELESAI</span>
     <?php elseif($match['status'] === 'walkover'): ?>
         <span class="text-red-500" style="font-weight: 800;">WALKOVER</span>
+    <?php elseif($match['status'] === 'ongoing'): ?>
+        <span style="font-weight: 800; color: var(--primary);">LIVE</span>
     <?php else: ?>
         <span class="text-gray-400 dark:text-gray-500" style="font-weight: 800;">PENDING</span>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
