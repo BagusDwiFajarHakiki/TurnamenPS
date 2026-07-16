@@ -304,26 +304,20 @@
                                             $awayName = $awayPart?->entry?->display_name ?? 'TBD';
                                             $isHomeMe = in_array($homePart?->tournament_entry_id, $this->activeEntryIds);
                                             
-                                            // Check if no-show deadline warnings apply
-                                            $showDeadlineWarning = false;
-                                            $remainingMinutes = 0;
-                                            if ($match->status === 'ready') {
-                                                $t = $match->stage?->tournament;
-                                                if ($t && $t->no_show_deadline_minutes) {
-                                                    $deadline = $match->updated_at->copy()->addMinutes($t->no_show_deadline_minutes);
-                                                    $remainingMinutes = now()->diffInSeconds($deadline) / 60;
-                                                    $remainingMinutes = max(0, (int) floor($remainingMinutes));
-                                                    $showDeadlineWarning = true;
-                                                }
-                                            }
                                         @endphp
-                                        <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid {{ $match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)' }}; border-radius: 0 12px 12px 0;">
+                                        <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid {{ $match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)' }}; border-radius: 12px;">
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                                <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: {{ $match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)' }}; color: {{ $match->status === 'ongoing' ? 'var(--primary)' : '#FFC107' }};">
-                                                    {{ strtoupper($match->status) }}
-                                                </span>
-                                                <div style="display: flex; gap: 0.75rem; align-items: center;">
-                                                    <span style="font-size: 0.7rem; font-weight: 600; color: var(--text-muted);">{{ $match->computedRoundName ?? $match->stage?->name }}</span>
+                                                <div style="flex: 1;">
+                                                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: {{ $match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)' }}; color: {{ $match->status === 'ongoing' ? 'var(--primary)' : '#FFC107' }};">
+                                                        {{ strtoupper($match->status) }}
+                                                    </span>
+                                                </div>
+                                                <div style="flex: 1; text-align: center;">
+                                                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
+                                                        {{ $match->computedRoundName ?? $match->stage?->name }}
+                                                    </span>
+                                                </div>
+                                                <div style="flex: 1; text-align: right;">
                                                     @if ($match->psUnit)
                                                         <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
                                                             🎮 {{ $match->psUnit->name }}
@@ -353,15 +347,7 @@
                                                 </div>
                                             </div>
 
-                                            @if ($showDeadlineWarning)
-                                                <div style="margin-top: 0.75rem; font-size: 0.8rem; border-radius: 6px; padding: 0.5rem; background: {{ $remainingMinutes > 0 ? 'rgba(217, 119, 6, 0.15)' : 'rgba(239, 68, 68, 0.15)' }}; border: 1px solid {{ $remainingMinutes > 0 ? 'var(--warning)' : 'var(--danger)' }}; color: {{ $remainingMinutes > 0 ? 'var(--warning)' : 'var(--danger)' }}; font-weight: 700; text-align: center;">
-                                                    @if ($remainingMinutes > 0)
-                                                        ⚠️ PANGGILAN PERTANDINGAN: Sisa waktu tunggu: {{ $remainingMinutes }} menit.
-                                                    @else
-                                                        🚨 BATAS WAKTU HABIS: Waktu tunggu terlampaui.
-                                                    @endif
-                                                </div>
-                                            @endif
+
                                         </div>
                                     @empty
                                         <div style="text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px; font-size: 0.95rem; background: var(--bg-surface);">
@@ -391,7 +377,7 @@
                                             $roundName = $match->computedRoundName ?? $match->stage?->name ?? 'Babak';
                                             $isHomeMe = in_array($homePart?->tournament_entry_id, $this->activeEntryIds);
                                         @endphp
-                                        <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid var(--border-color); border-radius: 0 12px 12px 0; opacity: 0.8;">
+                                        <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid var(--border-color); border-radius: 12px; opacity: 0.8;">
                                             <div style="text-align: center; margin-bottom: 0.5rem;">
                                                 <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
                                                     {{ $roundName }}

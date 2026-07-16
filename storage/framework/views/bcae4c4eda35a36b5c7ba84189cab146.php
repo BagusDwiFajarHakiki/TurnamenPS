@@ -211,15 +211,25 @@
                                     $homeName = $homePart?->entry?->display_name ?? 'TBD';
                                     $awayName = $awayPart?->entry?->display_name ?? 'TBD';
                                 ?>
-                                <div class="soft-well" style="padding: 0.85rem 1rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 0 10px 10px 0;">
+                                <div class="soft-well" style="padding: 0.85rem 1rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 10px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                                        <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.15rem 0.5rem; border-radius: 5px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
-                                            <?php echo e(strtoupper($match->status)); ?>
+                                        <div style="flex: 1;">
+                                            <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.15rem 0.5rem; border-radius: 5px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
+                                                <?php echo e(strtoupper($match->status)); ?>
 
-                                        </span>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->psUnit): ?>
-                                            <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">🎮 <?php echo e($match->psUnit->name); ?></span>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                            </span>
+                                        </div>
+                                        <div style="flex: 1; text-align: center;">
+                                            <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.15rem 0.5rem; border-radius: 5px; background: var(--bg-surface); color: var(--text-muted);">
+                                                <?php echo e($match->computedRoundName); ?>
+
+                                            </span>
+                                        </div>
+                                        <div style="flex: 1; text-align: right;">
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->psUnit): ?>
+                                                <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">🎮 <?php echo e($match->psUnit->name); ?></span>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        </div>
                                     </div>
                                     <div style="display: flex; align-items: center; font-weight: 700; font-size: 0.88rem;">
                                         <div style="flex: 1; min-width: 0;">
@@ -261,7 +271,7 @@
                                     $awayScore = $match->status === 'walkover' && $awayPart && $awayPart->is_winner ? '3' : ($awayPart ? $awayPart->goals_scored : '-');
                                     $roundName = $match->computedRoundName ?? 'Babak';
                                 ?>
-                                <div class="soft-well" style="padding: 0.85rem 1rem; border-left: 3px solid var(--border-color); border-radius: 0 10px 10px 0; opacity: 0.8;">
+                                <div class="soft-well" style="padding: 0.85rem 1rem; border-left: 3px solid var(--border-color); border-radius: 10px; opacity: 0.8;">
                                     <div style="text-align: center; margin-bottom: 0.35rem;">
                                         <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.15rem 0.5rem; border-radius: 5px; background: var(--bg-surface); color: var(--text-muted);">
                                             <?php echo e($roundName); ?>
@@ -329,18 +339,28 @@
                                 $homeName = $homePart?->entry?->display_name ?? 'TBD';
                                 $awayName = $awayPart?->entry?->display_name ?? 'TBD';
                             ?>
-                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 0 12px 12px 0;">
+                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 12px;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
-                                        <?php echo e(strtoupper($match->status)); ?>
-
-                                    </span>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->psUnit): ?>
-                                        <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
-                                            🎮 <?php echo e($match->psUnit->name); ?>
+                                    <div style="flex: 1;">
+                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
+                                            <?php echo e(strtoupper($match->status)); ?>
 
                                         </span>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                    <div style="flex: 1; text-align: center;">
+                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
+                                            <?php echo e($match->computedRoundName); ?>
+
+                                        </span>
+                                    </div>
+                                    <div style="flex: 1; text-align: right;">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->psUnit): ?>
+                                            <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
+                                                🎮 <?php echo e($match->psUnit->name); ?>
+
+                                            </span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
                                 </div>
                                 <div style="display: flex; align-items: center; font-weight: 700; font-size: 0.95rem;">
                                     <div style="flex: 1; min-width: 0;">
@@ -391,7 +411,7 @@
                                 $awayScore = $match->status === 'walkover' && $awayPart && $awayPart->is_winner ? '3' : ($awayPart ? $awayPart->goals_scored : '-');
                                 $roundName = $match->computedRoundName ?? 'Babak';
                             ?>
-                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid var(--border-color); border-radius: 0 12px 12px 0; opacity: 0.8;">
+                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid var(--border-color); border-radius: 12px; opacity: 0.8;">
                                 <div style="text-align: center; margin-bottom: 0.5rem;">
                                     <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
                                         <?php echo e($roundName); ?>
