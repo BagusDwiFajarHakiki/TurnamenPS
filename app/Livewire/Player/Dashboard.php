@@ -217,6 +217,10 @@ class Dashboard extends Component
         }
 
         $this->loadDashboardData();
+        
+        if ($this->selectedBracketStageId) {
+            $this->loadBracketData();
+        }
 
         $callingMatches = $this->myMatches->where('status', 'scheduled');
 
