@@ -262,7 +262,7 @@ class GameMatch extends Model
                         ]);
                         $nextMatch->revokeAdvancement();
                     } elseif (in_array($nextMatch->status, ['ready', 'scheduled'])) {
-                        $nextMatch->updateQuietly(['status' => $filled >= 2 ? 'ready' : 'pending']);
+                        $nextMatch->updateQuietly(['status' => 'pending']);
                     }
                 }
             }

@@ -15,6 +15,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Filament\Notifications\Notification;
+use Livewire\Attributes\Url;
 
 class InputHasil extends Page
 {
@@ -23,7 +24,9 @@ class InputHasil extends Page
     protected static string $resource = GameMatchResource::class;
     protected string $view = 'filament.resources.game-matches.list';
 
+    #[Url]
     public ?int $selectedTournamentId = null;
+    #[Url]
     public ?int $selectedMatchId = null;
 
     public $homeScore = 0;
@@ -46,11 +49,18 @@ class InputHasil extends Page
 
     public function mount(): void
     {
-        $latest = Tournament::latest()->first();
-        if ($latest) {
-            $this->selectedTournamentId = $latest->id;
+        if (!$this->selectedTournamentId) {
+            $latest = Tournament::latest()->first();
+            if ($latest) {
+                $this->selectedTournamentId = $latest->id;
+            }
         }
-        $this->autoSelectMatch();
+        
+        if ($this->selectedMatchId) {
+            $this->selectMatch($this->selectedMatchId);
+        } else {
+            $this->autoSelectMatch();
+        }
     }
 
     public function updatedSelectedTournamentId(): void
@@ -128,6 +138,17 @@ class InputHasil extends Page
     public function updatedNoShowEntryId(): void { $this->autoSave(); }
     public function updatedWalkoverReason(): void { $this->autoSave(); }
 
+    public function updatedSelectedMatchId(): void
+    {
+        if ($this->selectedMatchId) {
+            $this->selectMatch($this->selectedMatchId);
+        } else {
+            $this->homeScore = null;
+            $this->awayScore = null;
+            $this->status = 'pending';
+        }
+    }
+
     public function updatedPaymentProof(): void
     {
         if ($this->paymentProof) {
@@ -149,8 +170,10 @@ class InputHasil extends Page
 
         $this->isAutoSaving = true;
 
+        $originalStatus = $match->getOriginal('status');
+
         try {
-            DB::transaction(function () use ($match) {
+            DB::transaction(function () use ($match, $originalStatus) {
                 // 1. Upload proof if provided
                 $proofPath = $match->result_proof_path;
                 if ($this->paymentProof) {
@@ -213,7 +236,7 @@ class InputHasil extends Page
                 // 4. Explicitly resolve — only when completed or walkover
                 if (in_array($this->status, ['completed', 'walkover'])) {
                     $match->resolveResultAndAdvance();
-                } elseif ($match->getOriginal('status') !== null && in_array($match->getOriginal('status'), ['completed', 'walkover'])) {
+                } elseif ($originalStatus !== null && in_array($originalStatus, ['completed', 'walkover']) && !in_array($this->status, ['completed', 'walkover'])) {
                     // Status changed FROM completed/walkover → revoke advancement
                     $match->revokeAdvancement();
                 }

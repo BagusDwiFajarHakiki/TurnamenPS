@@ -230,14 +230,9 @@ class TournamentService
             'club_id' => null,
         ]);
 
-        // If match now has 2 players, set to ready
-        $filledCount = MatchParticipant::where('match_id', $targetMatch->id)
-            ->whereNotNull('tournament_entry_id')
-            ->count();
-
-        if ($filledCount === 2) {
-            $targetMatch->updateQuietly(['status' => 'ready']);
-        }
+        // If match now has 2 players, we used to set to ready automatically.
+        // As per user request, this is now fully manual by admin.
+        // (Removed auto-update to 'ready')
     }
 
     /**
@@ -296,17 +291,8 @@ class TournamentService
             ]);
         }
 
-        // Check if match is full → set ready
-        $filled = MatchParticipant::where('match_id', $matchId)
-            ->whereNotNull('tournament_entry_id')
-            ->count();
-
-        if ($filled >= 2) {
-            $match = GameMatch::where('id', $matchId)->where('status', '!=', 'ready')->first();
-            if ($match) {
-                $match->updateQuietly(['status' => 'ready']);
-            }
-        }
+        // Check if match is full
+        // (Removed auto-update to 'ready' as per user request, admin sets it manually)
     }
 
     /**
@@ -347,10 +333,6 @@ class TournamentService
                             $winner->updateQuietly(['is_winner' => true, 'goals_scored' => 0]);
                             $this->advanceWinner($match, $winner->entry);
                             continue;
-                        }
-
-                        if ($filled->count() === 2 && $match->status !== 'ready') {
-                            $match->updateQuietly(['status' => 'ready']);
                         }
                     }
                 }
@@ -397,13 +379,7 @@ class TournamentService
                     ->first();
 
                 if ($thirdPlace) {
-                    $tpFilled = MatchParticipant::where('match_id', $thirdPlace->id)
-                        ->whereNotNull('tournament_entry_id')
-                        ->count();
-
-                    if ($tpFilled >= 2 && $thirdPlace->status !== 'ready') {
-                        $thirdPlace->updateQuietly(['status' => 'ready']);
-                    }
+                    // Removed auto-update to 'ready' for 3rd place match
                 }
             }
         });

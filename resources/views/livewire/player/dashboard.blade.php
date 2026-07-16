@@ -298,6 +298,7 @@
                                     @php
                                         $upcomingMatches = collect($this->bracketMyMatches)->filter(fn($m) => !in_array($m->status, ['completed', 'walkover']));
                                     @endphp
+                                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 400px; overflow-y: auto;">
                                     @forelse ($upcomingMatches as $match)
                                         @php
                                             $homePart = $match->participants->where('side', 'home')->first();
@@ -329,7 +330,7 @@
                                             </div>
                                             <div style="display: flex; align-items: center; font-weight: 700; font-size: 1.05rem;">
                                                 <div style="flex: 1; min-width: 0;">
-                                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{ $isHomeMe ? 'var(--primary)' : 'inherit' }}; font-weight: {{ $isHomeMe ? '800' : '700' }};">{{ $homeName }}</div>
+                                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{ $isHomeMe ? 'var(--primary)' : 'var(--text-main)' }}; font-weight: {{ $isHomeMe ? '800' : '700' }};">{{ $homeName }}</div>
                                                     @if($homePart?->club?->name)
                                                         <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $homePart->club->name }}</div>
                                                     @endif
@@ -342,7 +343,7 @@
                                                     @endif
                                                 </div>
                                                 <div style="flex: 1; min-width: 0; text-align: right;">
-                                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{ !$isHomeMe ? 'var(--primary)' : 'inherit' }}; font-weight: {{ !$isHomeMe ? '800' : '700' }};">{{ $awayName }}</div>
+                                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{ !$isHomeMe ? 'var(--primary)' : 'var(--text-main)' }}; font-weight: {{ !$isHomeMe ? '800' : '700' }};">{{ $awayName }}</div>
                                                     @if($awayPart?->club?->name)
                                                         <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $awayPart->club->name }}</div>
                                                     @endif
@@ -359,60 +360,7 @@
                                 </div>
                             </div>
 
-                            <!-- Pertandingan Selesai -->
-                            <div>
-                                <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-muted); font-size: 1.1rem;">
-                                    ✅ Pertandingan Selesai
-                                </h4>
-                                <div style="display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
-                                    @php
-                                        $completedMatches = collect($this->bracketMyMatches)->filter(fn($m) => in_array($m->status, ['completed', 'walkover']));
-                                    @endphp
-                                    @forelse ($completedMatches as $match)
-                                        @php
-                                            $homePart = $match->participants->where('side', 'home')->first();
-                                            $awayPart = $match->participants->where('side', 'away')->first();
-                                            $homeName = $homePart?->entry?->display_name ?? 'TBD';
-                                            $awayName = $awayPart?->entry?->display_name ?? 'TBD';
-                                            $homeScore = $match->status === 'walkover' && $homePart && $homePart->is_winner ? '3' : ($homePart ? $homePart->goals_scored : '-');
-                                            $awayScore = $match->status === 'walkover' && $awayPart && $awayPart->is_winner ? '3' : ($awayPart ? $awayPart->goals_scored : '-');
-                                            $roundName = $match->computedRoundName ?? $match->stage?->name ?? 'Babak';
-                                            $isHomeMe = in_array($homePart?->tournament_entry_id, $this->activeEntryIds);
-                                        @endphp
-                                        <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid var(--border-color); border-radius: 12px; opacity: 0.8;">
-                                            <div style="text-align: center; margin-bottom: 0.5rem;">
-                                                <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
-                                                    {{ $roundName }}
-                                                </span>
-                                            </div>
-                                            <div style="display: flex; align-items: center; font-weight: 700; font-size: 1.05rem;">
-                                                <div style="flex: 1; min-width: 0;">
-                                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{ ($homePart && $homePart->is_winner) || $isHomeMe ? 'var(--primary)' : 'inherit' }}; font-weight: {{ $isHomeMe ? '800' : '700' }};">{{ $homeName }}</div>
-                                                    @if($homePart?->club?->name)
-                                                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $homePart->club->name }}</div>
-                                                    @endif
-                                                </div>
-                                                <div style="flex-shrink: 0; text-align: center; padding: 0 1rem; min-width: 80px;">
-                                                    <div style="font-size: 1.25rem; letter-spacing: 2px;">{{ $homeScore }} - {{ $awayScore }}</div>
-                                                    @if($match->decided_by_penalty)
-                                                        <div style="font-size: 0.7rem; letter-spacing: 1px; color: var(--text-muted);">({{ $match->penalty_score_home }}) - ({{ $match->penalty_score_away }})</div>
-                                                    @endif
-                                                </div>
-                                                <div style="flex: 1; min-width: 0; text-align: right;">
-                                                    <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{ ($awayPart && $awayPart->is_winner) || !$isHomeMe ? 'var(--primary)' : 'inherit' }}; font-weight: {{ !$isHomeMe ? '800' : '700' }};">{{ $awayName }}</div>
-                                                    @if($awayPart?->club?->name)
-                                                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $awayPart->club->name }}</div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @empty
-                                        <div style="text-align: center; padding: 2.5rem 1.5rem; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px; font-size: 0.95rem; background: var(--bg-surface);">
-                                            Belum ada pertandingan selesai.
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </div>
+                            <!-- Selesai (Disembunyikan sesuai permintaan) -->
                         </div>
                     </div>
                 @endif
