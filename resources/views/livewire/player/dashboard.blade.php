@@ -22,38 +22,40 @@
             📈 {{ __('Statistik Lintas Slot Anda') }}
         </h3>
         @php
-            $aggregate = \App\Models\TournamentPlayerAggregate::where('player_id', $player->id)->first();
+            $aggregates = \App\Models\TournamentPlayerAggregate::where('player_id', $player->id)->get();
+            $totalGoals = $aggregates->sum('total_goals_scored');
+            $currentStreak = $aggregates->max('current_win_streak') ?? 0;
+            $bestStreak = $aggregates->max('best_win_streak') ?? 0;
+            $totalMatches = $aggregates->sum('total_matches_played');
+            $totalWins = $aggregates->sum('total_wins');
+            $winRatio = $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100) . '%' : '0%';
         @endphp
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; text-align: center;">
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Total Goal</span>
                 <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--primary); margin-top: 0.25rem;">
-                    {{ $aggregate?->total_goals_scored ?? 0 }}
+                    {{ $totalGoals }}
                 </div>
             </div>
 
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Win Streak</span>
                 <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--accent); margin-top: 0.25rem;">
-                    🔥 {{ $aggregate?->current_win_streak ?? 0 }}
+                    🔥 {{ $currentStreak }}
                 </div>
             </div>
 
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Rasio Menang</span>
                 <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--secondary); margin-top: 0.25rem;">
-                    @php
-                        $total = $aggregate?->total_matches_played ?? 0;
-                        $wins = $aggregate?->total_wins ?? 0;
-                        echo $total > 0 ? round(($wins / $total) * 100) . '%' : '0%';
-                    @endphp
+                    {{ $winRatio }}
                 </div>
             </div>
 
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Rekor Win Streak</span>
                 <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--secondary); margin-top: 0.25rem;">
-                    🔥 {{ $aggregate?->best_win_streak ?? 0 }}
+                    🔥 {{ $bestStreak }}
                 </div>
             </div>
         </div>

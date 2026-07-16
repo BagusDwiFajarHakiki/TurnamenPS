@@ -124,6 +124,155 @@
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
+    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($ongoingTournaments) > 0): ?>
+    <div id="ongoing-tournaments" style="margin-bottom: 5rem; padding-top: 2rem;">
+        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 3.5rem; text-align: center;">
+            <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text-main); letter-spacing: -0.5px;">
+                Turnamen <span class="gradient-text">Berjalan</span>
+            </h2>
+            <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 500px;">Bagan pertandingan dari turnamen yang sedang berlangsung saat ini.</p>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $ongoingTournaments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tournament): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="glass-card" style="margin-bottom: 3rem; padding: 2rem; border-radius: 16px; overflow-x: auto;">
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; color: var(--text-main);">
+                <?php echo e($tournament->name); ?>
+
+            </h3>
+            
+            <div class="bracket-wrapper" style="min-width: 800px;">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tournament->baganLiveMatches->isNotEmpty()): ?>
+                    <?php echo $__env->make('_partials.bracket-tree', ['bracketRounds' => $tournament->baganLiveMatches->toArray()], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+
+            <!-- Jadwal dan Hasil Pertandingan -->
+            <div class="grid grid-cols-1 md-grid-cols-2" style="margin-top: 3rem; gap: 2rem; display: grid;">
+                <!-- Jadwal & Sedang Berjalan -->
+                <div>
+                    <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--secondary); font-size: 1.1rem;">
+                        ⚔️ Jadwal & Sedang Berjalan
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tournament->upcomingMatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
+                                $homePart = $match->participants->where('side', 'home')->first();
+                                $awayPart = $match->participants->where('side', 'away')->first();
+                                $homeName = $homePart?->entry?->display_name ?? 'TBD';
+                                $awayName = $awayPart?->entry?->display_name ?? 'TBD';
+                            ?>
+                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <div style="flex: 1;">
+                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
+                                            <?php echo e(strtoupper($match->status)); ?>
+
+                                        </span>
+                                    </div>
+                                    <div style="flex: 1; text-align: center;">
+                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
+                                            <?php echo e($match->computedRoundName); ?>
+
+                                        </span>
+                                    </div>
+                                    <div style="flex: 1; text-align: right;">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->psUnit): ?>
+                                            <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
+                                                🎮 <?php echo e($match->psUnit->name); ?>
+
+                                            </span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; font-weight: 700; font-size: 0.95rem;">
+                                    <div style="flex: 1; min-width: 0;">
+                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homeName); ?></div>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($homePart?->club?->name): ?>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homePart->club->name); ?></div>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                    <div style="flex-shrink: 0; text-align: center; padding: 0 0.75rem; min-width: 70px;">
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->status === 'ongoing' || $match->status === 'completed' || $match->status === 'walkover'): ?>
+                                            <div style="font-size: 1.1rem; letter-spacing: 2px; font-weight: 800; color: var(--primary);"><?php echo e($homePart?->goals_scored ?? 0); ?> - <?php echo e($awayPart?->goals_scored ?? 0); ?></div>
+                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->decided_by_penalty): ?>
+                                                <div style="font-size: 0.65rem; letter-spacing: 1px; color: var(--text-muted); margin-top: 0.15rem;">(<?php echo e($match->penalty_score_home); ?>) - (<?php echo e($match->penalty_score_away); ?>)</div>
+                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                        <?php else: ?>
+                                            <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 500;">VS</span>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0; text-align: right;">
+                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayName); ?></div>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($awayPart?->club?->name): ?>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayPart->club->name); ?></div>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <div style="text-align: center; padding: 2rem 0; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px; font-size: 0.9rem;">
+                                Tidak ada antrean match aktif.
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Selesai -->
+                <div>
+                    <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-muted); font-size: 1.1rem;">
+                        ✅ Pertandingan Selesai
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tournament->completedMatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
+                                $homePart = $match->participants->where('side', 'home')->first();
+                                $awayPart = $match->participants->where('side', 'away')->first();
+                                $homeName = $homePart?->entry?->display_name ?? 'TBD';
+                                $awayName = $awayPart?->entry?->display_name ?? 'TBD';
+                                $homeScore = $match->status === 'walkover' && $homePart && $homePart->is_winner ? '3' : ($homePart ? $homePart->goals_scored : '-');
+                                $awayScore = $match->status === 'walkover' && $awayPart && $awayPart->is_winner ? '3' : ($awayPart ? $awayPart->goals_scored : '-');
+                                $roundName = $match->computedRoundName ?? 'Babak';
+                            ?>
+                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid var(--border-color); border-radius: 12px; opacity: 0.8;">
+                                <div style="text-align: center; margin-bottom: 0.5rem;">
+                                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
+                                        <?php echo e($roundName); ?>
+
+                                    </span>
+                                </div>
+                                <div style="display: flex; align-items: center; font-weight: 700; font-size: 0.95rem;">
+                                    <div style="flex: 1; min-width: 0; <?php echo e($homePart && $homePart->is_winner ? 'color: var(--primary);' : ''); ?>">
+                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homeName); ?></div>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($homePart?->club?->name): ?>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homePart->club->name); ?></div>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                    <div style="flex-shrink: 0; text-align: center; padding: 0 0.75rem; min-width: 70px;">
+                                        <div style="font-size: 1.1rem; letter-spacing: 2px;"><?php echo e($homeScore); ?> - <?php echo e($awayScore); ?></div>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->decided_by_penalty): ?>
+                                            <div style="font-size: 0.65rem; letter-spacing: 1px; color: var(--text-muted);">(<?php echo e($match->penalty_score_home); ?>) - (<?php echo e($match->penalty_score_away); ?>)</div>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0; text-align: right; <?php echo e($awayPart && $awayPart->is_winner ? 'color: var(--primary);' : ''); ?>">
+                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayName); ?></div>
+                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($awayPart?->club?->name): ?>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayPart->club->name); ?></div>
+                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                            <div style="text-align: center; padding: 2rem 0; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px; font-size: 0.9rem;">
+                                Belum ada pertandingan yang selesai.
+                            </div>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
+    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <!-- LATEST TOURNAMENT -->
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestTournament): ?>
         <div style="margin-bottom: 5rem; padding-top: 2rem;">
@@ -302,155 +451,6 @@
         </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($ongoingTournaments) > 0): ?>
-    <div id="ongoing-tournaments" style="margin-bottom: 5rem; padding-top: 2rem;">
-        <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 3.5rem; text-align: center;">
-            <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text-main); letter-spacing: -0.5px;">
-                Turnamen <span class="gradient-text">Berjalan</span>
-            </h2>
-            <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 500px;">Bagan pertandingan dari turnamen yang sedang berlangsung saat ini.</p>
-        </div>
-
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $ongoingTournaments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tournament): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <div class="glass-card" style="margin-bottom: 3rem; padding: 2rem; border-radius: 16px; overflow-x: auto;">
-            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; color: var(--text-main);">
-                <?php echo e($tournament->name); ?>
-
-            </h3>
-            
-            <div class="bracket-wrapper" style="min-width: 800px;">
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($tournament->baganLiveMatches->isNotEmpty()): ?>
-                    <?php echo $__env->make('_partials.bracket-tree', ['bracketRounds' => $tournament->baganLiveMatches->toArray()], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-            </div>
-
-            <!-- Jadwal dan Hasil Pertandingan -->
-            <div class="grid grid-cols-1 md-grid-cols-2" style="margin-top: 3rem; gap: 2rem; display: grid;">
-                <!-- Jadwal & Sedang Berjalan -->
-                <div>
-                    <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--secondary); font-size: 1.1rem;">
-                        ⚔️ Jadwal & Sedang Berjalan
-                    </h4>
-                    <div style="display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tournament->upcomingMatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                            <?php
-                                $homePart = $match->participants->where('side', 'home')->first();
-                                $awayPart = $match->participants->where('side', 'away')->first();
-                                $homeName = $homePart?->entry?->display_name ?? 'TBD';
-                                $awayName = $awayPart?->entry?->display_name ?? 'TBD';
-                            ?>
-                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 12px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                    <div style="flex: 1;">
-                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
-                                            <?php echo e(strtoupper($match->status)); ?>
-
-                                        </span>
-                                    </div>
-                                    <div style="flex: 1; text-align: center;">
-                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
-                                            <?php echo e($match->computedRoundName); ?>
-
-                                        </span>
-                                    </div>
-                                    <div style="flex: 1; text-align: right;">
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->psUnit): ?>
-                                            <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
-                                                🎮 <?php echo e($match->psUnit->name); ?>
-
-                                            </span>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </div>
-                                </div>
-                                <div style="display: flex; align-items: center; font-weight: 700; font-size: 0.95rem;">
-                                    <div style="flex: 1; min-width: 0;">
-                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homeName); ?></div>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($homePart?->club?->name): ?>
-                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homePart->club->name); ?></div>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </div>
-                                    <div style="flex-shrink: 0; text-align: center; padding: 0 0.75rem; min-width: 70px;">
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->status === 'ongoing' || $match->status === 'completed' || $match->status === 'walkover'): ?>
-                                            <div style="font-size: 1.1rem; letter-spacing: 2px; font-weight: 800; color: var(--primary);"><?php echo e($homePart?->goals_scored ?? 0); ?> - <?php echo e($awayPart?->goals_scored ?? 0); ?></div>
-                                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->decided_by_penalty): ?>
-                                                <div style="font-size: 0.65rem; letter-spacing: 1px; color: var(--text-muted); margin-top: 0.15rem;">(<?php echo e($match->penalty_score_home); ?>) - (<?php echo e($match->penalty_score_away); ?>)</div>
-                                            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                        <?php else: ?>
-                                            <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 500;">VS</span>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </div>
-                                    <div style="flex: 1; min-width: 0; text-align: right;">
-                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayName); ?></div>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($awayPart?->club?->name): ?>
-                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayPart->club->name); ?></div>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                            <div style="text-align: center; padding: 2rem 0; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px; font-size: 0.9rem;">
-                                Tidak ada antrean match aktif.
-                            </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Selesai -->
-                <div>
-                    <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-muted); font-size: 1.1rem;">
-                        ✅ Pertandingan Selesai
-                    </h4>
-                    <div style="display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $tournament->completedMatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                            <?php
-                                $homePart = $match->participants->where('side', 'home')->first();
-                                $awayPart = $match->participants->where('side', 'away')->first();
-                                $homeName = $homePart?->entry?->display_name ?? 'TBD';
-                                $awayName = $awayPart?->entry?->display_name ?? 'TBD';
-                                $homeScore = $match->status === 'walkover' && $homePart && $homePart->is_winner ? '3' : ($homePart ? $homePart->goals_scored : '-');
-                                $awayScore = $match->status === 'walkover' && $awayPart && $awayPart->is_winner ? '3' : ($awayPart ? $awayPart->goals_scored : '-');
-                                $roundName = $match->computedRoundName ?? 'Babak';
-                            ?>
-                            <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid var(--border-color); border-radius: 12px; opacity: 0.8;">
-                                <div style="text-align: center; margin-bottom: 0.5rem;">
-                                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
-                                        <?php echo e($roundName); ?>
-
-                                    </span>
-                                </div>
-                                <div style="display: flex; align-items: center; font-weight: 700; font-size: 0.95rem;">
-                                    <div style="flex: 1; min-width: 0; <?php echo e($homePart && $homePart->is_winner ? 'color: var(--primary);' : ''); ?>">
-                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homeName); ?></div>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($homePart?->club?->name): ?>
-                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($homePart->club->name); ?></div>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </div>
-                                    <div style="flex-shrink: 0; text-align: center; padding: 0 0.75rem; min-width: 70px;">
-                                        <div style="font-size: 1.1rem; letter-spacing: 2px;"><?php echo e($homeScore); ?> - <?php echo e($awayScore); ?></div>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->decided_by_penalty): ?>
-                                            <div style="font-size: 0.65rem; letter-spacing: 1px; color: var(--text-muted);">(<?php echo e($match->penalty_score_home); ?>) - (<?php echo e($match->penalty_score_away); ?>)</div>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </div>
-                                    <div style="flex: 1; min-width: 0; text-align: right; <?php echo e($awayPart && $awayPart->is_winner ? 'color: var(--primary);' : ''); ?>">
-                                        <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayName); ?></div>
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($awayPart?->club?->name): ?>
-                                            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo e($awayPart->club->name); ?></div>
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                            <div style="text-align: center; padding: 2rem 0; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px; font-size: 0.9rem;">
-                                Belum ada pertandingan yang selesai.
-                            </div>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-    </div>
-    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <!-- STATISTICS & RANKINGS -->
     <div id="rankings" style="margin-bottom: 5rem; padding-top: 2rem;">

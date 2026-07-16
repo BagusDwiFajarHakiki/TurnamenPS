@@ -150,7 +150,8 @@ class Home extends Component
 
     public function loadLatestTournament()
     {
-        $tournament = Tournament::withCount('entries')
+        $tournament = Tournament::where('status', 'completed')
+            ->withCount('entries')
             ->with('stages')
             ->orderByDesc('id')
             ->first();
