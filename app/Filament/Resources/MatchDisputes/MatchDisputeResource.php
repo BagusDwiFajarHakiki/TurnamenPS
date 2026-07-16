@@ -18,6 +18,8 @@ class MatchDisputeResource extends Resource
 {
     protected static ?string $model = MatchDispute::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
     protected static ?string $navigationLabel   = 'Sengketa Hasil';
     protected static ?string $modelLabel        = 'Sengketa';

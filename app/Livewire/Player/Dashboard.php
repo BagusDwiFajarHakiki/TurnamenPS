@@ -506,6 +506,7 @@ class Dashboard extends Component
         $this->loadDashboardData();
     }
 
+    public $bracketMyMatches = [];
     public function selectBracketTournament($tournamentId)
     {
         $this->selectedBracketTournamentId = $tournamentId;
@@ -513,11 +514,29 @@ class Dashboard extends Component
         if ($t) {
             $this->bracketStages = $t->stages;
             $this->selectedBracketStageId = $this->bracketStages->where('status', 'ongoing')->first()?->id ?? $this->bracketStages->first()?->id;
+            
+            
+            // Load user matches for this tournament
+            $this->bracketMyMatches = GameMatch::whereHas('stage', function($q) use ($tournamentId) {
+                $q->where('tournament_id', $tournamentId);
+            })
+            ->whereHas('participants', function($q) {
+                $q->whereIn('tournament_entry_id', $this->activeEntryIds);
+            })
+            ->with(['participants.entry.player', 'participants.club', 'psUnit', 'stage.tournament'])
+            ->orderByRaw("FIELD(status, 'ongoing', 'ready', 'scheduled', 'completed', 'walkover', 'pending')")
+            ->orderBy('scheduled_at')
+            ->orderByDesc('finished_at')
+            ->get();
+
+
+
             $this->loadBracketData();
         } else {
             $this->bracketStages = [];
             $this->selectedBracketStageId = null;
             $this->bracketRounds = [];
+            $this->bracketMyMatches = [];
         }
     }
 

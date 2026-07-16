@@ -127,11 +127,7 @@ class Home extends Component
             
                 $stageIds = $tournament->stages->pluck('id')->toArray();
                 if (!empty($stageIds)) {
-                    $maxRoundByStage = GameMatch::whereIn('tournament_stage_id', $stageIds)
-                        ->select('tournament_stage_id', DB::raw('MAX(round_number) as max_round'))
-                        ->groupBy('tournament_stage_id')
-                        ->pluck('max_round', 'tournament_stage_id')
-                        ->toArray();
+
 
                     $tournament->upcomingMatches = GameMatch::whereIn('tournament_stage_id', $stageIds)
                         ->whereIn('status', ['ready', 'scheduled', 'ongoing'])
@@ -145,25 +141,7 @@ class Home extends Component
                         ->whereIn('status', ['completed', 'walkover'])
                         ->with(['participants.entry.player', 'participants.club', 'stage'])
                         ->orderByDesc('finished_at')
-                        ->get()
-                        ->each(function ($match) use ($maxRoundByStage) {
-                            $maxRound = $maxRoundByStage[$match->tournament_stage_id] ?? 1;
-                            if ($match->bracket_position === '3rd_place') {
-                                $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
-                            } else {
-                                $stagesLeft = $maxRound - $match->round_number;
-                                if ($stagesLeft === 0) {
-                                    $match->computedRoundName = 'Final';
-                                } elseif ($stagesLeft === 1) {
-                                    $match->computedRoundName = 'Semifinal';
-                                } elseif ($stagesLeft === 2) {
-                                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
-                                } else {
-                                    $teamsInRound = pow(2, $stagesLeft + 1);
-                                    $match->computedRoundName = app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
-                                }
-                            }
-                        });
+                        ->get();
                 }
         }
 

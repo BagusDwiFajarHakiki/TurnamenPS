@@ -111,6 +111,33 @@ class GameMatch extends Model
         return $this->participants->where('side', 'away')->first();
     }
 
+    protected static $maxRoundsByStage = [];
+
+    public function getComputedRoundNameAttribute()
+    {
+        if ($this->bracket_position === '3rd_place') {
+            return app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+        }
+
+        if (!isset(self::$maxRoundsByStage[$this->tournament_stage_id])) {
+            self::$maxRoundsByStage[$this->tournament_stage_id] = GameMatch::where('tournament_stage_id', $this->tournament_stage_id)->max('round_number') ?? 1;
+        }
+        $maxRound = self::$maxRoundsByStage[$this->tournament_stage_id];
+
+        $stagesLeft = $maxRound - $this->round_number;
+
+        if ($stagesLeft === 0) {
+            return 'Final';
+        } elseif ($stagesLeft === 1) {
+            return 'Semifinal';
+        } elseif ($stagesLeft === 2) {
+            return app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
+        } else {
+            $teamsInRound = pow(2, $stagesLeft + 1);
+            return app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
+        }
+    }
+
     /**
      * Resolve match result and advance winner to next round.
      * Called EXPLICITLY only — never via model events.
