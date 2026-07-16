@@ -25,8 +25,8 @@ class Tournament extends Model
     protected $fillable = [
         'name',
         'slug',
-        'game_title',
         'price_per_slot',
+        'min_slots_per_player',
         'max_slot_per_player',
         'max_entries',
         'entry_expiry_hours',
@@ -43,6 +43,7 @@ class Tournament extends Model
 
     protected $casts = [
         'price_per_slot' => 'decimal:2',
+        'min_slots_per_player' => 'integer',
         'max_slot_per_player' => 'integer',
         'max_entries' => 'integer',
         'entry_expiry_hours' => 'integer',

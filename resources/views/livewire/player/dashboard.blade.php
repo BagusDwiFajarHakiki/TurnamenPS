@@ -432,6 +432,10 @@
                     <!-- STEP 1: SELECT QUANTITY -->
                     <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.35rem;">
                         <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-muted);">Min. Slot per Peserta:</span>
+                            <strong style="color: var(--text-main);">{{ \App\Models\Tournament::find($selectedTournamentId)?->min_slots_per_player ?: 1 }} Slot</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
                             <span style="color: var(--text-muted);">Maks. Slot per Peserta:</span>
                             <strong style="color: var(--text-main);">{{ \App\Models\Tournament::find($selectedTournamentId)?->max_slot_per_player }} Slot</strong>
                         </div>
@@ -443,7 +447,7 @@
 
                     <div class="form-group" style="margin-bottom: 1.5rem;">
                         <label class="form-label" for="slot_count">{{ __('Jumlah Slot') }}</label>
-                        <input type="number" id="slot_count" wire:model.live.debounce.500ms="slot_count" class="form-control" min="1" required>
+                        <input type="number" id="slot_count" wire:model.live.debounce.500ms="slot_count" class="form-control" min="{{ \App\Models\Tournament::find($selectedTournamentId)?->min_slots_per_player ?: 1 }}" required>
                         @error('slot_count') <span style="color: var(--danger); font-size: 0.85rem;">{{ $message }}</span> @enderror
                     </div>
 
@@ -562,7 +566,7 @@
                 }
             "
             class="toast-alert"
-            style="position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 8px; font-weight: 600; box-shadow: 0 10px 15px rgba(0,0,0,0.3); z-index: 9999; max-width: calc(100vw - 2rem); cursor: pointer;"
+            style="position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; border-radius: 50px; font-weight: 600; box-shadow: 0 10px 15px rgba(0,0,0,0.3); z-index: 9999; max-width: calc(100vw - 2rem); cursor: pointer; text-align: center; white-space: nowrap;"
             :style="$wire.toastType === 'error' ? 'background: var(--danger); color: white;' : 'background: var(--primary); color: #000;'"
             wire:click="dismissToast"
         >

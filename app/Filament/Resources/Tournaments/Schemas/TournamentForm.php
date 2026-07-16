@@ -26,16 +26,15 @@ class TournamentForm
                     ->dehydrated()
                     ->hidden(),
 
-                TextInput::make('game_title')
-                    ->required()
-                    ->default('eFootball / PES')
-                    ->maxLength(255),
-
                 TextInput::make('price_per_slot')
                     ->numeric()
                     ->required()
                     ->prefix('Rp')
                     ->default(0.00),
+
+                TextInput::make('min_slots_per_player')
+                    ->numeric()
+                    ->required(),
 
                 TextInput::make('max_slot_per_player')
                     ->numeric()

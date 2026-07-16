@@ -95,10 +95,10 @@
 
     $activeEntryIds = $activeEntryIds ?? [];
     $activeEntryIntIds = array_map('intval', $activeEntryIds);
-    $centerCompact = $centerCompact ?? true;
+    $centerCompact = $leftGrid && $rightGrid ? true : false;
     $centerStyle = $centerCompact
-        ? 'min-width: 200px; flex-shrink: 0; position: relative; padding: 0 0.5rem; height: 100%;'
-        : 'min-width: 220px; max-width: 280px; flex-shrink: 0; position: relative; padding: 0 0.5rem; height: 100%;';
+        ? 'min-width: 200px; flex-shrink: 0; padding: 0 0.5rem;'
+        : 'min-width: 220px; max-width: 280px; flex-shrink: 0; padding: 0 0.5rem;';
 @endphp
 
 <style>
@@ -118,7 +118,7 @@
 
 {{-- DESKTOP: 2-SIDED BRACKET --}}
 <div class="bracket-tree-desktop" style="width: 100%; overflow-x: auto; padding: 1.5rem 0; border-radius: 12px; background: transparent; border: none;">
-    <div style="display: flex; align-items: stretch; gap: 0; height: calc(100vh - 180px); min-width: 800px;">
+    <div style="display: flex; align-items: stretch; gap: 0; min-height: calc(100vh - 180px); min-width: 800px;">
 
         {{-- ===== LEFT SIDE → ===== --}}
         @if($leftGrid)
@@ -154,23 +154,20 @@
                         $T = $unifiedTotalRows;
                         $stubW = 14;
                     @endphp
-                    <div style="width: 42px; flex-shrink: 0; display: flex; flex-direction: column;">
-                        <div style="height: 28px; flex-shrink: 0;"></div>
-                        <div style="flex: 1; position: relative;">
-                            @foreach(range(0, $pairCount - 1) as $pairIdx)
-                                @php
-                                    $upper = $outerMatches[$pairIdx * 2];
-                                    $lower = $outerMatches[$pairIdx * 2 + 1];
-                                    $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
-                                    $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
-                                    $mPct = ($uPct + $lPct) / 2;
-                                @endphp
-                                <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: {{ $uPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                                <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: {{ $lPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                                <div style="position: absolute; right: {{ $stubW }}px; top: {{ $uPct }}%; height: {{ $lPct - $uPct }}%; width: 2px; background: rgba(20,184,166,0.3);"></div>
-                                <div style="position: absolute; left: calc(100% - {{ $stubW }}px); right: 0; top: {{ $mPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            @endforeach
-                        </div>
+                    <div style="width: 42px; flex-shrink: 0; position: relative;">
+                        @foreach(range(0, $pairCount - 1) as $pairIdx)
+                            @php
+                                $upper = $outerMatches[$pairIdx * 2];
+                                $lower = $outerMatches[$pairIdx * 2 + 1];
+                                $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
+                                $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
+                                $mPct = ($uPct + $lPct) / 2;
+                            @endphp
+                            <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: calc({{ $lPct }}% + {{ 28 - 28 * $lPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; right: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: calc({{ $lPct - $uPct }}% - {{ 28 * ($lPct - $uPct) / 100 }}px); width: 2px; background: rgba(20,184,166,0.3);"></div>
+                            <div style="position: absolute; left: calc(100% - {{ $stubW }}px); right: 0; top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                        @endforeach
                     </div>
                 @endif
             @endforeach
@@ -178,54 +175,75 @@
 
         {{-- CONNECTOR LEFT → CENTER --}}
         @if(!empty($finalRoundMatches))
-            <div style="width: 42px; flex-shrink: 0; display: flex; flex-direction: column;">
-                <div style="height: 28px; flex-shrink: 0;"></div>
-                <div style="flex: 1; position: relative;">
-                    <div style="position: absolute; left: 0; right: 0; top: {{ $centerPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                </div>
+            @php
+                $hasThirdPlace = !empty($thirdPlaceMatch);
+                $offset = $hasThirdPlace ? 130 : 0;
+            @endphp
+            <div style="width: 42px; flex-shrink: 0; position: relative;">
+                @if($hasThirdPlace)
+                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: {{ $offset * 2 }}px; width: 2px; background: rgba(20,184,166,0.3);"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                @else
+                    <div style="position: absolute; left: 0; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                @endif
             </div>
         @endif
 
         {{-- CENTER: FINAL + 3RD PLACE --}}
-        <div style="{{ $centerStyle }}">
+        <div style="{{ $centerStyle }} position: relative;">
             @if(!empty($finalRoundMatches))
                 @php
-                    $fm = $finalRoundMatches[0];
+                    $fm = $finalRoundMatches[0] ?? null;
                     $fh = $fm['participants'][0] ?? null;
                     $fa = $fm['participants'][1] ?? null;
+                    
+                    $hasThirdPlace = !empty($thirdPlaceMatch);
+                    $offset = $hasThirdPlace ? 130 : 0;
                 @endphp
-                <div style="position: absolute; top: {{ $centerPct }}%; left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
-                    <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(20,184,166,0.2); color: var(--primary); text-align: center;">
-                        &#127942; {{ $getRoundName($maxRound) }}
+                @if($fm)
+                    <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
+                        <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(20,184,166,0.2); color: var(--primary); text-align: center;">
+                            &#127942; {{ $getRoundName($maxRound) }}
+                        </div>
+                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; box-shadow: 0 0 0 2px rgba(20,184,166,0.25); border: 1px solid rgba(209,213,219,0.5);">
+                            @include('_partials.bracket-match-card', ['match' => $fm, 'home' => $fh, 'away' => $fa, 'activeEntryIds' => $activeEntryIntIds])
+                        </div>
                     </div>
-                    <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; box-shadow: 0 0 0 2px rgba(20,184,166,0.25); border: 1px solid rgba(209,213,219,0.5);">
-                        @include('_partials.bracket-match-card', ['match' => $fm, 'home' => $fh, 'away' => $fa, 'activeEntryIds' => $activeEntryIntIds])
+                @endif
+                @if($thirdPlaceMatch)
+                    @php
+                        $tp3h = $thirdPlaceMatch['participants'][0] ?? null;
+                        $tp3a = $thirdPlaceMatch['participants'][1] ?? null;
+                    @endphp
+                    <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
+                        <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b; text-align: center;">
+                            &#129353; PEREBUTAN JUARA 3
+                        </div>
+                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: 1px solid rgba(209,213,219,0.5);">
+                            @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])
+                        </div>
                     </div>
-                </div>
-            @endif
-            @if($thirdPlaceMatch)
-                @php
-                    $tp3h = $thirdPlaceMatch['participants'][0] ?? null;
-                    $tp3a = $thirdPlaceMatch['participants'][1] ?? null;
-                @endphp
-                <div style="position: absolute; bottom: 5%; left: 0.5rem; right: 0.5rem; z-index: 2;">
-                    <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b; text-align: center;">
-                        &#129353; PEREBUTAN JUARA 3
-                    </div>
-                    <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: 1px solid rgba(209,213,219,0.5);">
-                        @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])
-                    </div>
-                </div>
+                @endif
             @endif
         </div>
 
         {{-- CONNECTOR CENTER → RIGHT --}}
         @if(!empty($finalRoundMatches))
-            <div style="width: 42px; flex-shrink: 0; display: flex; flex-direction: column;">
-                <div style="height: 28px; flex-shrink: 0;"></div>
-                <div style="flex: 1; position: relative;">
-                    <div style="position: absolute; left: 0; right: 0; top: {{ $centerPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                </div>
+            @php
+                $hasThirdPlace = !empty($thirdPlaceMatch);
+                $offset = $hasThirdPlace ? 130 : 0;
+            @endphp
+            <div style="width: 42px; flex-shrink: 0; position: relative;">
+                @if($hasThirdPlace)
+                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: {{ $offset * 2 }}px; width: 2px; background: rgba(20,184,166,0.3);"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                @else
+                    <div style="position: absolute; left: 0; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                @endif
             </div>
         @endif
 
@@ -264,23 +282,20 @@
                         $T = $unifiedTotalRows;
                         $stubW = 14;
                     @endphp
-                    <div style="width: 42px; flex-shrink: 0; display: flex; flex-direction: column;">
-                        <div style="height: 28px; flex-shrink: 0;"></div>
-                        <div style="flex: 1; position: relative;">
-                            @foreach(range(0, $pairCount - 1) as $pairIdx)
-                                @php
-                                    $upper = $outerMatches[$pairIdx * 2];
-                                    $lower = $outerMatches[$pairIdx * 2 + 1];
-                                    $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
-                                    $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
-                                    $mPct = ($uPct + $lPct) / 2;
-                                @endphp
-                                <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: {{ $uPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                                <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: {{ $lPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                                <div style="position: absolute; left: {{ $stubW }}px; top: {{ $uPct }}%; height: {{ $lPct - $uPct }}%; width: 2px; background: rgba(20,184,166,0.3);"></div>
-                                <div style="position: absolute; left: 0; right: calc(100% - {{ $stubW }}px); top: {{ $mPct }}%; height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            @endforeach
-                        </div>
+                    <div style="width: 42px; flex-shrink: 0; position: relative;">
+                        @foreach(range(0, $pairCount - 1) as $pairIdx)
+                            @php
+                                $upper = $outerMatches[$pairIdx * 2];
+                                $lower = $outerMatches[$pairIdx * 2 + 1];
+                                $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
+                                $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
+                                $mPct = ($uPct + $lPct) / 2;
+                            @endphp
+                            <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: calc({{ $lPct }}% + {{ 28 - 28 * $lPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; left: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: calc({{ $lPct - $uPct }}% - {{ 28 * ($lPct - $uPct) / 100 }}px); width: 2px; background: rgba(20,184,166,0.3);"></div>
+                            <div style="position: absolute; left: 0; right: calc(100% - {{ $stubW }}px); top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                        @endforeach
                     </div>
                 @endif
             @endforeach

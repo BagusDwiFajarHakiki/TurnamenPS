@@ -284,10 +284,17 @@ class Dashboard extends Component
             return;
         }
 
+        $minSlots = $t->min_slots_per_player ?: 1;
+
+        if ($this->maxPurchasable < $minSlots) {
+            $this->showToast("Anda hanya bisa membeli {$this->maxPurchasable} slot lagi, tetapi minimal pembelian adalah {$minSlots} slot.", 'error');
+            return;
+        }
+
         $this->selectedTournamentId = $tournamentId;
-        $this->slot_count = 1;
+        $this->slot_count = $minSlots;
         $this->payment_proof = null;
-        $this->total_price = $t->price_per_slot;
+        $this->total_price = $minSlots * $t->price_per_slot;
         $this->payment_info = $t->payment_info ?: '';
         $this->purchaseStep = 1;
         $this->payment_method = 'qris';
@@ -310,12 +317,17 @@ class Dashboard extends Component
 
         $personalRemaining = max(0, $t->max_slot_per_player - $this->playerCurrentTotal);
 
+        $minSlots = $t->min_slots_per_player ?: 1;
+
         $this->validate([
             'slot_count' => [
                 'required',
                 'integer',
-                'min:1',
-                function ($attribute, $value, $fail) use ($personalRemaining) {
+                'min:' . $minSlots,
+                function ($attribute, $value, $fail) use ($personalRemaining, $minSlots) {
+                    if ($value < $minSlots) {
+                        $fail("Minimal pembelian adalah {$minSlots} slot.");
+                    }
                     if ($value > $personalRemaining) {
                         $fail("Jumlah slot melebihi batas pembelian Anda. Batas sisa Anda adalah {$personalRemaining} slot.");
                     }
@@ -373,12 +385,16 @@ class Dashboard extends Component
 
         // Custom validation rules based on payment method
         $personalRemaining = max(0, $t->max_slot_per_player - $this->playerCurrentTotal);
+        $minSlots = $t->min_slots_per_player ?: 1;
         $rules = [
             'slot_count' => [
                 'required',
                 'integer',
-                'min:1',
-                function ($attribute, $value, $fail) use ($personalRemaining) {
+                'min:' . $minSlots,
+                function ($attribute, $value, $fail) use ($personalRemaining, $minSlots) {
+                    if ($value < $minSlots) {
+                        $fail("Minimal pembelian adalah {$minSlots} slot.");
+                    }
                     if ($value > $personalRemaining) {
                         $fail("Jumlah slot melebihi batas pembelian Anda. Batas sisa Anda adalah {$personalRemaining} slot.");
                     }

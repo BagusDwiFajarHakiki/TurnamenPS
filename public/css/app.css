@@ -574,12 +574,7 @@ html.light-theme .bracket-player {
 
     .payment-drawer { width: 100% !important; }
 
-    .toast-alert {
-        left: 1rem !important;
-        right: 1rem !important;
-        bottom: 1rem !important;
-        width: auto !important;
-    }
+
 }
 
 @media (max-width: 480px) {
