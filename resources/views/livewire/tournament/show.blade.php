@@ -101,7 +101,9 @@
                                 $awayLabel = $awayPart ? ($awayPart['entry']['display_name'] ?? 'TBD') : 'TBD';
                                 
                                 $roundName = "Round {$match['round_number']}";
-                                if ($match['round_number'] == $maxRoundNumber && $maxRoundNumber > 1) {
+                                if (($match['bracket_position'] ?? '') === '3rd_place') {
+                                    $roundName = app()->getLocale() == 'id' ? 'Juara 3' : '3rd Place';
+                                } elseif ($match['round_number'] == $maxRoundNumber && $maxRoundNumber > 1) {
                                     $roundName = "Final";
                                 }
                             @endphp

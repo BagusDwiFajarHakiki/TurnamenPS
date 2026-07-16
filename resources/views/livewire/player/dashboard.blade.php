@@ -356,17 +356,21 @@
                                                 @endif
                                                 <span style="font-weight: 600; color: var(--text-muted); font-size: 0.8rem;">
                                                     @php
-                                                        $maxRounds = $tournamentMatches->max('round_number') ?? 1;
-                                                        $stagesLeft = $maxRounds - $match->round_number;
-                                                        if ($stagesLeft === 0) {
-                                                            $roundLabel = 'Final';
-                                                        } elseif ($stagesLeft === 1) {
-                                                            $roundLabel = 'Semifinal';
-                                                        } elseif ($stagesLeft === 2) {
-                                                            $roundLabel = 'Perempat Final';
+                                                        if (($match->bracket_position ?? '') === '3rd_place') {
+                                                            $roundLabel = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
                                                         } else {
-                                                            $teamsInRound = pow(2, $stagesLeft + 1);
-                                                            $roundLabel = "Babak {$teamsInRound} Besar";
+                                                            $maxRounds = $tournamentMatches->max('round_number') ?? 1;
+                                                            $stagesLeft = $maxRounds - $match->round_number;
+                                                            if ($stagesLeft === 0) {
+                                                                $roundLabel = 'Final';
+                                                            } elseif ($stagesLeft === 1) {
+                                                                $roundLabel = 'Semifinal';
+                                                            } elseif ($stagesLeft === 2) {
+                                                                $roundLabel = 'Perempat Final';
+                                                            } else {
+                                                                $teamsInRound = pow(2, $stagesLeft + 1);
+                                                                $roundLabel = "Babak {$teamsInRound} Besar";
+                                                            }
                                                         }
                                                     @endphp
                                                     {{ $roundLabel }} | Pos: {{ $match->bracket_position }}
@@ -719,7 +723,10 @@
                                                 @php
                                                     $maxRounds = is_array($this->bracketRounds) ? max(array_keys($this->bracketRounds)) : (is_object($this->bracketRounds) && method_exists($this->bracketRounds, 'keys') ? $this->bracketRounds->keys()->max() : count($this->bracketRounds));
                                                     $stagesLeft = $maxRounds - $roundNum;
-                                                    if ($stagesLeft === 0) {
+                                                    $hasThirdPlace = collect($roundMatches)->contains(fn($m) => ($m['bracket_position'] ?? '') === '3rd_place');
+                                                    if ($hasThirdPlace && $stagesLeft === 0) {
+                                                        $roundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                                                    } elseif ($stagesLeft === 0) {
                                                         $roundName = 'Final';
                                                     } elseif ($stagesLeft === 1) {
                                                         $roundName = 'Semifinal';

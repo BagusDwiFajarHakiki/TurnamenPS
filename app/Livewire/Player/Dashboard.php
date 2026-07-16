@@ -119,6 +119,10 @@ class Dashboard extends Component
             ->orderBy('round_number')
             ->get()
             ->each(function ($match) {
+                if ($match->bracket_position === '3rd_place') {
+                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                    return;
+                }
                 $maxRound = GameMatch::where('tournament_stage_id', $match->tournament_stage_id)->max('round_number') ?? 1;
                 $stagesLeft = $maxRound - $match->round_number;
                 if ($stagesLeft === 0) {
@@ -142,6 +146,10 @@ class Dashboard extends Component
             ->orderByDesc('finished_at')
             ->get()
             ->each(function ($match) {
+                if ($match->bracket_position === '3rd_place') {
+                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                    return;
+                }
                 $maxRound = GameMatch::where('tournament_stage_id', $match->tournament_stage_id)->max('round_number') ?? 1;
                 $stagesLeft = $maxRound - $match->round_number;
                 if ($stagesLeft === 0) {

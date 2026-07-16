@@ -148,16 +148,20 @@ class Home extends Component
                         ->get()
                         ->each(function ($match) use ($maxRoundByStage) {
                             $maxRound = $maxRoundByStage[$match->tournament_stage_id] ?? 1;
-                            $stagesLeft = $maxRound - $match->round_number;
-                            if ($stagesLeft === 0) {
-                                $match->computedRoundName = 'Final';
-                            } elseif ($stagesLeft === 1) {
-                                $match->computedRoundName = 'Semifinal';
-                            } elseif ($stagesLeft === 2) {
-                                $match->computedRoundName = app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
+                            if ($match->bracket_position === '3rd_place') {
+                                $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
                             } else {
-                                $teamsInRound = pow(2, $stagesLeft + 1);
-                                $match->computedRoundName = app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
+                                $stagesLeft = $maxRound - $match->round_number;
+                                if ($stagesLeft === 0) {
+                                    $match->computedRoundName = 'Final';
+                                } elseif ($stagesLeft === 1) {
+                                    $match->computedRoundName = 'Semifinal';
+                                } elseif ($stagesLeft === 2) {
+                                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
+                                } else {
+                                    $teamsInRound = pow(2, $stagesLeft + 1);
+                                    $match->computedRoundName = app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
+                                }
                             }
                         });
                 }
@@ -245,16 +249,20 @@ class Home extends Component
                 ->get()
                 ->each(function ($match) use ($maxRoundByStage) {
                     $maxRound = $maxRoundByStage[$match->tournament_stage_id] ?? 1;
-                    $stagesLeft = $maxRound - $match->round_number;
-                    if ($stagesLeft === 0) {
-                        $match->computedRoundName = 'Final';
-                    } elseif ($stagesLeft === 1) {
-                        $match->computedRoundName = 'Semifinal';
-                    } elseif ($stagesLeft === 2) {
-                        $match->computedRoundName = app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
+                    if ($match->bracket_position === '3rd_place') {
+                        $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
                     } else {
-                        $teamsInRound = pow(2, $stagesLeft + 1);
-                        $match->computedRoundName = app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
+                        $stagesLeft = $maxRound - $match->round_number;
+                        if ($stagesLeft === 0) {
+                            $match->computedRoundName = 'Final';
+                        } elseif ($stagesLeft === 1) {
+                            $match->computedRoundName = 'Semifinal';
+                        } elseif ($stagesLeft === 2) {
+                            $match->computedRoundName = app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
+                        } else {
+                            $teamsInRound = pow(2, $stagesLeft + 1);
+                            $match->computedRoundName = app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
+                        }
                     }
                 });
         }
