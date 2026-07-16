@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINITY BOXZONE — Tournament Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0E14;
+    --panel: #161B26;
+    --panel-2: #1C2230;
+    --line: #262E40;
+    --green: #39FF8C;
+    --green-dim: #1F8F54;
+    --red: #FF4D4D;
+    --text: #E8EAED;
+    --muted: #8089A0;
+    --muted-2: #5C6478;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--green); color:#0B0E14; }
+
+  .h-display{
+    font-family:'Rajdhani', sans-serif;
+    font-weight:700;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+  }
+  .mono{
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  .grid-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(57,255,140,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(57,255,140,0.035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+  }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; position:relative; z-index:1; }
+
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,14,20,0.86);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1180px; margin:0 auto; padding:14px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand-logo{
+    height:30px; width:auto; object-fit:contain; flex:none;
+  }
+  .brand-text{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:17px; letter-spacing:0.04em;
+  }
+  .brand-text .infinity{ color:var(--text); }
+  .brand-text .boxzone{ color:var(--green); }
+  .topbar nav{ display:flex; gap:20px; }
+  .topbar nav a{
+    color:var(--muted); text-decoration:none; font-size:13px; font-weight:500;
+    letter-spacing:0.02em;
+    transition:color .2s;
+  }
+  .topbar nav a:hover{ color:var(--text); }
+  .topbar nav{ display:none; }
+  @media(min-width:880px){ .topbar nav{ display:flex; } }
+
+  .hero{
+    padding:110px 0 80px;
+    position:relative;
+  }
+  .hero-logo{
+    height:56px; width:auto; object-fit:contain;
+    margin-bottom:28px;
+    opacity:0.9;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; color:var(--green);
+    border:1px solid var(--green-dim); padding:6px 12px; border-radius:3px;
+    background:rgba(57,255,140,0.06);
+    margin-bottom:20px;
+  }
+  .eyebrow .ping{
+    width:6px; height:6px; border-radius:50%; background:var(--green);
+    animation:pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(57,255,140,0.5);}
+    50%{ opacity:0.6; box-shadow:0 0 0 6px rgba(57,255,140,0);}
+  }
+  .hero h1{
+    font-size:clamp(36px, 5.5vw, 68px);
+    line-height:0.98;
+    max-width:900px;
+    margin-bottom:22px;
+  }
+  .hero h1 .accent{ color:var(--green); }
+  .hero .lede{
+    font-size:17px; color:var(--muted); max-width:620px; margin-bottom:40px;
+  }
+  .hero .lede strong{ color:var(--text); font-weight:600; }
+
+  .hero-stats{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    max-width:720px;
+  }
+  @media(min-width:700px){ .hero-stats{ grid-template-columns:repeat(4,1fr); } }
+  .hero-stats .stat{
+    background:var(--bg); padding:18px 16px;
+  }
+  .hero-stats .stat .num{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:28px; color:var(--green);
+    line-height:1;
+  }
+  .hero-stats .stat .label{
+    font-size:11px; color:var(--muted-2); margin-top:6px; letter-spacing:0.03em;
+    text-transform:uppercase;
+  }
+
+  section{ padding:80px 0; position:relative; }
+  .section-head{ margin-bottom:48px; max-width:680px; }
+  .section-tag{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--green);
+    letter-spacing:0.08em; text-transform:uppercase; margin-bottom:12px; display:block;
+  }
+  .section-head h2{ font-size:clamp(26px,3.2vw,38px); line-height:1.08; margin-bottom:12px; }
+  .section-head p{ color:var(--muted); font-size:15px; max-width:560px; }
+
+  .div-line{
+    height:1px; background:linear-gradient(90deg, var(--line), transparent);
+    margin:0;
+  }
+
+  .bracket{
+    display:flex; flex-direction:column; gap:0;
+    border:1px solid var(--line);
+    background:var(--panel);
+  }
+  .bracket-row{
+    display:grid;
+    grid-template-columns: 56px 1fr;
+    border-bottom:1px solid var(--line);
+  }
+  .bracket-row:last-child{ border-bottom:none; }
+  .bracket-marker{
+    display:flex; align-items:flex-start; justify-content:center; padding-top:22px;
+    position:relative;
+  }
+  .bracket-marker::before{
+    content:''; position:absolute; left:50%; top:0; bottom:0; width:1px;
+    background:var(--line); transform:translateX(-50%);
+  }
+  .bracket-row:first-child .bracket-marker::before{ top:50%; }
+  .bracket-row:last-child .bracket-marker::before{ bottom:50%; }
+  .bracket-num{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px;
+    color:var(--bg); background:var(--green);
+    width:28px; height:28px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    position:relative; z-index:1; flex:none;
+  }
+  .bracket-content{ padding:22px 24px 22px 0; }
+  .bracket-content h3{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:18px;
+    text-transform:uppercase; letter-spacing:0.01em; margin-bottom:6px;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .bracket-content .who{
+    font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:500;
+    padding:2px 7px; border-radius:2px; text-transform:none; letter-spacing:0;
+  }
+  .who.player{ background:rgba(57,255,140,0.12); color:var(--green); border:1px solid var(--green-dim); }
+  .who.admin{ background:rgba(255,77,77,0.1); color:#ff8080; border:1px solid rgba(255,77,77,0.35); }
+  .who.system{ background:rgba(128,137,160,0.12); color:var(--muted); border:1px solid var(--line); }
+  .bracket-content p{ color:var(--muted); font-size:14px; max-width:640px; }
+  .bracket-content p + p{ margin-top:6px; }
+  .bracket-content code, .status-tag{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px;
+    background:var(--panel-2); border:1px solid var(--line); color:var(--green);
+    padding:1px 6px; border-radius:3px;
+  }
+
+  .cards{ display:grid; grid-template-columns:1fr; gap:1px; background:var(--line); border:1px solid var(--line); }
+  @media(min-width:780px){ .cards{ grid-template-columns:1fr 1fr; } }
+  .card{ background:var(--bg); padding:24px; }
+  .card .icon-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .card .icon{
+    width:34px; height:34px; border-radius:6px;
+    background:var(--panel); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    flex:none; font-size:16px;
+  }
+  .card h4{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:17px; text-transform:uppercase; }
+  .card p{ color:var(--muted); font-size:14px; }
+  .card .meta{
+    margin-top:12px; display:flex; gap:6px; flex-wrap:wrap;
+  }
+  .pill{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted);
+    border:1px solid var(--line); padding:2px 8px; border-radius:20px;
+  }
+
+  .state-strip{
+    display:flex; align-items:center; flex-wrap:wrap; gap:0;
+    border:1px solid var(--line); background:var(--panel);
+    padding:24px;
+  }
+  .state-node{
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:7px 12px; border-radius:4px; white-space:nowrap;
+  }
+  .state-node.final{ color:var(--green); border-color:var(--green-dim); background:rgba(57,255,140,0.07); }
+  .state-node.danger{ color:var(--red); border-color:rgba(255,77,77,0.4); background:rgba(255,77,77,0.07); }
+  .state-node.muted{ color:var(--muted-2); border-color:var(--line); }
+  .state-arrow{ color:var(--muted-2); padding:0 8px; font-size:14px; }
+
+  .recap-grid{ display:grid; grid-template-columns:1fr; gap:1px; background:var(--line); border:1px solid var(--line); }
+  @media(min-width:780px){ .recap-grid{ grid-template-columns:repeat(3,1fr); } }
+  .recap-cell{ background:var(--bg); padding:24px 22px; }
+  .recap-cell .rank{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px;
+    color:var(--green); letter-spacing:0.06em; margin-bottom:8px; display:block;
+  }
+  .recap-cell h5{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:16px; text-transform:uppercase; margin-bottom:6px; }
+  .recap-cell p{ color:var(--muted); font-size:13.5px; }
+
+  .lanes{
+    border:1px solid var(--line); background:var(--panel); padding:24px;
+  }
+  .lane{
+    display:grid; grid-template-columns:130px 1fr; align-items:center; gap:14px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .lane:last-child{ border-bottom:none; }
+  .lane-label{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:13px;
+    text-transform:uppercase; color:var(--text);
+  }
+  .lane-label small{ display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted-2); font-weight:400; text-transform:none; margin-top:2px; }
+  .lane-track{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .match-chip{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    border:1px solid var(--line); background:var(--panel-2);
+    padding:5px 10px; border-radius:4px; color:var(--muted);
+  }
+  .match-chip.a{ border-color:var(--green-dim); color:var(--green); }
+  .match-chip.b{ border-color:rgba(255,180,60,0.4); color:#ffb43c; }
+  .unit-chip{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    background:var(--green); color:#0B0E14; font-weight:600;
+    padding:5px 10px; border-radius:4px;
+  }
+  .arrow-sep{ color:var(--muted-2); font-size:13px; }
+
+  .live-grid{ display:grid; grid-template-columns:1fr; gap:1px; background:var(--line); border:1px solid var(--line); }
+  @media(min-width:780px){ .live-grid{ grid-template-columns:repeat(3,1fr); } }
+  .live-cell{ background:var(--bg); padding:22px 20px; }
+  .live-cell .live-label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--green);
+    letter-spacing:0.05em; margin-bottom:10px; display:flex; align-items:center; gap:6px;
+  }
+  .live-cell .live-label .dot{
+    width:5px; height:5px; border-radius:50%; background:var(--green);
+  }
+  .live-cell h5{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px; text-transform:uppercase; margin-bottom:6px; }
+  .live-cell p{ color:var(--muted); font-size:13.5px; }
+  .live-cell .live-snippet{
+    margin-top:10px;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    background:var(--panel); border:1px solid var(--line);
+    padding:8px 10px; border-radius:4px; color:var(--muted);
+  }
+
+  .stack-cards{ display:grid; grid-template-columns:1fr; gap:20px; }
+  @media(min-width:640px){ .stack-cards{ grid-template-columns:1fr 1fr; } }
+  .stack-card{
+    background:var(--panel); border:1px solid var(--line); padding:22px;
+  }
+  .stack-card h4{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px;
+    text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:8px;
+  }
+  .stack-card p{ color:var(--muted); font-size:13.5px; }
+
+  footer{
+    border-top:1px solid var(--line); padding:44px 0; margin-top:36px;
+  }
+  footer .foot-inner{
+    display:flex; flex-direction:column; gap:16px;
+  }
+  @media(min-width:700px){ footer .foot-inner{ flex-direction:row; justify-content:space-between; align-items:center; } }
+  footer .foot-brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; color:var(--muted);
+  }
+  footer .foot-brand .green{ color:var(--green); }
+  footer .foot-brand .foot-logo{ height:22px; width:auto; opacity:0.7; }
+  footer p{ color:var(--muted-2); font-size:12px; }
+
+  .reveal{ opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .eyebrow .ping{ animation:none; }
+  }
+
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--green); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <img src="logo.png" alt="Infinity Boxzone" class="brand-logo">
+      <span class="brand-text"><span class="infinity">INFINITY</span> <span class="boxzone">BOXZONE</span></span>
+    </div>
+    <nav>
+      <a href="#registrasi">Registrasi</a>
+      <a href="#login">Login</a>
+      <a href="#match">Pertandingan</a>
+      <a href="#publik">Publik</a>
+      <a href="#integritas">Integritas</a>
+      <a href="#rekap">Rekap</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="hero">
+    <img src="logo.png" alt="Infinity Boxzone" class="hero-logo">
+    <span class="eyebrow"><span class="ping"></span> ALUR SISTEM — RINGKASAN UNTUK KLIEN</span>
+    <h1 class="h-display">Dari <span class="accent">daftar</span> sampai <span class="accent">juara</span>,<br>semuanya terkelola.</h1>
+    <p class="lede">Infinity Boxzone mengelola seluruh siklus turnamen PS3/Playbox — pendaftaran mandiri pemain, verifikasi pembayaran, bagan pertandingan, papan skor langsung, hingga rekap juara — dalam <strong>satu sistem yang transparan dan profesional</strong>.</p>
+
+    <div class="hero-stats">
+      <div class="stat"><div class="num">8</div><div class="label">Tahap Alur Utama</div></div>
+      <div class="stat"><div class="num">3</div><div class="label">Peran Admin</div></div>
+      <div class="stat"><div class="num">&infin;</div><div class="label">Turnamen Bersamaan</div></div>
+      <div class="stat"><div class="num">100%</div><div class="label">Hasil Tercatat</div></div>
+    </div>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section id="registrasi">
+    <div class="section-head reveal">
+      <span class="section-tag">// Tahap 01 — 04</span>
+      <h2 class="h-display">Dari Formulir ke Lapangan</h2>
+      <p>Pemain mendaftar mandiri tanpa perlu bantuan admin di setiap langkah. Sistem yang memandu, panitia yang memverifikasi.</p>
+    </div>
+    <div class="bracket reveal">
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">1</div></div>
+        <div class="bracket-content">
+          <h3>Pendaftaran Mandiri <span class="who player">PEMAIN</span></h3>
+          <p>Calon peserta mengisi nama, username, email, dan jumlah slot. Sebelum submit, pemain wajib menyetujui peraturan turnamen (<code>rules_accepted_at</code>). Sistem otomatis memvalidasi batas slot per pemain dan sisa kuota turnamen.</p>
+          <p>Setelah submit, sistem membuat akun login — username + kode 6 karakter alfanumerik yang ditampilkan sekali di layar konfirmasi. Simpan kode ini, dipakai untuk login seterusnya.</p>
+        </div>
+      </div>
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">2</div></div>
+        <div class="bracket-content">
+          <h3>Unggah Bukti Bayar <span class="who player">PEMAIN</span></h3>
+          <p>Pemain mengunggah bukti transfer untuk seluruh slot dalam satu transaksi. Status berubah menjadi <code>pending_verification</code>. Jika batas waktu yang ditentukan terlewati tanpa bukti bayar, slot otomatis dilepas kembali — mencegah slot "hantu" yang menghalangi pemain lain.</p>
+        </div>
+      </div>
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">3</div></div>
+        <div class="bracket-content">
+          <h3>Verifikasi Pembayaran <span class="who admin">ADMIN</span></h3>
+          <p>Panitia meninjau bukti bayar di dasbor terpusat. Disetujui → seluruh slot dalam transaksi tersebut langsung aktif (<code>verified</code>). Ditolak → pemain mendapat alasan dan bisa unggah ulang. Setiap batch pembelian diverifikasi sekaligus, bukan per slot.</p>
+        </div>
+      </div>
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">4</div></div>
+        <div class="bracket-content">
+          <h3>Check-in Hari-H <span class="who player">PEMAIN</span> <span class="who admin">ADMIN</span></h3>
+          <p>Pemain mengonfirmasi kehadiran di lokasi. Hanya peserta yang check-in yang masuk ke bagan pertandingan — memastikan jumlah peserta final sudah pasti sebelum bracket dibuat dan BYE dihitung dengan akurat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section id="login">
+    <div class="section-head reveal">
+      <span class="section-tag">// Tahap 05</span>
+      <h2 class="h-display">Login & Dashboard Pemain</h2>
+      <p>Setelah terdaftar, pemain punya akun persisten — kode login yang sama berlaku di turnamen manapun. Dashboard pribadi untuk memantau progres.</p>
+    </div>
+
+    <div class="cards reveal">
+      <div class="card">
+        <div class="icon-row">
+          <div class="icon">🔑</div>
+          <h4>Login dengan Kode 6 Karakter</h4>
+        </div>
+        <p>Pemain login cukup dengan <strong>username + kode 6 karakter</strong> yang diberikan saat pendaftaran. Kode di-hash di database, ada rate limiting untuk mencegah tebakan. Jika lupa, pemain bisa minta reset via admin melalui WhatsApp.</p>
+        <div class="meta"><span class="pill">6 karakter alfanumerik</span><span class="pill">rate limiting</span><span class="pill">reset via WA</span></div>
+      </div>
+      <div class="card">
+        <div class="icon-row">
+          <div class="icon">📊</div>
+          <h4>Dashboard Personal</h4>
+        </div>
+        <p>Setelah login, pemain melihat turnamen yang sedang diikuti, jumlah slot aktif, status tiap slot, skor akumulasi, dan jadwal pertandingan berikutnya. Ada juga riwayat turnamen yang sudah selesai — semuanya dari akun yang sama.</p>
+        <div class="meta"><span class="pill">slot aktif & gugur</span><span class="pill">akumulasi skor</span><span class="pill">riwayat turnamen</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section id="match">
+    <div class="section-head reveal">
+      <span class="section-tag">// Tahap 06 — 07</span>
+      <h2 class="h-display">Bagan, Antrian & Pencatatan Skor</h2>
+      <p>Bracket dibuat otomatis dengan penanganan BYE untuk jumlah peserta ganjil. Setiap pertandingan dijadwalkan secara adil dan hasilnya dicatat dengan bukti.</p>
+    </div>
+
+    <div class="cards reveal">
+      <div class="card">
+        <div class="icon-row">
+          <div class="icon">🗂️</div>
+          <h4>Bracket Otomatis + BYE</h4>
+        </div>
+        <p>Begitu check-in ditutup, sistem menghitung jumlah peserta dan membuat bracket. Jika bukan kelipatan 2 (misal 11 peserta), peserta unggulan otomatis mendapat BYE — lolos ronde pertama tanpa bertanding, sesuai konvensi turnamen standar.</p>
+        <div class="meta"><span class="pill">single elimination</span><span class="pill">BYE ke unggulan</span><span class="pill">multi-stage opsional</span></div>
+      </div>
+      <div class="card">
+        <div class="icon-row">
+          <div class="icon">🎮</div>
+          <h4>Antrian PS Unit (FIFO)</h4>
+        </div>
+        <p>Setiap match yang siap masuk ke antrian global — siapa lebih dulu siap, lebih dulu mendapat unit PS yang kosong. Tidak ada pilih kasih. Admin bisa override jika diperlukan, dan setiap override tercatat di audit log.</p>
+        <div class="meta"><span class="pill">FIFO otomatis</span><span class="pill">lintas turnamen</span><span class="pill">override tercatat</span></div>
+      </div>
+      <div class="card">
+        <div class="icon-row">
+          <div class="icon">📋</div>
+          <h4>Input Hasil + Klub</h4>
+        </div>
+        <p>Admin mencatat skor, klub/tim yang dipakai setiap pemain, dan pemenang — dilengkapi screenshot sebagai bukti. Sistem mendukung adu penalti (skor penalti dicatat terpisah dari gol normal).</p>
+        <div class="meta"><span class="pill">wajib bukti hasil</span><span class="pill">adu penalti</span><span class="pill">klub tercatat</span></div>
+      </div>
+      <div class="card">
+        <div class="icon-row">
+          <div class="icon">⏱️</div>
+          <h4>Walkover & Diskualifikasi</h4>
+        </div>
+        <p>Jika pemain tidak hadir melebihi batas waktu, admin menetapkan walkover. Ketidakhadiran kedua kalinya otomatis berujung diskualifikasi — konsisten untuk semua peserta tanpa kecuali.</p>
+        <div class="meta"><span class="pill">no-show deadline</span><span class="pill">2x walkover = DQ</span><span class="pill">audit trail</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section id="publik">
+    <div class="section-head reveal">
+      <span class="section-tag">// Tanpa Login</span>
+      <h2 class="h-display">Halaman Publik — Info Langsung</h2>
+      <p>Siapa pun bisa memantau jalannya turnamen secara langsung tanpa perlu login. Cukup buka halaman publik turnamen dari HP atau laptop.</p>
+    </div>
+
+    <div class="live-grid reveal">
+      <div class="live-cell">
+        <div class="live-label"><span class="dot"></span> langsung</div>
+        <h5>Bagan Live</h5>
+        <p>Bracket pertandingan diperbarui secara real-time. Lihat siapa melawan siapa di setiap babak, hasil yang sudah masuk, dan pertandingan selanjutnya.</p>
+        <div class="live-snippet">[ Round 1 ]  Budi #1 vs Andi #1 &nbsp;·&nbsp; 3 — 1<br>[ Final ]  Menunggu pemenang Semifinal</div>
+      </div>
+      <div class="live-cell">
+        <div class="live-label"><span class="dot"></span> langsung</div>
+        <h5>Top Skor</h5>
+        <p>Akumulasi gol seluruh pemain — dihitung dari semua slot yang dimiliki, bukan per entry. Pemain yang sudah gugur pun tetap tampil di papan ini sebagai penghargaan atas performa mereka.</p>
+        <div class="live-snippet">1. Budi — 12 gol (2 slot)<br>2. Andi — 9 gol (1 slot) &nbsp;🔥</div>
+      </div>
+      <div class="live-cell">
+        <div class="live-label"><span class="dot"></span> langsung</div>
+        <h5>Ranking Klub Terpopuler</h5>
+        <p>Klub/tim apa yang paling sering dipakai sepanjang turnamen? Data ini dihitung otomatis dari setiap pertandingan yang sudah dicatat — menarik untuk melihat tren meta game.</p>
+        <div class="live-snippet">1. Real Madrid — 12x<br>2. Arsenal — 8x &nbsp;·&nbsp; 3. MU — 6x</div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="stack-cards reveal">
+        <div class="stack-card">
+          <h4>🔥 Win Streak</h4>
+          <p>Papan kemenangan beruntun — siapa yang sedang "on fire"? Diupdate tiap kali pertandingan selesai, lintas slot milik pemain yang sama.</p>
+        </div>
+        <div class="stack-card">
+          <h4>▶️ Sedang Bermain</h4>
+          <p>Daftar pertandingan yang sedang berlangsung saat ini, lengkap dengan unit PS yang dipakai. Hanya pemain yang masih aktif yang muncul di sini — berbeda dengan Top Skor yang bersifat historis.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section id="integritas">
+    <div class="section-head reveal">
+      <span class="section-tag">// Fair Play</span>
+      <h2 class="h-display">Setiap Keputusan Bisa Dipertanggungjawabkan</h2>
+      <p>Tidak ada keputusan sensitif — skor, pemenang, diskualifikasi — yang terjadi tanpa jejak audit yang jelas dan mekanisme koreksi yang terstruktur.</p>
+    </div>
+
+    <div class="bracket reveal">
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">!</div></div>
+        <div class="bracket-content">
+          <h3>Protes Hasil Match <span class="who player">PEMAIN</span> <span class="who admin">ADMIN</span></h3>
+          <p>Pemain bisa mengajukan protes dalam batas waktu tertentu. Protes ditinjau oleh admin yang <strong>berbeda</strong> dari admin yang menginput skor awal — menghilangkan konflik kepentingan. Semua langkah tercatat di audit log.</p>
+        </div>
+      </div>
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">!</div></div>
+        <div class="bracket-content">
+          <h3>Bagan Terkunci Saat Ada Protes <span class="who system">SISTEM</span></h3>
+          <p>Selama masih ada protes berstatus <code>open</code> atau <code>reviewing</code>, sistem tidak mengizinkan generate bracket babak berikutnya. Ini mencegah hasil yang masih disengketakan menjalar ke pertandingan lanjutan.</p>
+        </div>
+      </div>
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">!</div></div>
+        <div class="bracket-content">
+          <h3>Koreksi Berantai (Cascading) <span class="who admin">ADMIN</span></h3>
+          <p>Jika protes dikabulkan setelah pertandingan turunan sudah dimainkan, sistem menampilkan seluruh rantai pertandingan yang terdampak. Admin wajib memutuskan satu per satu — <strong>sistem tidak pernah mengoreksi otomatis</strong> match yang sudah selesai di bawah match yang didispute. Setiap keputusan tercatat dengan referensi ke dispute asal.</p>
+        </div>
+      </div>
+      <div class="bracket-row">
+        <div class="bracket-marker"><div class="bracket-num">!</div></div>
+        <div class="bracket-content">
+          <h3>Tiga Peran Admin Terpisah <span class="who admin">ADMIN</span></h3>
+          <p>Super Admin, Verifikator Pembayaran, dan Operator Match memiliki wewenang yang dipisah — turnamen skala besar tidak bergantung pada satu orang untuk seluruh keputusan. Cocok untuk venue dengan tim operasional lebih dari satu orang.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section id="multi">
+    <div class="section-head reveal">
+      <span class="section-tag">// Skalabilitas</span>
+      <h2 class="h-display">Banyak Turnamen, Satu Sistem</h2>
+      <p>Setiap turnamen berjalan independen — peserta, bagan, dan skor tidak pernah tercampur. Satu-satunya resource yang dibagi adalah unit PS fisik, diatur dengan antrian FIFO global yang adil.</p>
+    </div>
+
+    <div class="lanes reveal">
+      <div class="lane">
+        <div class="lane-label">Turnamen A<small>mobile legends cup</small></div>
+        <div class="lane-track">
+          <span class="match-chip a">Match A1 — siap</span>
+          <span class="arrow-sep">→</span>
+          <span class="match-chip a">Match A2 — berjalan</span>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="lane-label">Turnamen B<small>weekend cup s2</small></div>
+        <div class="lane-track">
+          <span class="match-chip b">Match B1 — siap</span>
+          <span class="arrow-sep">→</span>
+          <span class="match-chip b">Match B2 — menunggu</span>
+        </div>
+      </div>
+      <div class="lane">
+        <div class="lane-label">Antrian Unit<small>FIFO global</small></div>
+        <div class="lane-track">
+          <span class="unit-chip">PS-01 kosong</span>
+          <span class="arrow-sep">→</span>
+          <span class="match-chip a">Match A1 (lebih dulu siap)</span>
+        </div>
+      </div>
+    </div>
+    <p style="color:var(--muted-2);font-size:13px;margin-top:16px;">Admin bisa mendahulukan turnamen tertentu secara manual jika diperlukan — semua override tercatat.</p>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section id="rekap">
+    <div class="section-head reveal">
+      <span class="section-tag">// Penutup</span>
+      <h2 class="h-display">Rekap Akhir — Otomatis & Lengkap</h2>
+      <p>Begitu turnamen selesai, halaman hasil akhir langsung bisa diakses publik. Tidak perlu menyusun manual — semua data sudah tersimpan dan siap ditampilkan.</p>
+    </div>
+
+    <div class="recap-grid reveal">
+      <div class="recap-cell">
+        <span class="rank">01 — PODIUM</span>
+        <h5>Juara 1, 2 & 3</h5>
+        <p>Ditentukan otomatis dari hasil bagan final. Juara 3 bisa diisi semifinalis atau hasil perebutan tempat ketiga.</p>
+      </div>
+      <div class="recap-cell">
+        <span class="rank">02 — STATISTIK</span>
+        <h5>Top Skor & Win Streak</h5>
+        <p>Penghargaan tambahan: pencetak gol terbanyak (akumulasi semua slot) dan kemenangan beruntun terpanjang sepanjang turnamen.</p>
+      </div>
+      <div class="recap-cell">
+        <span class="rank">03 — KLUB</span>
+        <h5>Ranking Klub Terpopuler</h5>
+        <p>Klub apa yang paling sering dipakai? Dihitung dari setiap pertandingan yang sudah dicatat — data menarik untuk dibagikan ke peserta.</p>
+      </div>
+      <div class="recap-cell">
+        <span class="rank">04 — BAGAN</span>
+        <h5>Bagan Final Lengkap</h5>
+        <p>Seluruh bracket dari ronde pertama sampai final, versi beku — semua skor terkunci, bisa di-screenshot dan dibagikan.</p>
+      </div>
+      <div class="recap-cell">
+        <span class="rank">05 — PERJALANAN</span>
+        <h5>Riwayat Per Pemain</h5>
+        <p>Setiap pemain bisa melihat ulang perjalanannya sendiri: ronde demi ronde, lawan, klub yang dipakai, dan hasil akhir — tersedia di dashboard masing-masing.</p>
+      </div>
+      <div class="recap-cell">
+        <span class="rank">06 — ADMIN</span>
+        <h5>Ringkasan Administratif</h5>
+        <p>Total peserta, dispute yang masuk, walkover yang terjadi, dan estimasi pendapatan — ringkasan untuk evaluasi penyelenggara (khusus admin).</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="div-line"></div>
+
+  <section>
+    <div class="section-head reveal">
+      <span class="section-tag">// Status Peserta</span>
+      <h2 class="h-display">Perjalanan Satu Slot</h2>
+      <p>Contoh alur status sebuah slot peserta — dari pendaftaran sampai menjadi juara, atau gugur di tengah jalan.</p>
+    </div>
+    <div class="state-strip reveal">
+      <span class="state-node">pending_payment</span><span class="state-arrow">→</span>
+      <span class="state-node">pending_verification</span><span class="state-arrow">→</span>
+      <span class="state-node">verified</span><span class="state-arrow">→</span>
+      <span class="state-node">checked_in</span><span class="state-arrow">→</span>
+      <span class="state-node">active</span><span class="state-arrow">→</span>
+      <span class="state-node final">champion</span>
+    </div>
+    <p style="color:var(--muted-2);font-size:13px;margin-top:16px;text-align:center;">Atau bisa gugur di tengah: <span class="state-node" style="font-size:11px;padding:4px 10px;">eliminated</span> <span class="state-node muted" style="font-size:11px;padding:4px 10px;">expired</span> <span class="state-node danger" style="font-size:11px;padding:4px 10px;">disqualified</span></p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-brand">
+      <img src="logo.png" alt="" class="foot-logo">
+      INFINITY <span class="green">BOXZONE</span> — Tournament Management System
+    </div>
+    <p>Dokumen ini ringkasan alur sistem untuk presentasi klien. Detail teknis hubungi <a href="https://sindelarastechnology.my.id/">Sindelaras Technology</a>.</p>
+  </div>
+</footer>
+
+<script>
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  els.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
