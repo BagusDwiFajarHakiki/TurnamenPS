@@ -240,8 +240,7 @@
                     <div class="round-group">
                         <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; margin-bottom: 0.5rem; padding-left: 0.25rem;">
                             @php
-                                $maxRounds = $groupedPreFinal->keys()->max() ?? 1;
-                                $stagesLeft = $maxRounds - $roundNum;
+                                $stagesLeft = $maxRoundNum - $roundNum;
                                 if ($stagesLeft === 1) {
                                     $roundName = 'Semifinal';
                                 } elseif ($stagesLeft === 2) {
