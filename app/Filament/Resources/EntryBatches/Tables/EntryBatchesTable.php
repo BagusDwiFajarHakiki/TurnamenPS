@@ -21,6 +21,17 @@ class EntryBatchesTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('payment_method')
+                    ->label('Metode')
+                    ->badge()
+                    ->sortable(),
+
+                TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('player.name')
                     ->label('Pemain')
                     ->searchable()
@@ -72,6 +83,7 @@ class EntryBatchesTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 }

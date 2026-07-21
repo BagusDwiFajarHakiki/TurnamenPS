@@ -84,7 +84,8 @@ class TournamentsTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     protected static function makeGenerateBracketAction(): Action
@@ -118,6 +119,12 @@ class TournamentsTable
                     app(TournamentService::class)->generateBracket($stage);
 
                     $record->update(['status' => 'ongoing']);
+
+                    $verifiedEntries = $record->entries()->where('status', 'verified')->get();
+                    $service = app(TournamentService::class);
+                    foreach ($verifiedEntries as $entry) {
+                        $service->fillSlotOnCheckIn($entry);
+                    }
                 });
 
                 \Filament\Notifications\Notification::make()

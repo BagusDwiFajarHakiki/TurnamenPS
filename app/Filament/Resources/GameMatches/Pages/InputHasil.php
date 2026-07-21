@@ -28,6 +28,8 @@ class InputHasil extends Page
     public ?int $selectedTournamentId = null;
     #[Url]
     public ?int $selectedMatchId = null;
+    #[Url]
+    public ?string $selectedRound = null;
 
     public $homeScore = 0;
     public $awayScore = 0;
@@ -65,6 +67,7 @@ class InputHasil extends Page
 
     public function updatedSelectedTournamentId(): void
     {
+        $this->selectedRound = null;
         $this->autoSelectMatch();
     }
 

@@ -40,8 +40,6 @@ class Dashboard extends Component
     // Toast notification
     public $toastMessage = '';
     public $toastType = 'success';
-    public $hasCheckedIn = false;
-    public $hasCheckable = false;
 
     // Fields for buying slots
     public $selectedTournamentId = null;
@@ -187,12 +185,6 @@ class Dashboard extends Component
             $this->selectBracketTournament($this->myTournaments->first()->id);
         }
 
-        $this->hasCheckable = $this->activeEntries->contains(function ($entry) {
-            $t = $entry->tournament;
-            $leadMinutes = $t->check_in_open_minutes_before ?? 120;
-            $openTime = $t->tournament_start->copy()->subMinutes($leadMinutes);
-            return $entry->status === 'verified' && now()->gte($openTime) && now()->lt($t->tournament_start);
-        });
     }
 
     public function showToast($message, $type = 'success')
@@ -475,56 +467,6 @@ class Dashboard extends Component
         }
     }
 
-    public function checkInAllSlots()
-    {
-        if (!$this->player) {
-            return;
-        }
-
-        $entries = TournamentEntry::where('player_id', $this->player->id)
-            ->where('status', 'verified')
-            ->with('tournament')
-            ->get();
-
-        if ($entries->isEmpty()) {
-            $this->showToast('Tidak ada slot yang bisa di-check-in.', 'error');
-            return;
-        }
-
-        $checkedIn = 0;
-        $skipped = 0;
-        $service = app(\App\Services\TournamentService::class);
-
-        foreach ($entries as $entry) {
-            $t = $entry->tournament;
-            $leadMinutes = $t->check_in_open_minutes_before ?? 120;
-            $openTime = $t->tournament_start->copy()->subMinutes($leadMinutes);
-
-            $isBeforeOpen = now()->lt($openTime);
-            $isAfterStart = now()->gte($t->tournament_start);
-
-            if ($isBeforeOpen || $isAfterStart) {
-                $skipped++;
-                continue;
-            }
-
-            $entry->update(['status' => 'checked_in']);
-            $service->fillSlotOnCheckIn($entry);
-            $checkedIn++;
-        }
-
-        if ($checkedIn > 0 && $skipped > 0) {
-            $this->hasCheckedIn = true;
-            $this->showToast("Check-in berhasil untuk {$checkedIn} slot. {$skipped} slot dilewati (waktu belum sesuai).");
-        } elseif ($checkedIn > 0) {
-            $this->hasCheckedIn = true;
-            $this->showToast("Check-in berhasil untuk semua {$checkedIn} slot!");
-        } else {
-            $this->showToast('Check-in belum dibuka untuk slot Anda. Silakan kembali lagi nanti.', 'error');
-        }
-
-        $this->loadDashboardData();
-    }
 
     public $bracketMyMatches = [];
     public function selectBracketTournament($tournamentId)

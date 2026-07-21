@@ -1,4 +1,4 @@
-<div class="container" x-data="{ checkable: <?php if ((object) ('hasCheckable') instanceof \Livewire\WireDirective) : ?>window.Livewire.find('<?php echo e($__livewire->getId()); ?>').entangle('<?php echo e('hasCheckable'->value()); ?>')<?php echo e('hasCheckable'->hasModifier('live') ? '.live' : ''); ?><?php else : ?>window.Livewire.find('<?php echo e($__livewire->getId()); ?>').entangle('<?php echo e('hasCheckable'); ?>')<?php endif; ?>, checkedIn: <?php if ((object) ('hasCheckedIn') instanceof \Livewire\WireDirective) : ?>window.Livewire.find('<?php echo e($__livewire->getId()); ?>').entangle('<?php echo e('hasCheckedIn'->value()); ?>')<?php echo e('hasCheckedIn'->hasModifier('live') ? '.live' : ''); ?><?php else : ?>window.Livewire.find('<?php echo e($__livewire->getId()); ?>').entangle('<?php echo e('hasCheckedIn'); ?>')<?php endif; ?> }" wire:poll.3s="checkIncomingCalls">
+<div class="container" wire:poll.3s="checkIncomingCalls">
     
     <!-- Top Header & Audio Settings -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
@@ -130,11 +130,6 @@
                     <?php echo e(__('Your Active Slots')); ?>
 
                 </h3>
-                <div x-show="checkable && !checkedIn" x-cloak>
-                    <button wire:click="checkInAllSlots" class="btn btn-primary" style="padding: 0.6rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; white-space: nowrap;">
-                        Check In Semua Slot
-                    </button>
-                </div>
             </div>
             
             <div>
@@ -180,19 +175,9 @@
                                 </p>
                                 
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($entry->status === 'verified'): ?>
-                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canCheckIn): ?>
-                                        <p style="font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-top: 0.5rem; background: rgba(57, 211, 83, 0.05); padding: 0.4rem; border-radius: 6px; border: 1px dashed rgba(57, 211, 83, 0.2);">
-                                            Check-in telah dibuka! Silakan check-in sebelum pukul <?php echo e($t->tournament_start->format('H:i')); ?> WIB.
-                                        </p>
-                                    <?php elseif($checkInMissed): ?>
-                                        <p style="font-size: 0.8rem; color: var(--danger); font-weight: 600; margin-top: 0.5rem; background: rgba(239, 68, 68, 0.05); padding: 0.4rem; border-radius: 6px; border: 1px dashed rgba(239, 68, 68, 0.2);">
-                                            Anda tidak melakukan check-in tepat waktu. Slot ini dianggap BYE (tidak masuk bagan).
-                                        </p>
-                                    <?php else: ?>
-                                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; background: var(--bg-surface); padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color);">
-                                            Check-in dibuka mulai: <span style="font-weight: 600; color: var(--primary);"><?php echo e($openTime->format('d M Y H:i')); ?> WIB</span> (<?php echo e($leadMinutes); ?> menit sebelum tanding).
-                                        </p>
-                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; background: var(--bg-surface); padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color);">
+                                        Slot Anda telah terverifikasi dan aktif di dalam turnamen.
+                                    </p>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($entry->status === 'champion'): ?>

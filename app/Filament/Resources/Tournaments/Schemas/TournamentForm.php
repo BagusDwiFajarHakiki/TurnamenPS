@@ -16,77 +16,90 @@ class TournamentForm
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
+                \Filament\Schemas\Components\Group::make([
+                    TextInput::make('name')
+                        ->label('Nama Turnamen')
+                        ->required()
+                        ->markAsRequired(false)
+                        ->placeholder('Contoh: Turnamen FIFA 24')
+                        ->maxLength(255)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
-                TextInput::make('slug')
-                    ->dehydrated()
-                    ->hidden(),
+                    TextInput::make('slug')
+                        ->dehydrated()
+                        ->hidden(),
 
-                TextInput::make('price_per_slot')
-                    ->numeric()
-                    ->required()
-                    ->prefix('Rp')
-                    ->default(0.00),
+                    TextInput::make('min_slots_per_player')
+                        ->label('Minimal Slot per Pemain')
+                        ->numeric()
+                        ->required()
+                        ->markAsRequired(false)
+                        ->placeholder('1'),
 
-                TextInput::make('min_slots_per_player')
-                    ->numeric()
-                    ->required(),
+                    TextInput::make('max_slot_per_player')
+                        ->label('Maksimal Slot per Pemain')
+                        ->numeric()
+                        ->required()
+                        ->markAsRequired(false)
+                        ->placeholder('5'),
 
-                TextInput::make('max_slot_per_player')
-                    ->numeric()
-                    ->required()
-                    ->default(5),
+                    TextInput::make('max_entries')
+                        ->label('Total Slot Turnamen')
+                        ->numeric()
+                        ->required()
+                        ->markAsRequired(false)
+                        ->placeholder('128'),
 
-                TextInput::make('max_entries')
-                    ->numeric()
-                    ->required()
-                    ->default(128),
+                    Select::make('status')
+                        ->label('Status')
+                        ->required()
+                        ->markAsRequired(false)
+                        ->options([
+                            'draft' => 'Draft',
+                            'registration' => 'Pendaftaran Buka',
+                            'ongoing' => 'Turnamen Berjalan',
+                            'completed' => 'Selesai',
+                        ])
+                        ->default('draft'),
+                ]),
 
+                \Filament\Schemas\Components\Group::make([
+                    TextInput::make('price_per_slot')
+                        ->label('Harga per Slot')
+                        ->numeric()
+                        ->required()
+                        ->markAsRequired(false)
+                        ->prefix('Rp')
+                        ->placeholder('0'),
 
+                    DateTimePicker::make('registration_start')
+                        ->label('Pendaftaran Dibuka')
+                        ->required()
+                        ->markAsRequired(false),
 
+                    DateTimePicker::make('registration_end')
+                        ->label('Pendaftaran Ditutup')
+                        ->required()
+                        ->markAsRequired(false),
 
+                    DateTimePicker::make('tournament_start')
+                        ->label('Turnamen Dimulai')
+                        ->required()
+                        ->markAsRequired(false),
+                ]),
 
-                TextInput::make('check_in_open_minutes_before')
-                    ->label('Waktu Check-In Dibuka (Menit)')
-                    ->numeric()
-                    ->required()
-                    ->default(120)
-                    ->helperText('Berapa menit check-in dibuka sebelum waktu pertandingan dimulai'),
+                \Filament\Forms\Components\Hidden::make('check_in_open_minutes_before')
+                    ->default(0),
 
-                DateTimePicker::make('registration_start')
-                    ->required(),
-
-                DateTimePicker::make('registration_end')
-                    ->required(),
-
-                DateTimePicker::make('tournament_start')
-                    ->required(),
-
-                DateTimePicker::make('tournament_end')
-                    ->required(),
-
-                Select::make('status')
-                    ->required()
-                    ->options([
-                        'draft' => 'Draft',
-                        'registration' => 'Pendaftaran Buka',
-                        'ongoing' => 'Turnamen Berjalan',
-                        'completed' => 'Selesai',
-                    ])
-                    ->default('draft'),
+                \Filament\Forms\Components\Hidden::make('tournament_end')
+                    ->default(fn () => now()->addYears(5)),
 
                 Textarea::make('payment_info')
+                    ->label('Info Pembayaran')
                     ->maxLength(65535)
                     ->columnSpanFull()
                     ->placeholder('Contoh: Transfer BCA 12345678 a/n Admin'),
-
-                RichEditor::make('rules_content')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
             ]);
     }
 }

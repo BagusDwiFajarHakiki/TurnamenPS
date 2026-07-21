@@ -90,6 +90,17 @@ class GameMatchesTable
                     })
                     ->sortable(),
 
+                TextColumn::make('finished_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('psUnit.name')
                     ->label('Console')
                     ->sortable()
@@ -133,6 +144,7 @@ class GameMatchesTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 }

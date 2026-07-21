@@ -42,7 +42,7 @@ class EntryBatch extends Model
 
                 for ($i = 1; $i <= $batch->slot_count; $i++) {
                     $slotNum = $existingCount + $i;
-                    \App\Models\TournamentEntry::create([
+                    $entry = \App\Models\TournamentEntry::create([
                         'tournament_id' => $batch->tournament_id,
                         'player_id' => $batch->player_id,
                         'entry_batch_id' => $batch->id,
@@ -54,6 +54,8 @@ class EntryBatch extends Model
                         'payment_verified_by' => auth()->id(),
                         'registered_at' => now(),
                     ]);
+
+                    app(\App\Services\TournamentService::class)->fillSlotOnCheckIn($entry);
                 }
                 
                 $batch->updateQuietly([

@@ -119,6 +119,12 @@ class Tournament extends Model
             app(TournamentService::class)->generateBracket($stage);
 
             $this->update(['status' => 'ongoing']);
+
+            $verifiedEntries = $this->entries()->where('status', 'verified')->get();
+            $service = app(TournamentService::class);
+            foreach ($verifiedEntries as $entry) {
+                $service->fillSlotOnCheckIn($entry);
+            }
         });
 
         return true;

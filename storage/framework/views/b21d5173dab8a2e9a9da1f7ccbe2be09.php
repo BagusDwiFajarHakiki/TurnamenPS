@@ -195,9 +195,6 @@
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.25rem; flex-wrap: wrap;">
         <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <div style="background: rgba(57, 211, 83, 0.1); padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(57, 211, 83, 0.2);">
-                🏆
-            </div>
             <div>
                 <label for="page_tournament_select" style="font-weight: 800; font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.8px; text-transform: uppercase; display: block; margin-bottom: 0.15rem;">Pilih Turnamen</label>
                 <select 
@@ -222,21 +219,69 @@
         
         
         <div class="list-column-wrapper">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
                 <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary); letter-spacing: 0.8px; text-transform: uppercase; margin: 0;">
-                    🎮 JADWAL & MATCHES
+                    JADWAL
                 </h3>
+
+                <div>
+                    <select 
+                        id="page_round_select"
+                        wire:model.live="selectedRound" 
+                        style="background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px; padding: 0.25rem 2rem 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 700; outline: none; cursor: pointer;"
+                    >
+                        <option value="">Semua Babak</option>
+                        <?php
+                            $allMatchesForDropdown = \App\Models\GameMatch::whereHas('stage', fn($q) => $q->where('tournament_id', $this->selectedTournamentId))->get();
+                            $maxRoundNumForDropdown = $allMatchesForDropdown->filter(fn($m) => $m->bracket_position !== '3rd_place')->max('round_number') ?? 1;
+                            $rounds = [];
+                            foreach(range(1, $maxRoundNumForDropdown) as $r) {
+                                $stagesLeft = $maxRoundNumForDropdown - $r;
+                                if ($stagesLeft === 0) { $name = 'Final'; }
+                                elseif ($stagesLeft === 1) { $name = 'Semifinal'; }
+                                elseif ($stagesLeft === 2) { $name = 'Perempat Final'; }
+                                else { $name = 'Babak ' . pow(2, $stagesLeft + 1); }
+                                $rounds["round_{$r}"] = $name;
+                            }
+                            if ($allMatchesForDropdown->where('bracket_position', '3rd_place')->count() > 0) {
+                                $rounds["3rd_place"] = "Perebutan Juara 3";
+                            }
+                        ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $rounds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($val); ?>"><?php echo e($label); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </select>
+                </div>
             </div>
 
             <?php
-                $matches = \App\Models\GameMatch::whereHas('stage', fn($q) => $q->where('tournament_id', $this->selectedTournamentId))
+                $matchesQuery = \App\Models\GameMatch::whereHas('stage', fn($q) => $q->where('tournament_id', $this->selectedTournamentId))
                     ->with(['participants.entry.player', 'stage'])
                     ->orderBy('round_number')
-                    ->orderBy('match_order')
-                    ->get();
+                    ->orderBy('match_order');
+                
+                if ($this->selectedRound) {
+                    if ($this->selectedRound === '3rd_place') {
+                        $matchesQuery->where('bracket_position', '3rd_place');
+                    } elseif (str_starts_with($this->selectedRound, 'round_')) {
+                        $rNum = (int) str_replace('round_', '', $this->selectedRound);
+                        $matchesQuery->where('round_number', $rNum)->where(function($q) {
+                            $q->where('bracket_position', '!=', '3rd_place')->orWhereNull('bracket_position');
+                        });
+                    }
+                }
+                
+                $matches = $matchesQuery->get();
+                
+                $allRegular = \App\Models\GameMatch::whereHas('stage', fn($q) => $q->where('tournament_id', $this->selectedTournamentId))
+                    ->where(function($q) {
+                        $q->where('bracket_position', '!=', '3rd_place')->orWhereNull('bracket_position');
+                    })->get();
+                $maxRoundNum = $allRegular->max('round_number') ?? 1;
+
                 $thirdPlaceMatches = $matches->filter(fn($m) => $m->bracket_position === '3rd_place');
                 $regularMatches = $matches->filter(fn($m) => $m->bracket_position !== '3rd_place');
-                $maxRoundNum = $regularMatches->max('round_number') ?? 1;
+                
                 $preFinalMatches = $regularMatches->filter(fn($m) => $m->round_number < $maxRoundNum);
                 $finalMatches = $regularMatches->filter(fn($m) => $m->round_number === $maxRoundNum);
                 $groupedPreFinal = $preFinalMatches->groupBy('round_number');
@@ -365,7 +410,7 @@
                         ?>
                         <div class="round-group">
                             <div style="font-size: 0.8rem; font-weight: 800; color: #f59e0b; text-transform: uppercase; margin-bottom: 0.5rem; padding-left: 0.25rem;">
-                                🥉 Perebutan Juara 3
+                                Perebutan Juara 3
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <div
@@ -438,7 +483,7 @@
                         ?>
                         <div class="round-group">
                             <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; padding-left: 0.25rem;">
-                                🏆 Final
+                                Final
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <div
@@ -495,7 +540,7 @@
         
         <div style="flex: 2; min-width: 500px; display: flex; flex-direction: column; gap: 1rem;">
             <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary); letter-spacing: 0.8px; text-transform: uppercase;">
-                📝 INPUT HASIL PERTANDINGAN
+                INPUT HASIL PERTANDINGAN
             </h3>
 
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($this->selectedMatchId): ?>
@@ -514,7 +559,7 @@
                         <div style="background: var(--bg-panel); border-bottom: 1px solid var(--border-color); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                             <div>
                                 <span style="font-size: 0.72rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; text-transform: uppercase; background: rgba(57, 211, 83, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">
-                                    🏆 <?php echo e($activeMatch->stage->tournament->name); ?>
+                                    <?php echo e($activeMatch->stage->tournament->name); ?>
 
                                 </span>
                                 <h4 style="font-size: 1.05rem; font-weight: 800; margin-top: 0.4rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
@@ -533,7 +578,7 @@
                             
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($activeMatch->psUnit): ?>
                                 <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); background: var(--bg-item); border: 1px solid var(--border-color); padding: 0.35rem 0.75rem; border-radius: 6px;">
-                                    🎮 <?php echo e($activeMatch->psUnit->name); ?>
+                                    <?php echo e($activeMatch->psUnit->name); ?>
 
                                 </div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -546,7 +591,7 @@
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($this->status === 'walkover'): ?>
                                 <div class="sub-panel" style="background: rgba(239,68,68,0.02) !important; border: 1px solid rgba(239,68,68,0.2) !important; display: flex; flex-direction: column; gap: 1rem;">
                                     <h4 style="font-weight: 800; font-size: 0.85rem; color: var(--danger); margin: 0; display: flex; align-items: center; gap: 0.4rem;">
-                                        ⚠️ PENGATURAN WALKOVER (WO)
+                                        PENGATURAN WALKOVER (WO)
                                     </h4>
                                     
                                     <div>
@@ -688,7 +733,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                             
                             <div class="sub-panel" style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; padding: 1.25rem !important;">
                                 <div style="flex: 1; min-width: 180px;">
-                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">⚡ STATUS PERTANDINGAN</label>
+                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">STATUS PERTANDINGAN</label>
                                     <select wire:model.live="status" style="width: 100%;">
                                         <option value="pending">Pending</option>
                                         <option value="ready">Siap Dimainkan</option>
@@ -700,7 +745,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 </div>
 
                                 <div style="flex: 1; min-width: 180px;">
-                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">🎮 PILIH UNIT PLAYSTATION</label>
+                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">PILIH UNIT PLAYSTATION</label>
                                     <select wire:model.live="psUnitId" style="width: 100%;">
                                         <option value="">-- Pilih Unit PS (Auto/FIFO) --</option>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $allPsUnits; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
