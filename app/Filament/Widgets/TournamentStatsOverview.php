@@ -42,7 +42,7 @@ class TournamentStatsOverview extends BaseWidget
                 ->icon('heroicon-o-users'),
 
             Stat::make('Pembayaran Pending', $pendingPayments)
-                ->description($pendingPayments > 0 ? '⚠️ Butuh verifikasi' : '✅ Semua terverifikasi')
+                ->description($pendingPayments > 0 ? 'Butuh verifikasi' : 'Semua terverifikasi')
                 ->color($pendingPayments > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-credit-card'),
 

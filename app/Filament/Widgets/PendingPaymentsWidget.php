@@ -11,7 +11,7 @@ class PendingPaymentsWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
     protected int|string|array $columnSpan = 'full';
-    protected static ?string $heading = '💳 Pembayaran Menunggu Verifikasi';
+    protected static ?string $heading = 'Pembayaran Menunggu Verifikasi';
 
     public function table(Table $table): Table
     {
@@ -55,14 +55,14 @@ class PendingPaymentsWidget extends BaseWidget
             ])
             ->actions([
                 \Filament\Actions\Action::make('verify')
-                    ->label('✅ Verifikasi')
+                    ->label('Verifikasi')
                     ->color('success')
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
                     ->action(fn (EntryBatch $record) => $record->update(['status' => 'verified']))
                     ->visible(fn (EntryBatch $record) => $record->status === 'pending'),
                 \Filament\Actions\Action::make('reject')
-                    ->label('❌ Tolak')
+                    ->label('Tolak')
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
                     ->requiresConfirmation()

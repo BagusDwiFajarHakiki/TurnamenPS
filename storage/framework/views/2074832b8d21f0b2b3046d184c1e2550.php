@@ -12,7 +12,7 @@
 
         <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
             <button onclick="togglePaymentDrawer(true)" class="btn btn-secondary" style="padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--border-color); cursor: pointer; white-space: nowrap;">
-                💳 <?php echo e(app()->getLocale() == 'id' ? 'Status Pembayaran' : 'Payment Status'); ?>
+                <?php echo e(app()->getLocale() == 'id' ? 'Status Pembayaran' : 'Payment Status'); ?>
 
             </button>
         </div>
@@ -21,7 +21,7 @@
     <!-- PERSONAL STATISTICS (Horizontal) -->
     <div style="margin-bottom: 3rem;">
         <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; margin-bottom: 1.5rem; color: var(--accent);">
-            📈 <?php echo e(__('Statistik Lintas Slot Anda')); ?>
+            <?php echo e(__('Statistik Lintas Slot Anda')); ?>
 
         </h3>
         <?php
@@ -45,7 +45,7 @@
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Win Streak</span>
                 <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--accent); margin-top: 0.25rem;">
-                    🔥 <?php echo e($currentStreak); ?>
+                    <?php echo e($currentStreak); ?>
 
                 </div>
             </div>
@@ -61,7 +61,7 @@
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Rekor Win Streak</span>
                 <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--secondary); margin-top: 0.25rem;">
-                    🔥 <?php echo e($bestStreak); ?>
+                    <?php echo e($bestStreak); ?>
 
                 </div>
             </div>
@@ -71,7 +71,7 @@
     <!-- TOURNAMENTS AVAILABLE FOR PURCHASE -->
     <div style="margin-bottom: 3rem;">
         <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; margin-bottom: 1.5rem; color: var(--primary);">
-            📢 <?php echo e(app()->getLocale() == 'id' ? 'Pendaftaran Turnamen Dibuka' : 'Open Tournaments'); ?>
+            <?php echo e(app()->getLocale() == 'id' ? 'Pendaftaran Turnamen Dibuka' : 'Open Tournaments'); ?>
 
         </h3>
         
@@ -94,7 +94,7 @@
                             Slot Tersedia: <strong style="color: var(--primary);"><?php echo e($availSlots); ?></strong> dari <strong><?php echo e($t->max_entries); ?></strong>
                         </p>
                         <p style="color: var(--danger); font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;">
-                            ⏳ <?php echo e(app()->getLocale() == 'id' ? 'Batas Pendaftaran' : 'Registration Deadline'); ?>: 
+                            <?php echo e(app()->getLocale() == 'id' ? 'Batas Pendaftaran' : 'Registration Deadline'); ?>: 
                             <?php echo e($t->registration_end->format('d M Y H:i')); ?>
 
                         </p>
@@ -108,7 +108,7 @@
                     </div>
 
                     <button wire:click="selectTournamentForPurchase(<?php echo e($t->id); ?>)" class="btn btn-primary" style="width: 100%;">
-                        🛒 <?php echo e(app()->getLocale() == 'id' ? 'Beli Slot / Ikuti' : 'Purchase Slot'); ?>
+                        <?php echo e(app()->getLocale() == 'id' ? 'Beli Slot / Ikuti' : 'Purchase Slot'); ?>
 
                     </button>
                 </div>
@@ -127,12 +127,12 @@
         <div style="margin-bottom: 3rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;">
                 <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--accent);">
-                    🎫 <?php echo e(__('Your Active Slots')); ?>
+                    <?php echo e(__('Your Active Slots')); ?>
 
                 </h3>
                 <div x-show="checkable && !checkedIn" x-cloak>
                     <button wire:click="checkInAllSlots" class="btn btn-primary" style="padding: 0.6rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; white-space: nowrap;">
-                        📌 Check In Semua Slot
+                        Check In Semua Slot
                     </button>
                 </div>
             </div>
@@ -176,27 +176,27 @@
                                     <?php echo e(__('Tournament')); ?>: <strong><?php echo e($t->name); ?></strong>
                                 </p>
                                 <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.25rem;">
-                                    📅 Mulai Pertandingan: <span style="font-weight: 600;"><?php echo e($t->tournament_start->format('d M Y H:i')); ?> WIB</span>
+                                    Mulai Pertandingan: <span style="font-weight: 600;"><?php echo e($t->tournament_start->format('d M Y H:i')); ?> WIB</span>
                                 </p>
                                 
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($entry->status === 'verified'): ?>
                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($canCheckIn): ?>
                                         <p style="font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-top: 0.5rem; background: rgba(57, 211, 83, 0.05); padding: 0.4rem; border-radius: 6px; border: 1px dashed rgba(57, 211, 83, 0.2);">
-                                            📌 Check-in telah dibuka! Silakan check-in sebelum pukul <?php echo e($t->tournament_start->format('H:i')); ?> WIB.
+                                            Check-in telah dibuka! Silakan check-in sebelum pukul <?php echo e($t->tournament_start->format('H:i')); ?> WIB.
                                         </p>
                                     <?php elseif($checkInMissed): ?>
                                         <p style="font-size: 0.8rem; color: var(--danger); font-weight: 600; margin-top: 0.5rem; background: rgba(239, 68, 68, 0.05); padding: 0.4rem; border-radius: 6px; border: 1px dashed rgba(239, 68, 68, 0.2);">
-                                            ⚠️ Anda tidak melakukan check-in tepat waktu. Slot ini dianggap BYE (tidak masuk bagan).
+                                            Anda tidak melakukan check-in tepat waktu. Slot ini dianggap BYE (tidak masuk bagan).
                                         </p>
                                     <?php else: ?>
                                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; background: var(--bg-surface); padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color);">
-                                            🕒 Check-in dibuka mulai: <span style="font-weight: 600; color: var(--primary);"><?php echo e($openTime->format('d M Y H:i')); ?> WIB</span> (<?php echo e($leadMinutes); ?> menit sebelum tanding).
+                                            Check-in dibuka mulai: <span style="font-weight: 600; color: var(--primary);"><?php echo e($openTime->format('d M Y H:i')); ?> WIB</span> (<?php echo e($leadMinutes); ?> menit sebelum tanding).
                                         </p>
                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($entry->status === 'champion'): ?>
-                                    <p style="margin-top: 0.5rem; font-size: 1rem; font-weight: 700; color: gold;">🏆 Juara!</p>
+                                    <p style="margin-top: 0.5rem; font-size: 1rem; font-weight: 700; color: gold;">Juara!</p>
                                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                             </div>
                         </div>
@@ -211,7 +211,7 @@
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
             <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-                🌳 <?php echo e(__('Riwayat & Bagan Turnamen Anda')); ?>
+                <?php echo e(__('Riwayat & Bagan Turnamen Anda')); ?>
 
             </h3>
 
@@ -241,7 +241,7 @@
                             transition: all 0.2s;
                         "
                     >
-                        🏆 <?php echo e($t->name); ?>
+                        <?php echo e($t->name); ?>
 
                     </button>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -288,13 +288,13 @@
                         
                         <div style="margin-bottom: 4rem;">
                             <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--primary);">
-                                🌳 <?php echo e(__('Tournament Bracket')); ?>
+                                <?php echo e(__('Tournament Bracket')); ?>
 
                             </h4>
                             
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(empty($this->bracketRounds) || count($this->bracketRounds) === 0): ?>
                                 <div style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted); font-size: 0.88rem; border: 1px dashed var(--border-color); border-radius: 12px; background: var(--bg-surface);">
-                                    🌳 Bagan pertandingan untuk turnamen ini belum digenerate oleh admin.
+                                    Bagan pertandingan untuk turnamen ini belum digenerate oleh admin.
                                 </div>
                             <?php else: ?>
                                 <?php echo $__env->make('_partials.bracket-tree', ['bracketRounds' => $this->bracketRounds, 'activeEntryIds' => $this->activeEntryIds], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
@@ -311,7 +311,7 @@
                             <!-- Jadwal & Sedang Berjalan -->
                             <div>
                                 <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--secondary); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                    ⚔️ Jadwal & Sedang Berjalan
+                                    Jadwal & Sedang Berjalan
                                 </h4>
                                 <div style="display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
                                     <?php
@@ -344,7 +344,7 @@
                                                 <div style="flex: 1; text-align: right;">
                                                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($match->psUnit): ?>
                                                         <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
-                                                            🎮 <?php echo e($match->psUnit->name); ?>
+                                                            <?php echo e($match->psUnit->name); ?>
 
                                                         </span>
                                                     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -395,7 +395,7 @@
         <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
             <div class="card" style="max-width: 540px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-card); padding: clamp(1rem, 3vw, 2rem); border-radius: 16px;">
                 <h4 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">
-                    🛒 <?php echo e(__('Beli Slot Turnamen')); ?>
+                    <?php echo e(__('Beli Slot Turnamen')); ?>
 
                 </h4>
 
@@ -459,13 +459,13 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 <button type="button" 
                                         wire:click="$set('payment_method', 'qris')"
                                         style="flex: 1; padding: 1rem; border-radius: 12px; border: 2px solid <?php echo e($payment_method === 'qris' ? 'var(--primary)' : 'var(--border-color)'); ?>; background: <?php echo e($payment_method === 'qris' ? 'rgba(0, 230, 118, 0.1)' : 'var(--bg-surface)'); ?>; color: <?php echo e($payment_method === 'qris' ? 'var(--primary)' : 'var(--text-main)'); ?>; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                                    📱 <span>QRIS</span>
+                                    <span>QRIS</span>
                                 </button>
                                 <!-- Cash Tab -->
                                 <button type="button" 
                                         wire:click="$set('payment_method', 'cash')"
                                         style="flex: 1; padding: 1rem; border-radius: 12px; border: 2px solid <?php echo e($payment_method === 'cash' ? 'var(--primary)' : 'var(--border-color)'); ?>; background: <?php echo e($payment_method === 'cash' ? 'rgba(0, 230, 118, 0.1)' : 'var(--bg-surface)'); ?>; color: <?php echo e($payment_method === 'cash' ? 'var(--primary)' : 'var(--text-main)'); ?>; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
-                                    💵 <span>Cash / Tunai</span>
+                                    <span>Cash / Tunai</span>
                                 </button>
                             </div>
                         </div>
@@ -473,7 +473,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment_method === 'qris'): ?>
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment_info): ?>
                                 <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; font-size: 0.9rem;">
-                                    <strong style="color: var(--primary); display: block; margin-bottom: 0.25rem;">💰 Informasi QRIS:</strong>
+                                    <strong style="color: var(--primary); display: block; margin-bottom: 0.25rem;">Informasi QRIS:</strong>
                                     <p style="white-space: pre-line; margin: 0;"><?php echo e($payment_info); ?></p>
                                 </div>
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -482,7 +482,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 <label class="form-label" for="payment_proof"><?php echo e(__('Bukti Pembayaran QRIS')); ?> (Format Gambar, Maks 2MB)</label>
                                 <input type="file" id="payment_proof" wire:model="payment_proof" class="form-control" accept="image/*" required>
                                 <div wire:loading wire:target="payment_proof" style="color: var(--primary); font-size: 0.85rem; margin-top: 0.25rem;">
-                                    ⏳ Mengunggah gambar...
+                                    Mengunggah gambar...
                                 </div>
                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['payment_proof'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -495,7 +495,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                             </div>
                         <?php else: ?>
                             <div style="background: rgba(0, 230, 118, 0.05); border: 1px solid var(--primary); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; line-height: 1.5; color: var(--text-main);">
-                                📌 <strong>Instruksi Pembayaran Cash:</strong>
+                                <strong>Instruksi Pembayaran Cash:</strong>
                                 <p style="margin: 0.5rem 0 0 0; color: var(--text-muted);">Silakan lakukan pembayaran tunai ke Admin di lokasi. Pendaftaran dan pengisian slot Anda akan segera diverifikasi oleh Admin setelah pembayaran tunai diterima secara langsung.</p>
                             </div>
                         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -518,7 +518,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
         <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
             <div class="card" style="max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-color); background-color: var(--bg-card); padding: clamp(1rem, 3vw, 2rem); border-radius: 16px;">
                 <h4 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">
-                    ⚠️ <?php echo e(__('Raise Dispute')); ?>
+                    <?php echo e(__('Raise Dispute')); ?>
 
                 </h4>
 
@@ -564,7 +564,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
             :style="$wire.toastType === 'error' ? 'background: var(--danger); color: white;' : 'background: var(--primary); color: #000;'"
             wire:click="dismissToast"
         >
-            <?php echo e($toastType === 'error' ? '❌' : '✅'); ?> <?php echo e($toastMessage); ?>
+            <?php echo e($toastType === 'error' ? '' : ''); ?> <?php echo e($toastMessage); ?>
 
         </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -574,7 +574,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
     <div id="paymentDrawer" class="payment-drawer" wire:ignore>
         <div class="payment-drawer-header">
             <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--primary);">
-                💳 <?php echo e(app()->getLocale() == 'id' ? 'Status Pembayaran Slot' : 'Payment Status History'); ?>
+                <?php echo e(app()->getLocale() == 'id' ? 'Status Pembayaran Slot' : 'Payment Status History'); ?>
 
             </h3>
             <button class="payment-drawer-close" onclick="togglePaymentDrawer(false)">&times;</button>

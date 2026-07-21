@@ -11,7 +11,7 @@ class LatestMatchesWidget extends BaseWidget
 {
     protected static ?int $sort = 3;
     protected int|string|array $columnSpan = 'full';
-    protected static ?string $heading = '⚔️ Pertandingan Terkini';
+    protected static ?string $heading = 'Pertandingan Terkini';
 
     public function table(Table $table): Table
     {
@@ -88,13 +88,13 @@ class LatestMatchesWidget extends BaseWidget
                         'completed' => 'gray',
                         default     => 'gray',
                     })
-                    ->formatStateUsing(fn ($state) => match ($state) {
-                        'ongoing'   => '🔴 Berlangsung',
-                        'scheduled' => '📅 Terjadwal',
-                        'ready'     => '✅ Siap',
-                        'completed' => '🏁 Selesai',
-                        'pending'   => '⏳ Pending',
-                        default     => $state,
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'scheduled' => 'Terjadwal',
+                        'ready'     => 'Siap',
+                        'ongoing'   => 'Sedang Berjalan',
+                        'completed' => 'Selesai',
+                        'pending'   => 'Pending',
+                        default     => ucfirst($state),
                     }),
             ])
             ->emptyStateHeading('Belum ada pertandingan aktif')

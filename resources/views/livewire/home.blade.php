@@ -95,10 +95,10 @@
 
                         <div style="display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.25rem; font-size: 0.82rem;">
                             <div style="display: flex; align-items: center; gap: 0.4rem; color: var(--text-muted);">
-                                📅 Pendaftaran ditutup: <span style="color: var(--text-main); font-weight: 600;">{{ $tournament->registration_end->format('d M Y H:i') }} WIB</span>
+                                Pendaftaran ditutup: <span style="color: var(--text-main); font-weight: 600;">{{ $tournament->registration_end->format('d M Y H:i') }} WIB</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.4rem; color: var(--text-muted);">
-                                🏟️ Turnamen dimulai: <span style="color: var(--primary); font-weight: 600;">{{ $tournament->tournament_start->format('d M Y H:i') }} WIB</span>
+                                Turnamen dimulai: <span style="color: var(--primary); font-weight: 600;">{{ $tournament->tournament_start->format('d M Y H:i') }} WIB</span>
                             </div>
                         </div>
                         
@@ -172,7 +172,7 @@
                                     <div style="flex: 1; text-align: right;">
                                         @if ($match->psUnit)
                                             <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
-                                                🎮 {{ $match->psUnit->name }}
+                                                {{ $match->psUnit->name }}
                                             </span>
                                         @endif
                                     </div>
@@ -249,7 +249,7 @@
                             {{ strtoupper($latestTournament->status) }}
                         </span>
                         <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;">
-                            👥 {{ $latestTournament->entries_count }} Peserta
+                            {{ $latestTournament->entries_count }} Peserta
                         </span>
                     </div>
                 </div>
@@ -278,7 +278,7 @@
                 @if($latestTournament->baganLiveMatches->isNotEmpty())
                     <div style="margin-bottom: 2rem;">
                         <h4 style="font-weight: 700; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem;">
-                            🌳 Bagan Pertandingan
+                            Bagan Pertandingan
                         </h4>
                         <div class="bracket-wrapper" style="width: 100%;">
                             @include('_partials.bracket-tree', ['bracketRounds' => $latestTournament->baganLiveMatches->toArray()])
@@ -307,7 +307,7 @@
             <div class="glass-card" style="border-radius: 16px; border: 1px solid var(--border-color); padding: 0; overflow: hidden; background: var(--bg-card); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                 <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.02);">
                     <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                        🏆 Top Global Players
+                        Top Global Players
                     </h3>
                 </div>
                 <div style="display: flex; flex-direction: column;">

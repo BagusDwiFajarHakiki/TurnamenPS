@@ -205,7 +205,7 @@
                 @if($fm)
                     <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
                         <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(20,184,166,0.2); color: var(--primary); text-align: center;">
-                            &#127942; {{ $getRoundName($maxRound) }}
+                            {{ $getRoundName($maxRound) }}
                         </div>
                         <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; box-shadow: 0 0 0 2px rgba(20,184,166,0.25); border: 1px solid rgba(209,213,219,0.5);">
                             @include('_partials.bracket-match-card', ['match' => $fm, 'home' => $fh, 'away' => $fa, 'activeEntryIds' => $activeEntryIntIds])
@@ -219,7 +219,7 @@
                     @endphp
                     <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
                         <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b; text-align: center;">
-                            &#129353; PEREBUTAN JUARA 3
+                            PEREBUTAN JUARA 3
                         </div>
                         <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: 1px solid rgba(209,213,219,0.5);">
                             @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])
@@ -323,7 +323,7 @@
         @php $tp3h = $thirdPlaceMatch['participants'][0] ?? null; $tp3a = $thirdPlaceMatch['participants'][1] ?? null; @endphp
         <div style="min-width: 260px; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
             <div style="text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b;">
-                &#129353; PEREBUTAN JUARA 3
+                PEREBUTAN JUARA 3
             </div>
             <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: 1px solid rgba(209,213,219,0.5);">
                 @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])

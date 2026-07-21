@@ -82,7 +82,7 @@ class GameMatchesTable
                                 $limit = $t->no_show_deadline_minutes;
                                 $elapsed = $record->updated_at->diffInMinutes(now());
                                 if ($elapsed >= $limit) {
-                                    return "⚠️ LEWAT BATAS WAKTU ({$elapsed}m > {$limit}m)";
+                                    return "LEWAT BATAS WAKTU ({$elapsed}m > {$limit}m)";
                                 }
                             }
                         }
