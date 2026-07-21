@@ -30,10 +30,8 @@ class Registration extends Component
             'password' => [
                 'required',
                 'confirmed',
-                \Illuminate\Validation\Rules\Password::min(8)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers(),
+                'string',
+                'max:8',
             ],
         ];
     }

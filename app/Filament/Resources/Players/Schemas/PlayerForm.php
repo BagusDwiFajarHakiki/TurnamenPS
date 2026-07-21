@@ -31,9 +31,9 @@ class PlayerForm
                     ->revealable()
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $context): bool => $context === 'create')
-                    ->maxLength(255)
+                    ->maxLength(8)
                     ->helperText(fn (string $context): string => $context === 'create' 
-                        ? 'Password minimal 8 karakter, campuran huruf besar, huruf kecil, dan angka.' 
+                        ? 'Password maksimal 8 karakter.' 
                         : 'Kosongkan jika tidak ingin mengubah password.'),
 
                 Toggle::make('is_active')

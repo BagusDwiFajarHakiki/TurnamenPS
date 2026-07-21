@@ -55,7 +55,7 @@
         </main>
 
         <footer style="text-align: center; padding: 2rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.9rem; margin-top: 4rem;">
-            &copy; <?php echo e(date('Y')); ?> Infinity Boxzone. All Rights Reserved.
+            &copy; <?php echo e(date('Y')); ?> <a href="https://sindelarastechnology.my.id" target="_blank">SinderalaS Technology</a>. All Rights Reserved.
         </footer>
     </div>
 

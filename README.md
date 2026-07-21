@@ -1,57 +1,196 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Infinity Boxzone — Sistem Manajemen Turnamen PlayStation
 
-## About Laravel
+Sistem manajemen turnamen PlayStation **offline/venue-based** untuk turnamen eFootball. Mengelola siklus penuh mulai dari pendaftaran pemain, pembayaran, pembuatan bracket, penjadwalan pertandingan, input skor, hingga leaderboard.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Manajemen Turnamen** — Buat dan kelola turnamen (draft, registration, ongoing, completed, cancelled)
+- **Pendaftaran Pemain Online** — Pemain mendaftar sendiri via halaman publik, buat akun dengan username & password
+- **Verifikasi Pembayaran** — Upload bukti transfer (QRIS/bank), admin verifikasi di panel
+- **Auto Bracket Generation** — Single elimination dengan BYE otomatis untuk jumlah peserta non-pangkat-2, termasuk bracket tempat ketiga
+- **Penjadwalan & Assign PS Unit** — Sistem FIFO untuk mapping pertandingan ke unit PS fisik
+- **Input Skor Real-time** — Admin input hasil pertandingan, otomatis advance pemenang di bracket
+- **Leaderboard & Statistik** — Top skorer, win streak, klub populer, ranking pemain
+- **Dashboard Pemain** — Status pertandingan, bracket view, disput, pembelian slot
+- **Sistem Disput** — Protes hasil pertandingan dengan alur koreksi berjenjang
+- **Multi-Bahasa** — Dukungan Indonesia (`id`) dan Inggris (`en`)
+- **Dark/Light Mode** — Toggle tema tersimpan di localStorage
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+| Komponen | Versi |
+|---|---|
+| PHP | >= 8.3 |
+| Laravel | 13.x |
+| Filament | 4.0 (admin panel) |
+| Livewire | Full-page components (frontend publik) |
+| Vite | 8.0 |
+| Tailwind CSS | 4.0 |
+| Database | SQLite (default) |
+| spatie/laravel-activitylog | Audit trail |
+| filament-shield | Role & permission admin |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tutorial Clone & Setup
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Prasyarat
 
-## Agentic Development
+- **PHP** >= 8.3 (dengan extensions: openssl, pdo, mbstring, tokenizer, xml, ctype, json, bcmath, gd, fileinfo)
+- **Composer** >= 2.x
+- **Node.js** >= 18.x & **npm**
+- **Git**
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+> Jangan punya PHP/Composer/Node? Gunakan [Laragon](https://laragon.org/) (Windows) atau [Laradock](https://laradock.io/) (Linux/Mac) untuk install otomatis.
+
+### 1. Clone Repository
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/username/TurnamenPS.git
+cd TurnamenPS
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Install Dependensi & Setup Otomatis
 
-## Contributing
+Jalankan satu command untuk setup lengkap (install PHP deps, copy `.env`, generate key, migrate, install & build frontend):
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+composer setup
+```
 
-## Code of Conduct
+> Script ini menjalankan: `composer install` → copy `.env` → `php artisan key:generate` → `php artisan migrate` → `npm install` → `npm run build`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Seed Database (Data Default)
 
-## Security Vulnerabilities
+```bash
+php artisan db:seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Ini akan mengisi:
+- **115+ klub sepak bola** dari 10 liga (Premier League, La Liga, Bundesliga, Serie A, Ligue 1, dll) + 15 tim nasional
+- **4 unit PS** (PS-01 s/d PS-04, campuran PS3/PS4/PS5)
+- **Admin default**: `admin@boxzone.com` / `password123`
+- **Role & permission** Filament Shield (super_admin)
+
+### 4. Jalankan Server Development
+
+```bash
+composer dev
+```
+
+Command ini menjalankan **secara bersamaan**:
+- `php artisan serve` — Web server (http://localhost:8000)
+- `php artisan queue:work` — Queue worker untuk job
+- `php artisan pail` — Real-time log viewer
+- `npm run dev` — Vite dev server (HMR)
+
+### 5. Aplikasi
+
+| Halaman | URL | Keterangan |
+|---|---|---|
+| Beranda | [http://localhost:8000](http://localhost:8000) | Turnamen aktif, bracket live, top pemain |
+| Daftar Turnamen | `http://localhost:8000/tournament/{slug}` | Detail bracket & statistik turnamen |
+| Registrasi Pemain | `http://localhost:8000/register-player` | Buat akun pemain |
+| Login Pemain | `http://localhost:8000/login` | Dashboard pemain |
+| **Admin Panel** | [http://localhost:8000/admin](http://localhost:8000/admin) | Panel manajemen (`admin@boxzone.com` / `password123`) |
+
+---
+
+## Setup Manual (Tanpa `composer setup`)
+
+Jika ingin setup langkah demi langkah:
+
+```bash
+# 1. Install PHP dependencies
+composer install
+
+# 2. Copy environment file
+cp .env.example .env
+
+# 3. Generate application key
+php artisan key:generate
+
+# 4. Buat file SQLite (Laragon biasanya sudah otomatis)
+touch database/database.sqlite
+
+# 5. Jalankan migrasi
+php artisan migrate
+
+# 6. Seed data
+php artisan db:seed
+
+# 7. Install & build frontend
+npm install
+npm run build
+```
+
+## Konfigurasi Environment
+
+File `.env` sudah dikonfigurasi default untuk SQLite:
+
+```env
+DB_CONNECTION=sqlite
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+CACHE_STORE=database
+MAIL_MAILER=log
+```
+
+Ubah sesuai kebutuhan. Untuk MySQL/MariaDB:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=turnamenps
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> Setelah mengubah database config, jalankan `php artisan migrate:fresh --seed`.
+
+## Struktur Project
+
+```
+TurnamenPS/
+├── app/
+│   ├── Filament/          # Admin panel resources & widgets
+│   ├── Http/Livewire/     # Frontend Livewire components
+│   ├── Models/            # Eloquent models
+│   ├── Events/            # MatchCompleted event
+│   ├── Listeners/         # UpdatePlayerAggregate listener
+│   └── Services/          # TournamentService (core logic)
+├── database/
+│   ├── migrations/        # 18 tabel
+│   └── seeders/           # ClubSeeder, PsUnitSeeder, AdminSeeder
+├── resources/
+│   ├── views/livewire/    # Blade views untuk frontend
+│   └── css/ & js/         # Frontend assets
+├── config/                # Konfigurasi Laravel & Filament
+├── routes/web.php         # Routes publik & player
+└── scratch/               # Development notes
+```
+
+## Perintah Berguna
+
+```bash
+composer dev          # Jalankan semua service development
+composer setup        # Setup awal dari nol
+composer test         # Jalankan test
+
+php artisan migrate:fresh --seed   # Reset & seed ulang database
+php artisan shield:generate        # Regenerate role & permission Filament Shield
+```
+
+## Catatan Desain
+
+- Sistem dirancang untuk turnamen **offline/venue-based** — admin input hasil secara manual (tidak ada integrasi API game)
+- **Multi-slot**: Satu pemain bisa beli beberapa slot dalam turnamen yang sama, statistik di-aggregate
+- **Walkover**: 2x walkover = diskualifikasi otomatis
+- **Entry expiry**: Slot yang belum dibayar otomatis expired (default 24 jam)
+- **Live updates** menggunakan Livewire polling (60 detik), tanpa WebSocket/Reverb
 
 ## License
 

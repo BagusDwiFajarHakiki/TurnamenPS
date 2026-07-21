@@ -47,7 +47,7 @@
                     <label class="form-label" for="password">{{ __('Password') }}</label>
                     <input type="password" id="password" wire:model.defer="password" class="form-control" placeholder="••••••••" required>
                     <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 0.25rem;">
-                        {{ app()->getLocale() == 'id' ? 'Minimal 8 karakter, harus mengandung huruf besar, huruf kecil, dan angka.' : 'Minimum 8 characters, must contain uppercase, lowercase, and numbers.' }}
+                        {{ app()->getLocale() == 'id' ? 'Maksimal 8 karakter.' : 'Maximum 8 characters.' }}
                     </small>
                     @error('password') <span style="color: var(--danger); font-size: 0.85rem;">{{ $message }}</span> @enderror
                 </div>
