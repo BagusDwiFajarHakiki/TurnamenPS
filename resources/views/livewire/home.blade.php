@@ -286,65 +286,7 @@
                     </div>
                 @endif
 
-                <!-- Match Schedule -->
-                <div class="grid grid-cols-1 md-grid-cols-2" style="gap: 2rem;">
-                    <!-- Upcoming & Ongoing -->
-                    <div>
-                        <h4 style="margin-bottom: 1rem; font-weight: 700; color: var(--text-main); font-size: 1.05rem; display: flex; align-items: center; gap: 0.4rem;">
-                            <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: var(--primary); box-shadow: 0 0 6px var(--primary); animation: pulse 2s infinite;"></span> Jadwal Aktif
-                        </h4>
-                        <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 400px; overflow-y: auto;">
-                            @forelse ($latestTournament->upcomingMatches->take(10) as $match)
-                                @php
-                                    $homePart = $match->participants->where('side', 'home')->first();
-                                    $awayPart = $match->participants->where('side', 'away')->first();
-                                    $homeName = $homePart?->entry?->display_name ?? 'TBD';
-                                    $awayName = $awayPart?->entry?->display_name ?? 'TBD';
-                                @endphp
-                                <div class="soft-well" style="padding: 0.85rem 1rem; border-left: 3px solid {{ $match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)' }}; border-radius: 10px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                                        <div style="flex: 1;">
-                                            <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.15rem 0.5rem; border-radius: 5px; background: {{ $match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)' }}; color: {{ $match->status === 'ongoing' ? 'var(--primary)' : '#FFC107' }};">
-                                                {{ strtoupper($match->status) }}
-                                            </span>
-                                        </div>
-                                        <div style="flex: 1; text-align: center;">
-                                            <span style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.15rem 0.5rem; border-radius: 5px; background: var(--bg-surface); color: var(--text-muted);">
-                                                {{ $match->computedRoundName }}
-                                            </span>
-                                        </div>
-                                        <div style="flex: 1; text-align: right;">
-                                            @if ($match->psUnit)
-                                                <span style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">🎮 {{ $match->psUnit->name }}</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div style="display: flex; align-items: center; font-weight: 700; font-size: 0.88rem;">
-                                        <div style="flex: 1; min-width: 0;">
-                                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $homeName }}</div>
-                                        </div>
-                                        <div style="flex-shrink: 0; text-align: center; padding: 0 0.6rem; min-width: 60px;">
-                                            @if($match->status === 'ongoing' || $match->status === 'completed' || $match->status === 'walkover')
-                                                <div style="font-size: 1rem; letter-spacing: 2px; font-weight: 800; color: var(--primary);">{{ $homePart?->goals_scored ?? 0 }} - {{ $awayPart?->goals_scored ?? 0 }}</div>
-                                            @else
-                                                <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 500;">VS</span>
-                                            @endif
-                                        </div>
-                                        <div style="flex: 1; min-width: 0; text-align: right;">
-                                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $awayName }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div style="text-align: center; padding: 1.5rem 0; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 10px; font-size: 0.85rem;">
-                                    Tidak ada jadwal aktif.
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-
-                    <!-- Selesai (Disembunyikan sesuai permintaan) -->
-                </div>
+                <!-- Match Schedule (Disembunyikan) -->
             </div>
         </div>
         @endif

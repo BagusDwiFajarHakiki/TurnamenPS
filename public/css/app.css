@@ -888,5 +888,3 @@ html.light-theme .glass-card:hover {
 .minimal-list-item:first-child {
     padding-top: 0;
 }
-. c u s t o m - s c r o l l b a r : : - w e b k i t - s c r o l l b a r   {   w i d t h :   6 p x ;   }   . c u s t o m - s c r o l l b a r : : - w e b k i t - s c r o l l b a r - t r a c k   {   b a c k g r o u n d :   v a r ( - - b g - b o d y ) ;   b o r d e r - r a d i u s :   4 p x ;   }   . c u s t o m - s c r o l l b a r : : - w e b k i t - s c r o l l b a r - t h u m b   {   b a c k g r o u n d :   v a r ( - - p r i m a r y ) ;   b o r d e r - r a d i u s :   4 p x ;   }   . c u s t o m - s c r o l l b a r : : - w e b k i t - s c r o l l b a r - t h u m b : h o v e r   {   b a c k g r o u n d :   v a r ( - - p r i m a r y - d a r k ,   # 2 e a 4 4 f ) ;   }  
- 
