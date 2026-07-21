@@ -69,6 +69,12 @@ class EntryBatch extends Model
                 }
             }
         });
+
+        static::deleted(function ($batch) {
+            if ($batch->payment_proof_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($batch->payment_proof_path);
+            }
+        });
     }
 
     public function tournament(): BelongsTo

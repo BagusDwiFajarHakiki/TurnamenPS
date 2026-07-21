@@ -68,7 +68,7 @@ class TournamentService
                         'round_number' => $r,
                         'match_order' => $m,
                         'bracket_position' => "{$r}.{$m}",
-                        'status' => 'pending',
+                        'status' => 'ready',
                     ]);
                 }
             }
@@ -88,7 +88,7 @@ class TournamentService
                     'round_number' => $numRounds,
                     'match_order' => 0,
                     'bracket_position' => '3rd_place',
-                    'status' => 'pending',
+                    'status' => 'ready',
                 ]);
 
                 foreach ($matchesPerRound[$numRounds - 1] as $sfMatch) {

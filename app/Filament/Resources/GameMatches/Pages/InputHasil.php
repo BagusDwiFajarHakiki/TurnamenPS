@@ -79,7 +79,7 @@ class InputHasil extends Page
         }
 
         $firstMatch = GameMatch::whereHas('stage', fn($q) => $q->where('tournament_id', $this->selectedTournamentId))
-            ->whereIn('status', ['ongoing', 'scheduled', 'ready'])
+            ->whereIn('status', ['ongoing', 'ready'])
             ->orderBy('round_number')
             ->orderBy('match_order')
             ->first();
@@ -148,7 +148,7 @@ class InputHasil extends Page
         } else {
             $this->homeScore = null;
             $this->awayScore = null;
-            $this->status = 'pending';
+            $this->status = 'ready';
         }
     }
 

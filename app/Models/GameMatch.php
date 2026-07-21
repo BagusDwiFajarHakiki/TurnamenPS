@@ -191,6 +191,8 @@ class GameMatch extends Model
 
             $this->updateQuietly(['finished_at' => now()]);
             $this->releasePsUnit();
+
+            \App\Events\MatchCompleted::dispatch($this);
         });
     }
 
@@ -222,6 +224,8 @@ class GameMatch extends Model
 
             $this->updateQuietly(['finished_at' => now()]);
             $this->releasePsUnit();
+
+            \App\Events\MatchCompleted::dispatch($this);
         });
     }
 
@@ -256,13 +260,13 @@ class GameMatch extends Model
 
                     if ($nextMatch->status === 'completed' && $nextMatch->is_bye && $filled < 2) {
                         $nextMatch->updateQuietly([
-                            'status' => 'pending',
+                            'status' => 'ready',
                             'is_bye' => false,
                             'finished_at' => null,
                         ]);
                         $nextMatch->revokeAdvancement();
                     } elseif (in_array($nextMatch->status, ['ready', 'scheduled'])) {
-                        $nextMatch->updateQuietly(['status' => 'pending']);
+                        $nextMatch->updateQuietly(['status' => 'ready']);
                     }
                 }
             }

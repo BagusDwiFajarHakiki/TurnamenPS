@@ -44,10 +44,11 @@ class UpdatePlayerAggregate
                     ->whereHas('match', function ($query) {
                         $query->whereIn('status', ['completed', 'walkover']);
                     })
+                    ->with('match')
                     ->get();
 
                 $totalMatchesPlayed = $playedParticipants->count();
-                $totalGoalsScored = $playedParticipants->sum('goals_scored');
+                $totalGoalsScored = 0;
 
                 // Calculate goals conceded, wins, losses, draws
                 $totalGoalsConceded = 0;
@@ -56,13 +57,21 @@ class UpdatePlayerAggregate
                 $draws = 0;
 
                 foreach ($playedParticipants as $pPart) {
+                    $isWalkover = $pPart->match && $pPart->match->status === 'walkover';
+                    
+                    if (!$isWalkover) {
+                        $totalGoalsScored += $pPart->goals_scored;
+                    }
+
                     // Find opponent in the same match
                     $opponentPart = MatchParticipant::where('match_id', $pPart->match_id)
                         ->where('id', '!=', $pPart->id)
                         ->first();
 
                     if ($opponentPart) {
-                        $totalGoalsConceded += $opponentPart->goals_scored;
+                        if (!$isWalkover) {
+                            $totalGoalsConceded += $opponentPart->goals_scored;
+                        }
 
                         if ($pPart->is_winner === true) {
                             $wins++;

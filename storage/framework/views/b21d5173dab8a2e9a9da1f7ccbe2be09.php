@@ -735,9 +735,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 <div style="flex: 1; min-width: 180px;">
                                     <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">STATUS PERTANDINGAN</label>
                                     <select wire:model.live="status" style="width: 100%;">
-                                        <option value="pending">Pending</option>
                                         <option value="ready">Siap Dimainkan</option>
-                                        <option value="scheduled">Terjadwal</option>
                                         <option value="ongoing">Sedang Main</option>
                                         <option value="completed">Selesai (Completed)</option>
                                         <option value="walkover">Walkover (WO)</option>

@@ -147,7 +147,7 @@
             </div>
 
             <!-- Jadwal dan Hasil Pertandingan -->
-            <div class="grid grid-cols-1 md-grid-cols-2" style="margin-top: 3rem; gap: 2rem; display: grid;">
+            <div class="grid grid-cols-1" style="margin-top: 3rem; gap: 2rem; display: grid;">
                 <!-- Jadwal & Sedang Berjalan -->
                 <div>
                     <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-main); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">

@@ -130,11 +130,13 @@ class Home extends Component
 
 
                     $tournament->upcomingMatches = GameMatch::whereIn('tournament_stage_id', $stageIds)
-                        ->whereIn('status', ['ready', 'scheduled', 'ongoing'])
+                        ->whereIn('status', ['ready', 'ongoing'])
+                        ->whereHas('participants', function($q) {
+                            $q->whereNotNull('tournament_entry_id');
+                        }, '>=', 2)
                         ->with(['participants.entry.player', 'participants.club', 'psUnit'])
-                        ->orderBy('round_number')
-                        ->orderBy('scheduled_at')
-                        ->limit(10)
+                        ->orderBy('round_number', 'asc')
+                        ->orderBy('match_order', 'asc')
                         ->get();
                         
                     $tournament->completedMatches = GameMatch::whereIn('tournament_stage_id', $stageIds)
@@ -214,12 +216,32 @@ class Home extends Component
                 ->toArray();
 
             $tournament->upcomingMatches = GameMatch::whereIn('tournament_stage_id', $stageIds)
-                ->whereIn('status', ['ready', 'scheduled', 'ongoing'])
+                ->whereIn('status', ['ready', 'ongoing'])
+                ->whereHas('participants', function($q) {
+                    $q->whereNotNull('tournament_entry_id');
+                }, '>=', 2)
                 ->with(['participants.entry.player', 'participants.club', 'psUnit'])
-                ->orderBy('round_number')
-                ->orderBy('scheduled_at')
-                ->limit(10)
-                ->get();
+                ->orderBy('round_number', 'asc')
+                ->orderBy('match_order', 'asc')
+                ->get()
+                ->each(function ($match) use ($maxRoundByStage) {
+                    $maxRound = $maxRoundByStage[$match->tournament_stage_id] ?? 1;
+                    if ($match->bracket_position === '3rd_place') {
+                        $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                    } else {
+                        $stagesLeft = $maxRound - $match->round_number;
+                        if ($stagesLeft === 0) {
+                            $match->computedRoundName = 'Final';
+                        } elseif ($stagesLeft === 1) {
+                            $match->computedRoundName = 'Semifinal';
+                        } elseif ($stagesLeft === 2) {
+                            $match->computedRoundName = app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
+                        } else {
+                            $teamsInRound = pow(2, $stagesLeft + 1);
+                            $match->computedRoundName = app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
+                        }
+                    }
+                });
 
             $tournament->completedMatches = GameMatch::whereIn('tournament_stage_id', $stageIds)
                 ->whereIn('status', ['completed', 'walkover'])
