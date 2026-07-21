@@ -40,7 +40,7 @@ class PlayerLogin extends Component
             // Update last login
             $player->update(['last_login_at' => now()]);
 
-            return redirect()->intended('/dashboard');
+            return redirect()->to('/dashboard');
         }
 
         // Log failed attempt

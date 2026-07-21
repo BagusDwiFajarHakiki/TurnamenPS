@@ -398,7 +398,7 @@ class Dashboard extends Component
         ];
 
         if ($this->payment_method === 'qris') {
-            $rules['payment_proof'] = 'required|image|max:2048';
+            $rules['payment_proof'] = 'required|image|max:10240';
         }
 
         $this->validate($rules);

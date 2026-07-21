@@ -99,6 +99,13 @@
     $centerStyle = $centerCompact
         ? 'min-width: 200px; flex-shrink: 0; padding: 0 0.5rem;'
         : 'min-width: 220px; max-width: 280px; flex-shrink: 0; padding: 0 0.5rem;';
+
+    $isMatchHighlighted = function($match) use ($activeEntryIntIds) {
+        if (!$match || empty($activeEntryIntIds)) return false;
+        $homeId = $match['participants'][0]['tournament_entry_id'] ?? 0;
+        $awayId = $match['participants'][1]['tournament_entry_id'] ?? 0;
+        return in_array($homeId, $activeEntryIntIds) || in_array($awayId, $activeEntryIntIds);
+    };
 ?>
 
 <style>
@@ -159,11 +166,25 @@
                                 $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
                                 $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
                                 $mPct = ($uPct + $lPct) / 2;
+                                
+                                $nextRoundNum = $leftGrid['roundNums'][$colIdx + 1];
+                                $nextMatch = $leftGrid['data'][$nextRoundNum][$pairIdx]['match'] ?? null;
+                                $nextActive = $isMatchHighlighted($nextMatch);
+                                $uActive = $isMatchHighlighted($upper['match']);
+                                $lActive = $isMatchHighlighted($lower['match']);
+                                
+                                $colorU = ($uActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorL = ($lActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorN = $nextActive ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $zIndexU = ($uActive && $nextActive) ? '2' : '1';
+                                $zIndexL = ($lActive && $nextActive) ? '2' : '1';
+                                $zIndexN = $nextActive ? '2' : '1';
                             ?>
-                            <div style="position: absolute; left: 0; right: <?php echo e($stubW); ?>px; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; left: 0; right: <?php echo e($stubW); ?>px; top: calc(<?php echo e($lPct); ?>% + <?php echo e(28 - 28 * $lPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; right: <?php echo e($stubW); ?>px; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: calc(<?php echo e($lPct - $uPct); ?>% - <?php echo e(28 * ($lPct - $uPct) / 100); ?>px); width: 2px; background: rgba(20,184,166,0.3);"></div>
-                            <div style="position: absolute; left: calc(100% - <?php echo e($stubW); ?>px); right: 0; top: calc(<?php echo e($mPct); ?>% + <?php echo e(28 - 28 * $mPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; left: 0; right: <?php echo e($stubW); ?>px; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: 2px; background: <?php echo e($colorU); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexU); ?>;"></div>
+                            <div style="position: absolute; left: 0; right: <?php echo e($stubW); ?>px; top: calc(<?php echo e($lPct); ?>% + <?php echo e(28 - 28 * $lPct / 100); ?>px); height: 2px; background: <?php echo e($colorL); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexL); ?>;"></div>
+                            <div style="position: absolute; right: <?php echo e($stubW); ?>px; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: calc(<?php echo e($mPct - $uPct); ?>% - <?php echo e(28 * ($mPct - $uPct) / 100); ?>px); width: 2px; background: <?php echo e($colorU); ?>; z-index: <?php echo e($zIndexU); ?>;"></div>
+                            <div style="position: absolute; right: <?php echo e($stubW); ?>px; top: calc(<?php echo e($mPct); ?>% + <?php echo e(28 - 28 * $mPct / 100); ?>px); height: calc(<?php echo e($lPct - $mPct); ?>% - <?php echo e(28 * ($lPct - $mPct) / 100); ?>px); width: 2px; background: <?php echo e($colorL); ?>; z-index: <?php echo e($zIndexL); ?>;"></div>
+                            <div style="position: absolute; left: calc(100% - <?php echo e($stubW); ?>px); right: 0; top: calc(<?php echo e($mPct); ?>% + <?php echo e(28 - 28 * $mPct / 100); ?>px); height: 2px; background: <?php echo e($colorN); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexN); ?>;"></div>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -175,15 +196,28 @@
             <?php
                 $hasThirdPlace = !empty($thirdPlaceMatch);
                 $offset = $hasThirdPlace ? 130 : 0;
+                
+                $leftSemiMatch = $leftGrid['data'][end($leftGrid['roundNums'])][0]['match'] ?? null;
+                $leftSemiActive = $isMatchHighlighted($leftSemiMatch);
+                $finalActive = $isMatchHighlighted($finalRoundMatches[0] ?? null);
+                $thirdActive = $isMatchHighlighted($thirdPlaceMatch);
+                
+                $colorF = ($leftSemiActive && $finalActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorT = ($leftSemiActive && $thirdActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorS = ($leftSemiActive && ($finalActive || $thirdActive)) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $zIndexF = ($leftSemiActive && $finalActive) ? '2' : '1';
+                $zIndexT = ($leftSemiActive && $thirdActive) ? '2' : '1';
+                $zIndexS = ($leftSemiActive && ($finalActive || $thirdActive)) ? '2' : '1';
             ?>
             <div style="width: 42px; flex-shrink: 0; position: relative;">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasThirdPlace): ?>
-                    <div style="position: absolute; left: 0; right: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: <?php echo e($offset * 2); ?>px; width: 2px; background: rgba(20,184,166,0.3);"></div>
-                    <div style="position: absolute; left: 21px; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 21px; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px + <?php echo e($offset); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: <?php echo e($colorS); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexS); ?>;"></div>
+                    <div style="position: absolute; left: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: <?php echo e($offset); ?>px; width: 2px; background: <?php echo e($colorF); ?>; z-index: <?php echo e($zIndexF); ?>;"></div>
+                    <div style="position: absolute; left: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: <?php echo e($offset); ?>px; width: 2px; background: <?php echo e($colorT); ?>; z-index: <?php echo e($zIndexT); ?>;"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: 2px; background: <?php echo e($colorF); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexF); ?>;"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px + <?php echo e($offset); ?>px); height: 2px; background: <?php echo e($colorT); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexT); ?>;"></div>
                 <?php else: ?>
-                    <div style="position: absolute; left: 0; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 0; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: <?php echo e($colorF); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexF); ?>;"></div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -200,12 +234,13 @@
                     $offset = $hasThirdPlace ? 130 : 0;
                 ?>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($fm): ?>
+                    <?php $isHighlighted = $isMatchHighlighted($fm); ?>
                     <div style="position: absolute; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
                         <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(20,184,166,0.2); color: var(--primary); text-align: center;">
                             <?php echo e($getRoundName($maxRound)); ?>
 
                         </div>
-                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; box-shadow: 0 0 0 2px rgba(20,184,166,0.25); border: 1px solid rgba(209,213,219,0.5);">
+                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: <?php echo e($isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5); box-shadow: 0 0 0 2px rgba(20,184,166,0.25);'); ?>">
                             <?php echo $__env->make('_partials.bracket-match-card', ['match' => $fm, 'home' => $fh, 'away' => $fa, 'activeEntryIds' => $activeEntryIntIds], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                         </div>
                     </div>
@@ -214,12 +249,13 @@
                     <?php
                         $tp3h = $thirdPlaceMatch['participants'][0] ?? null;
                         $tp3a = $thirdPlaceMatch['participants'][1] ?? null;
+                        $isHighlighted = $isMatchHighlighted($thirdPlaceMatch);
                     ?>
                     <div style="position: absolute; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px + <?php echo e($offset); ?>px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
                         <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b; text-align: center;">
                             PEREBUTAN JUARA 3
                         </div>
-                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: 1px solid rgba(209,213,219,0.5);">
+                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: <?php echo e($isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);'); ?>">
                             <?php echo $__env->make('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                         </div>
                     </div>
@@ -232,15 +268,28 @@
             <?php
                 $hasThirdPlace = !empty($thirdPlaceMatch);
                 $offset = $hasThirdPlace ? 130 : 0;
+                
+                $rightSemiMatch = $rightGrid['data'][end($rightGrid['roundNums'])][0]['match'] ?? null;
+                $rightSemiActive = $isMatchHighlighted($rightSemiMatch);
+                $finalActive = $isMatchHighlighted($finalRoundMatches[0] ?? null);
+                $thirdActive = $isMatchHighlighted($thirdPlaceMatch);
+                
+                $colorF = ($rightSemiActive && $finalActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorT = ($rightSemiActive && $thirdActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorS = ($rightSemiActive && ($finalActive || $thirdActive)) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $zIndexF = ($rightSemiActive && $finalActive) ? '2' : '1';
+                $zIndexT = ($rightSemiActive && $thirdActive) ? '2' : '1';
+                $zIndexS = ($rightSemiActive && ($finalActive || $thirdActive)) ? '2' : '1';
             ?>
             <div style="width: 42px; flex-shrink: 0; position: relative;">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($hasThirdPlace): ?>
-                    <div style="position: absolute; left: 21px; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: <?php echo e($offset * 2); ?>px; width: 2px; background: rgba(20,184,166,0.3);"></div>
-                    <div style="position: absolute; left: 0; right: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 0; right: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px + <?php echo e($offset); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: <?php echo e($colorS); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexS); ?>;"></div>
+                    <div style="position: absolute; left: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: <?php echo e($offset); ?>px; width: 2px; background: <?php echo e($colorF); ?>; z-index: <?php echo e($zIndexF); ?>;"></div>
+                    <div style="position: absolute; left: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: <?php echo e($offset); ?>px; width: 2px; background: <?php echo e($colorT); ?>; z-index: <?php echo e($zIndexT); ?>;"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px - <?php echo e($offset); ?>px); height: 2px; background: <?php echo e($colorF); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexF); ?>;"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px + <?php echo e($offset); ?>px); height: 2px; background: <?php echo e($colorT); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexT); ?>;"></div>
                 <?php else: ?>
-                    <div style="position: absolute; left: 0; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 0; right: 0; top: calc(<?php echo e($centerPct); ?>% + <?php echo e(28 - 28 * $centerPct / 100); ?>px); height: 2px; background: <?php echo e($colorF); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexF); ?>;"></div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -288,11 +337,25 @@
                                 $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
                                 $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
                                 $mPct = ($uPct + $lPct) / 2;
+                                
+                                $nextRoundNum = $rightDisplayNums[$colIdx + 1] ?? null;
+                                $nextMatch = $nextRoundNum ? ($rightGrid['data'][$nextRoundNum][$pairIdx]['match'] ?? null) : null;
+                                $nextActive = $isMatchHighlighted($nextMatch);
+                                $uActive = $isMatchHighlighted($upper['match']);
+                                $lActive = $isMatchHighlighted($lower['match']);
+                                
+                                $colorU = ($uActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorL = ($lActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorN = $nextActive ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $zIndexU = ($uActive && $nextActive) ? '2' : '1';
+                                $zIndexL = ($lActive && $nextActive) ? '2' : '1';
+                                $zIndexN = $nextActive ? '2' : '1';
                             ?>
-                            <div style="position: absolute; left: <?php echo e($stubW); ?>px; right: 0; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; left: <?php echo e($stubW); ?>px; right: 0; top: calc(<?php echo e($lPct); ?>% + <?php echo e(28 - 28 * $lPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; left: <?php echo e($stubW); ?>px; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: calc(<?php echo e($lPct - $uPct); ?>% - <?php echo e(28 * ($lPct - $uPct) / 100); ?>px); width: 2px; background: rgba(20,184,166,0.3);"></div>
-                            <div style="position: absolute; left: 0; right: calc(100% - <?php echo e($stubW); ?>px); top: calc(<?php echo e($mPct); ?>% + <?php echo e(28 - 28 * $mPct / 100); ?>px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; left: <?php echo e($stubW); ?>px; right: 0; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: 2px; background: <?php echo e($colorU); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexU); ?>;"></div>
+                            <div style="position: absolute; left: <?php echo e($stubW); ?>px; right: 0; top: calc(<?php echo e($lPct); ?>% + <?php echo e(28 - 28 * $lPct / 100); ?>px); height: 2px; background: <?php echo e($colorL); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexL); ?>;"></div>
+                            <div style="position: absolute; left: <?php echo e($stubW); ?>px; top: calc(<?php echo e($uPct); ?>% + <?php echo e(28 - 28 * $uPct / 100); ?>px); height: calc(<?php echo e($mPct - $uPct); ?>% - <?php echo e(28 * ($mPct - $uPct) / 100); ?>px); width: 2px; background: <?php echo e($colorU); ?>; z-index: <?php echo e($zIndexU); ?>;"></div>
+                            <div style="position: absolute; left: <?php echo e($stubW); ?>px; top: calc(<?php echo e($mPct); ?>% + <?php echo e(28 - 28 * $mPct / 100); ?>px); height: calc(<?php echo e($lPct - $mPct); ?>% - <?php echo e(28 * ($lPct - $mPct) / 100); ?>px); width: 2px; background: <?php echo e($colorL); ?>; z-index: <?php echo e($zIndexL); ?>;"></div>
+                            <div style="position: absolute; left: 0; right: calc(100% - <?php echo e($stubW); ?>px); top: calc(<?php echo e($mPct); ?>% + <?php echo e(28 - 28 * $mPct / 100); ?>px); height: 2px; background: <?php echo e($colorN); ?>; transform: translateY(-50%); z-index: <?php echo e($zIndexN); ?>;"></div>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                     </div>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -310,8 +373,11 @@
 
             </div>
             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $roundMatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                <?php $home = $match['participants'][0] ?? null; $away = $match['participants'][1] ?? null; ?>
-                <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: 1px solid rgba(209,213,219,0.5);">
+                <?php 
+                    $home = $match['participants'][0] ?? null; $away = $match['participants'][1] ?? null; 
+                    $isHighlighted = $isMatchHighlighted($match);
+                ?>
+                <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: <?php echo e($isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);'); ?>">
                     <?php echo $__env->make('_partials.bracket-match-card', ['match' => $match, 'home' => $home, 'away' => $away, 'activeEntryIds' => $activeEntryIntIds], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 </div>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
@@ -319,12 +385,15 @@
     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($thirdPlaceMatch): ?>
-        <?php $tp3h = $thirdPlaceMatch['participants'][0] ?? null; $tp3a = $thirdPlaceMatch['participants'][1] ?? null; ?>
+        <?php 
+            $tp3h = $thirdPlaceMatch['participants'][0] ?? null; $tp3a = $thirdPlaceMatch['participants'][1] ?? null; 
+            $isHighlighted = $isMatchHighlighted($thirdPlaceMatch);
+        ?>
         <div style="min-width: 260px; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
             <div style="text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b;">
                 PEREBUTAN JUARA 3
             </div>
-            <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: 1px solid rgba(209,213,219,0.5);">
+            <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: <?php echo e($isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);'); ?>">
                 <?php echo $__env->make('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
         </div>

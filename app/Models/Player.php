@@ -85,8 +85,4 @@ class Player extends Authenticatable
         return $this->hasMany(PlayerLoginAttempt::class);
     }
 
-    public function codeResetRequests(): HasMany
-    {
-        return $this->hasMany(PlayerCodeResetRequest::class);
-    }
 }

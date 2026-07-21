@@ -173,18 +173,18 @@
                                 $awayName = $awayPart?->entry?->display_name ?? 'TBD';
                             @endphp
                             <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid {{ $match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)' }}; border-radius: 12px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                    <div style="flex: 1;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; margin-bottom: 0.5rem;">
+                                    <div style="text-align: left;">
                                         <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: {{ $match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)' }}; color: {{ $match->status === 'ongoing' ? 'var(--primary)' : '#FFC107' }};">
                                             {{ strtoupper($match->status) }}
                                         </span>
                                     </div>
-                                    <div style="flex: 1; text-align: center;">
-                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
+                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                        <span style="display: inline-block; text-align: center; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted); line-height: 1.3; white-space: normal;">
                                             {{ $match->computedRoundName }}
                                         </span>
                                     </div>
-                                    <div style="flex: 1; text-align: right;">
+                                    <div style="text-align: right;">
                                         @if ($match->psUnit)
                                             <span style="font-size: 0.8rem; color: var(--primary); font-weight: 600;">
                                                 {{ $match->psUnit->name }}
@@ -356,7 +356,7 @@
                                     <div style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);">{{ $player->total_goals ?? 0 }} Gol Dicetak</div>
                                 </div>
                             </div>
-                            <div style="text-align: right; background: var(--bg-input); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
+                            <div style="text-align: center; background: var(--bg-input); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
                                 <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);">{{ $player->total_wins ?? 0 }}</div>
                                 <div style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Wins</div>
                             </div>

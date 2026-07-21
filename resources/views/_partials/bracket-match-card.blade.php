@@ -39,7 +39,7 @@
         @endif
     </div>
     <span style="font-weight: 850; font-size: 0.9rem; margin-left: 0.5rem; {{ ($home && $home['is_winner']) ? 'color: #10b981;' : 'color: inherit;' }}">
-        {{ $match['is_bye'] ? '-' : ($home['goals_scored'] ?? 0) }}@if($match['decided_by_penalty'] && isset($match['penalty_score_home']) && $match['status'] === 'completed' && !$match['is_bye']) <span style="font-size:0.7rem; font-weight:700; color: var(--text-muted);">({{ $match['penalty_score_home'] }})</span>@endif
+        {{ $match['is_bye'] ? '-' : ($home['goals_scored'] ?? 0) }}@if($match['decided_by_penalty'] && isset($match['penalty_score_home']) && $match['status'] === 'completed' && !$match['is_bye']) <span style="color: var(--text-muted);">({{ $match['penalty_score_home'] }})</span>@endif
     </span>
 </div>
 
@@ -53,6 +53,6 @@
         @endif
     </div>
     <span style="font-weight: 850; font-size: 0.9rem; margin-left: 0.5rem; {{ ($away && $away['is_winner']) ? 'color: #10b981;' : 'color: inherit;' }}">
-        {{ $match['is_bye'] ? '-' : ($away['goals_scored'] ?? 0) }}@if($match['decided_by_penalty'] && isset($match['penalty_score_away']) && $match['status'] === 'completed' && !$match['is_bye']) <span style="font-size:0.7rem; font-weight:700; color: var(--text-muted);">({{ $match['penalty_score_away'] }})</span>@endif
+        {{ $match['is_bye'] ? '-' : ($away['goals_scored'] ?? 0) }}@if($match['decided_by_penalty'] && isset($match['penalty_score_away']) && $match['status'] === 'completed' && !$match['is_bye']) <span style="color: var(--text-muted);">({{ $match['penalty_score_away'] }})</span>@endif
     </span>
 </div>

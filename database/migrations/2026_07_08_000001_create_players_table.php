@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('username')->unique();
+            $table->string('phone')->nullable();
             $table->string('email')->nullable();
-            $table->string('login_code'); // Hashed 6-character alphanumeric code
-            $table->string('login_code_plain_hint')->nullable(); // Plain hint displayed once on registration
+            $table->string('login_code');
+            $table->string('login_code_plain_hint')->nullable();
             $table->string('avatar')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamp('last_login_at')->nullable();

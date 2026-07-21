@@ -18,7 +18,8 @@ return new class extends Migration
             $table->integer('slot_count');
             $table->decimal('total_price', 10, 2);
             $table->string('payment_proof_path')->nullable();
-            $table->string('status')->default('pending_payment'); // pending_payment, pending_verification, verified, rejected
+            $table->string('status')->default('pending_payment');
+            $table->string('payment_method')->default('transfer');
             $table->text('rejection_reason')->nullable();
             $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('verified_at')->nullable();

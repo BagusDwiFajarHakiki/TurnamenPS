@@ -21,8 +21,4 @@ class Club extends Model
         return $this->hasMany(MatchParticipant::class);
     }
 
-    public function matchGameParticipants(): HasMany
-    {
-        return $this->hasMany(MatchGameParticipant::class);
-    }
 }

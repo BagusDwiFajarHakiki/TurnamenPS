@@ -99,6 +99,13 @@
     $centerStyle = $centerCompact
         ? 'min-width: 200px; flex-shrink: 0; padding: 0 0.5rem;'
         : 'min-width: 220px; max-width: 280px; flex-shrink: 0; padding: 0 0.5rem;';
+
+    $isMatchHighlighted = function($match) use ($activeEntryIntIds) {
+        if (!$match || empty($activeEntryIntIds)) return false;
+        $homeId = $match['participants'][0]['tournament_entry_id'] ?? 0;
+        $awayId = $match['participants'][1]['tournament_entry_id'] ?? 0;
+        return in_array($homeId, $activeEntryIntIds) || in_array($awayId, $activeEntryIntIds);
+    };
 @endphp
 
 <style>
@@ -158,11 +165,25 @@
                                 $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
                                 $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
                                 $mPct = ($uPct + $lPct) / 2;
+                                
+                                $nextRoundNum = $leftGrid['roundNums'][$colIdx + 1];
+                                $nextMatch = $leftGrid['data'][$nextRoundNum][$pairIdx]['match'] ?? null;
+                                $nextActive = $isMatchHighlighted($nextMatch);
+                                $uActive = $isMatchHighlighted($upper['match']);
+                                $lActive = $isMatchHighlighted($lower['match']);
+                                
+                                $colorU = ($uActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorL = ($lActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorN = $nextActive ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $zIndexU = ($uActive && $nextActive) ? '2' : '1';
+                                $zIndexL = ($lActive && $nextActive) ? '2' : '1';
+                                $zIndexN = $nextActive ? '2' : '1';
                             @endphp
-                            <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: calc({{ $lPct }}% + {{ 28 - 28 * $lPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; right: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: calc({{ $lPct - $uPct }}% - {{ 28 * ($lPct - $uPct) / 100 }}px); width: 2px; background: rgba(20,184,166,0.3);"></div>
-                            <div style="position: absolute; left: calc(100% - {{ $stubW }}px); right: 0; top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: 2px; background: {{ $colorU }}; transform: translateY(-50%); z-index: {{ $zIndexU }};"></div>
+                            <div style="position: absolute; left: 0; right: {{ $stubW }}px; top: calc({{ $lPct }}% + {{ 28 - 28 * $lPct / 100 }}px); height: 2px; background: {{ $colorL }}; transform: translateY(-50%); z-index: {{ $zIndexL }};"></div>
+                            <div style="position: absolute; right: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: calc({{ $mPct - $uPct }}% - {{ 28 * ($mPct - $uPct) / 100 }}px); width: 2px; background: {{ $colorU }}; z-index: {{ $zIndexU }};"></div>
+                            <div style="position: absolute; right: {{ $stubW }}px; top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: calc({{ $lPct - $mPct }}% - {{ 28 * ($lPct - $mPct) / 100 }}px); width: 2px; background: {{ $colorL }}; z-index: {{ $zIndexL }};"></div>
+                            <div style="position: absolute; left: calc(100% - {{ $stubW }}px); right: 0; top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: 2px; background: {{ $colorN }}; transform: translateY(-50%); z-index: {{ $zIndexN }};"></div>
                         @endforeach
                     </div>
                 @endif
@@ -174,15 +195,28 @@
             @php
                 $hasThirdPlace = !empty($thirdPlaceMatch);
                 $offset = $hasThirdPlace ? 130 : 0;
+                
+                $leftSemiMatch = $leftGrid['data'][end($leftGrid['roundNums'])][0]['match'] ?? null;
+                $leftSemiActive = $isMatchHighlighted($leftSemiMatch);
+                $finalActive = $isMatchHighlighted($finalRoundMatches[0] ?? null);
+                $thirdActive = $isMatchHighlighted($thirdPlaceMatch);
+                
+                $colorF = ($leftSemiActive && $finalActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorT = ($leftSemiActive && $thirdActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorS = ($leftSemiActive && ($finalActive || $thirdActive)) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $zIndexF = ($leftSemiActive && $finalActive) ? '2' : '1';
+                $zIndexT = ($leftSemiActive && $thirdActive) ? '2' : '1';
+                $zIndexS = ($leftSemiActive && ($finalActive || $thirdActive)) ? '2' : '1';
             @endphp
             <div style="width: 42px; flex-shrink: 0; position: relative;">
                 @if($hasThirdPlace)
-                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: {{ $offset * 2 }}px; width: 2px; background: rgba(20,184,166,0.3);"></div>
-                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: {{ $colorS }}; transform: translateY(-50%); z-index: {{ $zIndexS }};"></div>
+                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: {{ $offset }}px; width: 2px; background: {{ $colorF }}; z-index: {{ $zIndexF }};"></div>
+                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: {{ $offset }}px; width: 2px; background: {{ $colorT }}; z-index: {{ $zIndexT }};"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: 2px; background: {{ $colorF }}; transform: translateY(-50%); z-index: {{ $zIndexF }};"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); height: 2px; background: {{ $colorT }}; transform: translateY(-50%); z-index: {{ $zIndexT }};"></div>
                 @else
-                    <div style="position: absolute; left: 0; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 0; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: {{ $colorF }}; transform: translateY(-50%); z-index: {{ $zIndexF }};"></div>
                 @endif
             </div>
         @endif
@@ -199,11 +233,12 @@
                     $offset = $hasThirdPlace ? 130 : 0;
                 @endphp
                 @if($fm)
+                    @php $isHighlighted = $isMatchHighlighted($fm); @endphp
                     <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
                         <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(20,184,166,0.2); color: var(--primary); text-align: center;">
                             {{ $getRoundName($maxRound) }}
                         </div>
-                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; box-shadow: 0 0 0 2px rgba(20,184,166,0.25); border: 1px solid rgba(209,213,219,0.5);">
+                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5); box-shadow: 0 0 0 2px rgba(20,184,166,0.25);' }}">
                             @include('_partials.bracket-match-card', ['match' => $fm, 'home' => $fh, 'away' => $fa, 'activeEntryIds' => $activeEntryIntIds])
                         </div>
                     </div>
@@ -212,12 +247,13 @@
                     @php
                         $tp3h = $thirdPlaceMatch['participants'][0] ?? null;
                         $tp3a = $thirdPlaceMatch['participants'][1] ?? null;
+                        $isHighlighted = $isMatchHighlighted($thirdPlaceMatch);
                     @endphp
                     <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
                         <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b; text-align: center;">
                             PEREBUTAN JUARA 3
                         </div>
-                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: 1px solid rgba(209,213,219,0.5);">
+                        <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);' }}">
                             @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])
                         </div>
                     </div>
@@ -230,15 +266,28 @@
             @php
                 $hasThirdPlace = !empty($thirdPlaceMatch);
                 $offset = $hasThirdPlace ? 130 : 0;
+                
+                $rightSemiMatch = $rightGrid['data'][end($rightGrid['roundNums'])][0]['match'] ?? null;
+                $rightSemiActive = $isMatchHighlighted($rightSemiMatch);
+                $finalActive = $isMatchHighlighted($finalRoundMatches[0] ?? null);
+                $thirdActive = $isMatchHighlighted($thirdPlaceMatch);
+                
+                $colorF = ($rightSemiActive && $finalActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorT = ($rightSemiActive && $thirdActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $colorS = ($rightSemiActive && ($finalActive || $thirdActive)) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                $zIndexF = ($rightSemiActive && $finalActive) ? '2' : '1';
+                $zIndexT = ($rightSemiActive && $thirdActive) ? '2' : '1';
+                $zIndexS = ($rightSemiActive && ($finalActive || $thirdActive)) ? '2' : '1';
             @endphp
             <div style="width: 42px; flex-shrink: 0; position: relative;">
                 @if($hasThirdPlace)
-                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: {{ $offset * 2 }}px; width: 2px; background: rgba(20,184,166,0.3);"></div>
-                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 21px; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: {{ $colorS }}; transform: translateY(-50%); z-index: {{ $zIndexS }};"></div>
+                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: {{ $offset }}px; width: 2px; background: {{ $colorF }}; z-index: {{ $zIndexF }};"></div>
+                    <div style="position: absolute; left: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: {{ $offset }}px; width: 2px; background: {{ $colorT }}; z-index: {{ $zIndexT }};"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); height: 2px; background: {{ $colorF }}; transform: translateY(-50%); z-index: {{ $zIndexF }};"></div>
+                    <div style="position: absolute; left: 0; right: 21px; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); height: 2px; background: {{ $colorT }}; transform: translateY(-50%); z-index: {{ $zIndexT }};"></div>
                 @else
-                    <div style="position: absolute; left: 0; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                    <div style="position: absolute; left: 0; right: 0; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px); height: 2px; background: {{ $colorF }}; transform: translateY(-50%); z-index: {{ $zIndexF }};"></div>
                 @endif
             </div>
         @endif
@@ -286,11 +335,25 @@
                                 $uPct = (($upper['rowStart'] + $upper['rowEnd'] - 2) / 2 / $T) * 100;
                                 $lPct = (($lower['rowStart'] + $lower['rowEnd'] - 2) / 2 / $T) * 100;
                                 $mPct = ($uPct + $lPct) / 2;
+                                
+                                $nextRoundNum = $rightDisplayNums[$colIdx + 1] ?? null;
+                                $nextMatch = $nextRoundNum ? ($rightGrid['data'][$nextRoundNum][$pairIdx]['match'] ?? null) : null;
+                                $nextActive = $isMatchHighlighted($nextMatch);
+                                $uActive = $isMatchHighlighted($upper['match']);
+                                $lActive = $isMatchHighlighted($lower['match']);
+                                
+                                $colorU = ($uActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorL = ($lActive && $nextActive) ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $colorN = $nextActive ? 'var(--primary)' : 'rgba(20,184,166,0.3)';
+                                $zIndexU = ($uActive && $nextActive) ? '2' : '1';
+                                $zIndexL = ($lActive && $nextActive) ? '2' : '1';
+                                $zIndexN = $nextActive ? '2' : '1';
                             @endphp
-                            <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: calc({{ $lPct }}% + {{ 28 - 28 * $lPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
-                            <div style="position: absolute; left: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: calc({{ $lPct - $uPct }}% - {{ 28 * ($lPct - $uPct) / 100 }}px); width: 2px; background: rgba(20,184,166,0.3);"></div>
-                            <div style="position: absolute; left: 0; right: calc(100% - {{ $stubW }}px); top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: 2px; background: rgba(20,184,166,0.3); transform: translateY(-50%);"></div>
+                            <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: 2px; background: {{ $colorU }}; transform: translateY(-50%); z-index: {{ $zIndexU }};"></div>
+                            <div style="position: absolute; left: {{ $stubW }}px; right: 0; top: calc({{ $lPct }}% + {{ 28 - 28 * $lPct / 100 }}px); height: 2px; background: {{ $colorL }}; transform: translateY(-50%); z-index: {{ $zIndexL }};"></div>
+                            <div style="position: absolute; left: {{ $stubW }}px; top: calc({{ $uPct }}% + {{ 28 - 28 * $uPct / 100 }}px); height: calc({{ $mPct - $uPct }}% - {{ 28 * ($mPct - $uPct) / 100 }}px); width: 2px; background: {{ $colorU }}; z-index: {{ $zIndexU }};"></div>
+                            <div style="position: absolute; left: {{ $stubW }}px; top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: calc({{ $lPct - $mPct }}% - {{ 28 * ($lPct - $mPct) / 100 }}px); width: 2px; background: {{ $colorL }}; z-index: {{ $zIndexL }};"></div>
+                            <div style="position: absolute; left: 0; right: calc(100% - {{ $stubW }}px); top: calc({{ $mPct }}% + {{ 28 - 28 * $mPct / 100 }}px); height: 2px; background: {{ $colorN }}; transform: translateY(-50%); z-index: {{ $zIndexN }};"></div>
                         @endforeach
                     </div>
                 @endif
@@ -307,8 +370,11 @@
                 {{ $getRoundName($roundNum) }}
             </div>
             @foreach($roundMatches as $match)
-                @php $home = $match['participants'][0] ?? null; $away = $match['participants'][1] ?? null; @endphp
-                <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: 1px solid rgba(209,213,219,0.5);">
+                @php 
+                    $home = $match['participants'][0] ?? null; $away = $match['participants'][1] ?? null; 
+                    $isHighlighted = $isMatchHighlighted($match);
+                @endphp
+                <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);' }}">
                     @include('_partials.bracket-match-card', ['match' => $match, 'home' => $home, 'away' => $away, 'activeEntryIds' => $activeEntryIntIds])
                 </div>
             @endforeach
@@ -316,12 +382,15 @@
     @endforeach
 
     @if($thirdPlaceMatch)
-        @php $tp3h = $thirdPlaceMatch['participants'][0] ?? null; $tp3a = $thirdPlaceMatch['participants'][1] ?? null; @endphp
+        @php 
+            $tp3h = $thirdPlaceMatch['participants'][0] ?? null; $tp3a = $thirdPlaceMatch['participants'][1] ?? null; 
+            $isHighlighted = $isMatchHighlighted($thirdPlaceMatch);
+        @endphp
         <div style="min-width: 260px; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
             <div style="text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b;">
                 PEREBUTAN JUARA 3
             </div>
-            <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: 1px solid rgba(209,213,219,0.5);">
+            <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);' }}">
                 @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])
             </div>
         </div>

@@ -70,6 +70,7 @@ class EntryBatchForm
                                 ->image()
                                 ->disk('public')
                                 ->directory('payments')
+                                ->maxSize(10240)
                                 ->openable()
                                 ->previewable()
                                 ->visible(fn (callable $get) => $get('payment_method') === 'qris'),

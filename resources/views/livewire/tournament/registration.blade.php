@@ -36,7 +36,7 @@
 
                 <div class="form-group">
                     <label class="form-label" for="phone">Nomor HP</label>
-                    <input type="tel" id="phone" wire:model.defer="phone" class="form-control" placeholder="08xxxxxxxxxx" required>
+                    <input type="text" id="phone" wire:model.defer="phone" class="form-control" placeholder="08xxxxxxxxxx" required inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 0.25rem;">
                         {{ app()->getLocale() == 'id' ? 'Gunakan format nomor HP Indonesia yang valid.' : 'Use a valid Indonesian phone number format.' }}
                     </small>

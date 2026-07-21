@@ -154,6 +154,10 @@ class InputHasil extends Page
 
     public function updatedPaymentProof(): void
     {
+        $this->validate([
+            'paymentProof' => 'nullable|image|max:10240',
+        ]);
+
         if ($this->paymentProof) {
             $this->autoSave();
         }

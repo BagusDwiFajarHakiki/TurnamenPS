@@ -291,18 +291,18 @@
                                                 
                                             @endphp
                                             <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid {{ $match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)' }}; border-radius: 12px;">
-                                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                                    <div style="flex: 1;">
+                                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; margin-bottom: 0.5rem;">
+                                                    <div style="text-align: left;">
                                                         <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: {{ $match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)' }}; color: {{ $match->status === 'ongoing' ? 'var(--primary)' : '#FFC107' }};">
                                                             {{ strtoupper($match->status) }}
                                                         </span>
                                                     </div>
-                                                    <div style="flex: 1; text-align: center;">
-                                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted);">
+                                                    <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                                                        <span style="display: inline-block; text-align: center; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-muted); line-height: 1.3; white-space: normal;">
                                                             {{ $match->computedRoundName }}
                                                         </span>
                                                     </div>
-                                                    <div style="flex: 1; text-align: right;">
+                                                    <div style="text-align: right;">
                                                         @if ($match->psUnit)
                                                             <span style="font-size: 0.75rem; color: var(--primary); font-weight: 700;">
                                                                 🎮 {{ $match->psUnit->name }}
@@ -374,7 +374,7 @@
 
                     <div class="form-group" style="margin-bottom: 1.5rem;">
                         <label class="form-label" for="slot_count">{{ __('Jumlah Slot') }}</label>
-                        <input type="number" id="slot_count" wire:model.live.debounce.500ms="slot_count" class="form-control" min="{{ \App\Models\Tournament::find($selectedTournamentId)?->min_slots_per_player ?: 1 }}" required>
+                        <input type="text" id="slot_count" wire:model.live.debounce.500ms="slot_count" class="form-control" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                         @error('slot_count') <span style="color: var(--danger); font-size: 0.85rem;">{{ $message }}</span> @enderror
                     </div>
 
@@ -428,7 +428,7 @@
                             @endif
 
                             <div class="form-group" style="margin-bottom: 1.5rem;">
-                                <label class="form-label" for="payment_proof">{{ __('Bukti Pembayaran QRIS') }} (Format Gambar, Maks 2MB)</label>
+                                <label class="form-label" for="payment_proof">{{ __('Bukti Pembayaran QRIS') }}</label>
                                 <input type="file" id="payment_proof" wire:model="payment_proof" class="form-control" accept="image/*" required>
                                 <div wire:loading wire:target="payment_proof" style="color: var(--primary); font-size: 0.85rem; margin-top: 0.25rem;">
                                     Mengunggah gambar...
