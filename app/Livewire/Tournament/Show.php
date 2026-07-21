@@ -24,6 +24,9 @@ class Show extends Component
     public $popularClubsCombined = [];
     public $maxRoundNumber = 0;
     public $playerEntryNumbers = [];
+    public $highlightedPlayerId = null;
+    public $playersInStage = [];
+    public $activeEntryIds = [];
 
     public function mount($slug)
     {
@@ -40,6 +43,16 @@ class Show extends Component
         $this->stages = $this->tournament->stages;
         $this->activeStageId = $this->stages->where('status', 'ongoing')->first()?->id ?? $this->stages->first()?->id;
             
+        $this->loadStageData();
+        $this->loadLeaderboard();
+        $this->loadMatches();
+        $this->loadTopScorers();
+        $this->loadPopularClubsCombined();
+    }
+
+    public function refreshData()
+    {
+        $this->tournament->refresh();
         $this->loadStageData();
         $this->loadLeaderboard();
         $this->loadMatches();
@@ -114,6 +127,36 @@ class Show extends Component
             ->whereNotNull('entry_number')
             ->pluck('entry_number', 'player_id')
             ->toArray();
+            
+        $this->playersInStage = \App\Models\Player::whereIn('id', $playerIds)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->toArray();
+            
+        $playerIdsArray = array_column($this->playersInStage, 'id');
+        if ($this->highlightedPlayerId && !in_array($this->highlightedPlayerId, $playerIdsArray)) {
+            $this->highlightedPlayerId = null;
+        }
+            
+        $this->updateActiveEntryIds();
+    }
+
+    public function updatedHighlightedPlayerId()
+    {
+        $this->updateActiveEntryIds();
+    }
+
+    public function updateActiveEntryIds()
+    {
+        if (!$this->highlightedPlayerId || !$this->tournament) {
+            $this->activeEntryIds = [];
+            return;
+        }
+
+        $this->activeEntryIds = \App\Models\TournamentEntry::where('tournament_id', $this->tournament->id)
+            ->where('player_id', $this->highlightedPlayerId)
+            ->pluck('id')
+            ->toArray();
     }
 
     public function loadLeaderboard()
@@ -169,19 +212,7 @@ class Show extends Component
             ->get();
     }
 
-    public function refreshData()
-    {
-        if ($this->tournament) {
-            $this->tournament->refresh();
-            $this->stages = $this->tournament->stages;
-        }
-        
-        $this->loadStageData();
-        $this->loadLeaderboard();
-        $this->loadMatches();
-        $this->loadTopScorers();
-        $this->loadPopularClubsCombined();
-    }
+
 
     public function render()
     {

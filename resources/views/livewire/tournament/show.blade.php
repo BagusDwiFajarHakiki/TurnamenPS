@@ -30,7 +30,7 @@
 
         <div class="container">
             <!-- Rules and payment information -->
-            <div class="grid grid-cols-2" style="margin-bottom: 3rem; gap: 1.75rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); margin-bottom: 3rem; gap: 1.75rem;">
                 <!-- Tournament Rules -->
                 <div class="glass-card">
                     <h3 class="card-title" style="color: var(--primary); font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
@@ -80,8 +80,8 @@
                 </div>
             </div>
 
-            <!-- Live Stats & Standings (3 Columns) -->
-            <div class="grid grid-cols-3" style="margin-bottom: 3rem; gap: 1.75rem; display: grid;">
+            <!-- Live Stats & Standings -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 3rem; gap: 1.75rem;">
                 <!-- Column 1: BAGAN LIVE -->
                 <div class="glass-card" style="display: flex; flex-direction: column; justify-content: flex-start;">
                     <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--primary); font-weight: 700; text-transform: lowercase; margin-bottom: 0.5rem;">
@@ -220,22 +220,35 @@
                 <!-- Visual Seeding and Tree Bracket -->
                 @if ($activeStageId)
                     <div style="margin-bottom: 4rem;">
-                        <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--primary);">
-                            🌳 {{ __('Tournament Bracket') }}
-                        </h4>
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="font-weight: 700; color: var(--primary); margin: 0; text-align: center;">
+                                {{ __('Tournament Bracket') }}
+                            </h4>
+                        </div>
+                        
+                        @if (!empty($playersInStage))
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; margin-bottom: 2rem;">
+                                <label for="playerHighlight" style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Sorot Pemain:</label>
+                                <select wire:model.live="highlightedPlayerId" id="playerHighlight" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); font-size: 0.95rem; min-width: 200px;">
+                                    <option value="">-- Tampilkan Semua --</option>
+                                    @foreach($playersInStage as $p)
+                                        <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                         
                         @if (empty($rounds))
                             <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">
                                 {{ app()->getLocale() == 'id' ? 'Bagan pertandingan belum digenerate.' : 'The tournament bracket has not been generated yet.' }}
                             </p>
                         @else
-                            @include('_partials.bracket-tree', ['bracketRounds' => $rounds])
+                            @include('_partials.bracket-tree', ['bracketRounds' => $rounds, 'activeEntryIds' => $activeEntryIds])
                         @endif
                     </div>
                 @endif
 
-                <!-- Leaderboard & Match schedules -->
-                <div class="grid grid-cols-2" style="gap: 2rem;">
+                <!-- Leaderboard & Match schedules -->                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
                     <!-- Leaderboard -->
                     <div>
                         <h4 style="margin-bottom: 1.5rem; font-weight: 800; color: var(--accent); font-size: 1.1rem;">
@@ -303,7 +316,7 @@
                                     $homeName = $homePart?->entry?->display_name ?? 'TBD';
                                     $awayName = $awayPart?->entry?->display_name ?? 'TBD';
                                 @endphp
-                                <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid {{ $match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)' }}; border-radius: 0 12px 12px 0;">
+                                <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid {{ $match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)' }}; border-radius: 12px;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                         <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: {{ $match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)' }}; color: {{ $match->status === 'ongoing' ? 'var(--primary)' : '#FFC107' }};">
                                             {{ strtoupper($match->status) }}

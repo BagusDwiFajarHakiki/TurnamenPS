@@ -18,7 +18,7 @@
 
     <!-- PERSONAL STATISTICS (Horizontal) -->
     <div style="margin-bottom: 3rem;">
-        <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; margin-bottom: 1.5rem; color: var(--accent);">
+        <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; margin-bottom: 1.5rem; color: var(--primary);">
             {{ __('Statistik Lintas Slot Anda') }}
         </h3>
         @php
@@ -54,28 +54,28 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; text-align: center;">
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Total Goal</span>
-                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--primary); margin-top: 0.25rem;">
+                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--text-main); margin-top: 0.25rem;">
                     {{ $totalGoals }}
                 </div>
             </div>
 
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Win Streak</span>
-                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--accent); margin-top: 0.25rem;">
+                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--text-main); margin-top: 0.25rem;">
                     {{ $currentStreak }}
                 </div>
             </div>
 
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Rasio Menang</span>
-                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--secondary); margin-top: 0.25rem;">
+                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--text-main); margin-top: 0.25rem;">
                     {{ $winRatio }}
                 </div>
             </div>
 
             <div class="card" style="padding: 1.25rem;">
                 <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Rekor Win Streak</span>
-                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--secondary); margin-top: 0.25rem;">
+                <div class="stat-card-value" style="font-size: clamp(1.75rem, 5vw, 2.25rem); font-weight: 800; color: var(--text-main); margin-top: 0.25rem;">
                     {{ $bestStreak }}
                 </div>
             </div>
@@ -87,8 +87,7 @@
         <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; margin-bottom: 1.5rem; color: var(--primary);">
             {{ app()->getLocale() == 'id' ? 'Pendaftaran Turnamen Dibuka' : 'Open Tournaments' }}
         </h3>
-        
-        <div class="grid grid-cols-2">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
             @forelse ($openTournaments as $t)
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
@@ -134,21 +133,19 @@
     @if ($activeEntries->isNotEmpty())
         <div style="margin-bottom: 3rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;">
-                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--accent);">
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
                     {{ __('Your Active Slots') }}
                 </h3>
             </div>
-            
-            <div>
-                <div class="grid grid-cols-2">
-                    @foreach ($activeEntries as $entry)
-                        @php
-                            $t = $entry->tournament;
-                        @endphp
-                        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
-                            <div>
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
-                                    <span style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">{{ $entry->display_name }}</span>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                @foreach ($activeEntries as $entry)
+                    @php
+                        $t = $entry->tournament;
+                    @endphp
+                    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                                <span style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">{{ $entry->display_name }}</span>
                                     @if ($entry->status === 'verified')
                                         <span class="badge badge-success">AKTIF</span>
                                     @else
@@ -178,14 +175,13 @@
                     @endforeach
                 </div>
             </div>
-        </div>
     @endif
 
     <!-- TOURNAMENT TREE BRACKET AND HISTORY -->
     <div>
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-            <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+            <h3 style="font-size: clamp(1.15rem, 3vw, 1.5rem); font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
                 {{ __('Riwayat & Bagan Turnamen Anda') }}
             </h3>
 

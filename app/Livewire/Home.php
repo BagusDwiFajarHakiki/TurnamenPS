@@ -12,10 +12,26 @@ use Illuminate\Support\Facades\DB;
 
 class Home extends Component
 {
-    public $openTournaments = [];
-    public $ongoingTournaments = [];
-    public $topPlayers = [];
-    public $latestTournament = null;
+    public $highlightedPlayers = [];
+    public $playersInTournaments = [];
+    public $activeEntryIdsByTournament = [];
+
+    public function updatedHighlightedPlayers($value, $key)
+    {
+        $this->updateActiveEntryIds($key, $value);
+    }
+
+    public function updateActiveEntryIds($tournamentId, $playerId)
+    {
+        if (!$playerId) {
+            $this->activeEntryIdsByTournament[$tournamentId] = [];
+            return;
+        }
+        $this->activeEntryIdsByTournament[$tournamentId] = \App\Models\TournamentEntry::where('tournament_id', $tournamentId)
+            ->where('player_id', $playerId)
+            ->pluck('id')
+            ->toArray();
+    }
 
     public function mount()
     {
@@ -35,16 +51,22 @@ class Home extends Component
             ->where('tournament_end', '>', now())
             ->get()
             ->each->tryStartTournament();
+    }
 
-        $this->loadOpenTournaments();
-        $this->loadOngoingTournaments();
-        $this->loadLatestTournament();
-        $this->loadTopPlayers();
+    public function render()
+    {
+        return view('livewire.home', [
+            'openTournaments' => $this->loadOpenTournaments(),
+            'ongoingTournaments' => $this->loadOngoingTournaments(),
+            'latestTournament' => $this->loadLatestTournament(),
+            'topPlayers' => $this->loadTopPlayers(),
+        ])
+            ->layout('components.layouts.app', ['title' => 'Infinity Boxzone - Turnamen PlayStation']);
     }
 
     public function loadTopPlayers()
     {
-        $this->topPlayers = Player::withSum('aggregates as total_wins', 'total_wins')
+        return Player::withSum('aggregates as total_wins', 'total_wins')
             ->withSum('aggregates as total_goals', 'total_goals_scored')
             ->withSum('aggregates as total_matches', 'total_matches_played')
             ->having('total_matches', '>', 0)
@@ -58,7 +80,7 @@ class Home extends Component
     {
         // Assuming status 'registration' means open for registration.
         // We will also grab 'upcoming' if there are any.
-        $this->openTournaments = Tournament::whereIn('status', ['registration', 'upcoming'])
+        return Tournament::whereIn('status', ['registration', 'upcoming'])
             ->where('registration_end', '>=', now())
             ->withCount('entries')
             ->orderBy('id', 'desc')
@@ -121,6 +143,12 @@ class Home extends Component
                             ];
                         })->toArray();
                     });
+                    
+                $playerIds = $matches->flatMap->participants->pluck('entry.player_id')->filter()->unique();
+                $this->playersInTournaments[$tournament->id] = \App\Models\Player::whereIn('id', $playerIds)
+                    ->orderBy('name')
+                    ->get(['id', 'name'])
+                    ->toArray();
             }
             $tournament->upcomingMatches = collect();
             $tournament->completedMatches = collect();
@@ -147,7 +175,7 @@ class Home extends Component
                 }
         }
 
-        $this->ongoingTournaments = $tournaments;
+        return $tournaments;
     }
 
     public function loadLatestTournament()
@@ -159,8 +187,7 @@ class Home extends Component
             ->first();
 
         if (!$tournament) {
-            $this->latestTournament = null;
-            return;
+            return null;
         }
 
         $activeStage = $tournament->stages->whereIn('status', ['ongoing', 'upcoming'])->first() ?? $tournament->stages->last();
@@ -202,6 +229,12 @@ class Home extends Component
                         ];
                     })->toArray();
                 });
+                
+            $playerIds = $matches->flatMap->participants->pluck('entry.player_id')->filter()->unique();
+            $this->playersInTournaments[$tournament->id] = \App\Models\Player::whereIn('id', $playerIds)
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray();
         }
 
         $tournament->upcomingMatches = collect();
@@ -268,12 +301,6 @@ class Home extends Component
                 });
         }
 
-        $this->latestTournament = $tournament;
-    }
-
-    public function render()
-    {
-        return view('livewire.home')
-            ->layout('components.layouts.app', ['title' => 'Infinity Boxzone - Turnamen PlayStation']);
+        return $tournament;
     }
 }

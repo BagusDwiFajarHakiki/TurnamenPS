@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->spa()
+            ->globalSearch(false)
             ->brandName('Infinity Boxzone')
             ->brandLogo(fn () => view('filament.brand-logo'))
             ->favicon('/images/logo.png')
@@ -75,6 +76,20 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::HEAD_END,
+                fn (): string => '<style>
+                    @media (max-width: 1024px) {
+                        html, body, .fi-layout, .fi-main, .fi-layout-main {
+                            height: auto !important;
+                            overflow: visible !important;
+                            overscroll-behavior-y: auto !important;
+                        }
+                        /* Ensure the sidebar overlay still works correctly when scrolling */
+                        .fi-sidebar { position: fixed !important; }
+                    }
+                </style>'
+            );
     }
 }

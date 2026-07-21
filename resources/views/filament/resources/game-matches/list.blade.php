@@ -181,6 +181,63 @@
             flex-direction: column; 
             gap: 1rem;
         }
+
+        .score-layout {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .score-box {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .vs-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .quick-input-container {
+                flex-direction: column;
+                flex-wrap: nowrap;
+            }
+            .list-column-wrapper {
+                min-width: 100% !important;
+                flex: none;
+            }
+            .list-scroll-container {
+                height: 350px; /* Fixed height so absolute content doesn't collapse */
+                flex-grow: 0;
+            }
+            .right-column-wrapper {
+                min-width: 100% !important;
+                flex: none;
+            }
+            .score-layout {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .vs-divider {
+                flex-direction: row;
+                width: 100%;
+                padding: 0.5rem 0;
+            }
+            .hide-on-mobile {
+                display: none !important;
+            }
+        }
     </style>
 
     {{-- Tournament Header Selector --}}
@@ -200,9 +257,6 @@
             </div>
         </div>
 
-        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); background: var(--bg-item); border: 1px solid var(--border-color); padding: 0.45rem 1rem; border-radius: 30px; display: flex; align-items: center; gap: 0.5rem;">
-            <span style="color: var(--primary);">●</span> Mode Input Cepat (Split View)
-        </div>
     </div>
 
     {{-- Main Split View Grid --}}
@@ -513,7 +567,7 @@
         </div>
 
         {{-- RIGHT COLUMN: SCOREBOARD INPUT CONSOLE (70% width) --}}
-        <div style="flex: 2; min-width: 500px; display: flex; flex-direction: column; gap: 1rem;">
+        <div class="right-column-wrapper" style="flex: 2; display: flex; flex-direction: column; gap: 1rem;">
             <h3 style="font-size: 0.9rem; font-weight: 800; color: var(--primary); letter-spacing: 0.8px; text-transform: uppercase;">
                 INPUT HASIL PERTANDINGAN
             </h3>
@@ -587,10 +641,10 @@
                                     </div>
                                 </div>
                             @else
-                                <div class="sub-panel" style="display: flex; align-items: stretch; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;">
+                                <div class="sub-panel score-layout">
                                     
                                     {{-- HOME BOX --}}
-                                    <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem;">
+                                    <div class="score-box">
                                         <span style="font-size: 0.65rem; font-weight: 800; color: var(--primary); background: rgba(57, 211, 83, 0.1); border: 1px solid rgba(57, 211, 83, 0.2); padding: 0.15rem 0.45rem; border-radius: 4px; letter-spacing: 0.5px;">HOME</span>
                                         
                                         <div style="font-weight: 800; font-size: 1rem; color: var(--text-main); margin-bottom: 0.25rem;">
@@ -598,9 +652,11 @@
                                         </div>
                                         
                                         <input 
-                                            type="number" 
+                                            type="text" 
+                                            inputmode="numeric" 
+                                            pattern="[0-9]*" 
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                             wire:model.live.debounce.500ms="homeScore" 
-                                            min="0" 
                                             required 
                                             class="score-input home"
                                         >
@@ -619,15 +675,15 @@
                                     </div>
 
                                     {{-- CENTER VS DIVIDER --}}
-                                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 80px; gap: 0.5rem;">
+                                    <div class="vs-divider">
                                         <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(57, 211, 83, 0.1); border: 1px solid rgba(57, 211, 83, 0.3); display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--primary); font-size: 0.8rem; box-shadow: 0 0 8px rgba(57, 211, 83, 0.1);">
                                             VS
                                         </div>
-                                        <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">SCORE</span>
+                                        <span class="hide-on-mobile" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px;">SCORE</span>
                                     </div>
 
                                     {{-- AWAY BOX --}}
-                                    <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.75rem;">
+                                    <div class="score-box">
                                         <span style="font-size: 0.65rem; font-weight: 800; color: var(--secondary); background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.1); padding: 0.15rem 0.45rem; border-radius: 4px; letter-spacing: 0.5px;">AWAY</span>
                                         
                                         <div style="font-weight: 800; font-size: 1rem; color: var(--text-main); margin-bottom: 0.25rem;">
@@ -635,9 +691,11 @@
                                         </div>
                                         
                                         <input 
-                                            type="number" 
+                                            type="text" 
+                                            inputmode="numeric" 
+                                            pattern="[0-9]*" 
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                             wire:model.live.debounce.500ms="awayScore" 
-                                            min="0" 
                                             required 
                                             class="score-input away"
                                         >
@@ -693,12 +751,12 @@
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; background: rgba(57,211,83,0.03); border: 1px dashed rgba(57, 211, 83, 0.2); padding: 1.25rem; border-radius: 12px;">
                                     <div>
                                         <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">SKOR PENALTI (HOME)</label>
-                                        <input type="number" wire:model.live.debounce.500ms="penaltyScoreHome" min="0" required style="width: 100%; background: #1c1d22; border: 1px solid #343742; border-radius: 6px; padding: 0.45rem; text-align: center; font-size: 1.1rem; font-weight: 800; color: #39d353; outline: none;">
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" wire:model.live.debounce.500ms="penaltyScoreHome" required style="width: 100%; background: #1c1d22; border: 1px solid #343742; border-radius: 6px; padding: 0.45rem; text-align: center; font-size: 1.1rem; font-weight: 800; color: #39d353; outline: none;">
                                         @error('penaltyScoreHome') <span style="color: var(--danger); font-size: 0.75rem;">{{ $message }}</span> @enderror
                                     </div>
                                     <div>
                                         <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">SKOR PENALTI (AWAY)</label>
-                                        <input type="number" wire:model.live.debounce.500ms="penaltyScoreAway" min="0" required style="width: 100%; background: #1c1d22; border: 1px solid #343742; border-radius: 6px; padding: 0.45rem; text-align: center; font-size: 1.1rem; font-weight: 800; color: #f43f5e; outline: none;">
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" wire:model.live.debounce.500ms="penaltyScoreAway" required style="width: 100%; background: #1c1d22; border: 1px solid #343742; border-radius: 6px; padding: 0.45rem; text-align: center; font-size: 1.1rem; font-weight: 800; color: #f43f5e; outline: none;">
                                         @error('penaltyScoreAway') <span style="color: var(--danger); font-size: 0.75rem;">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
@@ -707,7 +765,7 @@
                             {{-- Upload Screenshot --}}
                             @if ($this->status !== 'walkover')
                                 <div class="sub-panel" style="padding: 1.25rem !important;">
-                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">📸 UNGGAH SCREENSHOT / BUKTI MATCH</label>
+                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">UNGGAH SCREENSHOT / BUKTI MATCH</label>
                                     
                                     <div style="border: 2px dashed #343742; border-radius: 10px; padding: 1.75rem 1rem; text-align: center; position: relative; background: rgba(255,255,255,0.01); cursor: pointer; transition: border-color 0.2s;"
                                          onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='#343742'"

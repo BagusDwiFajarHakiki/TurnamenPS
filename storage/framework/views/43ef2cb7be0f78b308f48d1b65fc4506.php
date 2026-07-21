@@ -24,32 +24,31 @@
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles(); ?>
 
 </head>
-<body style="display: flex; flex-direction: column; height: 100vh; overflow: hidden; margin: 0;">
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
     <!-- Use a simple script to handle transparent nav on home page -->
-    <nav class="<?php echo e(request()->is('/') ? 'nav-at-top' : ''); ?>" id="mainNav" data-is-home="<?php echo e(request()->is('/') ? 'true' : 'false'); ?>" style="flex-shrink: 0; max-width: 1200px; margin: 0 auto; width: 100%;">
-        <a href="/" wire:navigate class="nav-brand" style="text-transform: none; letter-spacing: 0; gap: 0.5rem;"><img src="/images/logo.png" alt="Infinity Boxzone" style="height: 32px; width: auto;"> <span>INFINITY BOXZONE</span></a>
-        <div class="nav-links">
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard('player')->check()): ?>
-                <a href="<?php echo e(route('player.dashboard')); ?>" wire:navigate class="nav-link <?php echo e(request()->is('dashboard') ? 'active' : ''); ?>"><?php echo e(__('Dasbor')); ?></a>
-            <?php else: ?>
-                <a href="<?php echo e(route('player.login')); ?>" wire:navigate class="nav-link <?php echo e(request()->routeIs('player.login') ? 'active' : ''); ?>"><?php echo e(__('Login')); ?></a>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <nav class="<?php echo e(request()->is('/') ? 'nav-at-top' : ''); ?>" id="mainNav" data-is-home="<?php echo e(request()->is('/') ? 'true' : 'false'); ?>" style="flex-shrink: 0; width: 100%; padding: 0;">
+        <div style="max-width: 1200px; margin: 0 auto; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem clamp(0.75rem, 3vw, 1.5rem);">
+            <a href="/" wire:navigate class="nav-brand" style="text-transform: none; letter-spacing: 0; gap: 0.5rem;"><img src="/images/logo.png" alt="Infinity Boxzone" style="height: 32px; width: auto;"></a>
+            <div class="nav-links">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->guard('player')->check()): ?>
+                    <a href="<?php echo e(route('player.dashboard')); ?>" wire:navigate class="nav-link nav-auth-link <?php echo e(request()->is('dashboard') ? 'active' : ''); ?>"><?php echo e(__('Dasbor')); ?></a>
+                <?php else: ?>
+                    <a href="<?php echo e(route('player.login')); ?>" wire:navigate class="nav-link nav-auth-link <?php echo e(request()->routeIs('player.login') ? 'active' : ''); ?>"><?php echo e(__('Login')); ?></a>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-            <!-- Language Switcher -->
-            <div style="display: flex; align-items: center; gap: 0.25rem; border-left: 1px solid var(--border-color); padding-left: 1rem; margin-left: 0.5rem;">
-                <a href="/set-locale/id" class="nav-link" style="font-size: 0.85rem; <?php echo e(app()->getLocale() == 'id' ? 'color: var(--primary); font-weight: bold;' : ''); ?>">ID</a>
-                <span style="color: var(--text-muted)">|</span>
-                <a href="/set-locale/en" class="nav-link" style="font-size: 0.85rem; <?php echo e(app()->getLocale() == 'en' ? 'color: var(--primary); font-weight: bold;' : ''); ?>">EN</a>
-                
-                <!-- Theme Toggle Button -->
-                <button id="themeToggleBtn" onclick="toggleTheme()" style="background: none; border: none; cursor: pointer; padding: 0 0.5rem; display: flex; align-items: center; color: var(--text-main); font-size: 1.1rem; margin-left: 0.75rem; transition: color 0.2s;" title="Toggle Light/Dark Mode">
-                    <span id="themeToggleIcon">☀️</span>
-                </button>
+                <!-- Language and Theme Controls -->
+                <div style="display: flex; align-items: center; gap: 0.25rem; border-left: 1px solid var(--border-color); padding-left: 1rem; margin-left: 0.5rem;">
+                    
+                    <!-- Theme Toggle Button -->
+                    <button id="themeToggleBtn" onclick="toggleTheme()" style="position: relative; width: 44px; height: 24px; border-radius: 24px; background: var(--bg-surface); border: 1px solid var(--border-color); cursor: pointer; padding: 0; transition: background-color 0.3s; display: flex; align-items: center; margin-left: 0.75rem;" title="Toggle Light/Dark Mode">
+                        <div id="themeToggleSlider" style="position: absolute; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div id="scrollContainer" style="flex-grow: 1; overflow-y: auto; overflow-x: hidden;">
+    <div id="scrollContainer" style="flex-grow: 1; overflow-x: hidden;">
         <main>
             <?php echo e($slot); ?>
 
@@ -71,20 +70,26 @@
             updateThemeIcon(isLight ? 'light' : 'dark');
         }
 
-        function updateThemeIcon(theme) {
-            const iconSpan = document.getElementById('themeToggleIcon');
-            if (iconSpan) {
-                iconSpan.textContent = theme === 'light' ? '🌙' : '☀️';
-            }
-        }
-
         function initTheme() {
-            const currentTheme = localStorage.getItem('theme') || 'dark';
-            updateThemeIcon(currentTheme);
-            if (currentTheme === 'light') {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
                 document.documentElement.classList.add('light-theme');
             } else {
                 document.documentElement.classList.remove('light-theme');
+            }
+            updateThemeIcon(theme);
+        }
+
+        function updateThemeIcon(theme) {
+            const slider = document.getElementById('themeToggleSlider');
+            if (slider) {
+                if (theme === 'light') {
+                    slider.style.transform = 'translateX(20px)';
+                    slider.style.background = 'var(--bg-main)';
+                } else {
+                    slider.style.transform = 'translateX(0)';
+                    slider.style.background = 'var(--primary)';
+                }
             }
         }
 
@@ -106,9 +111,8 @@
 
         function handleScroll() {
             const nav = document.getElementById('mainNav');
-            const scrollContainer = document.getElementById('scrollContainer');
-            if (nav && nav.dataset.isHome === 'true' && scrollContainer) {
-                if (scrollContainer.scrollTop > 50) {
+            if (nav && nav.dataset.isHome === 'true') {
+                if (window.scrollY > 50) {
                     nav.classList.remove('nav-at-top');
                 } else {
                     nav.classList.add('nav-at-top');
@@ -119,10 +123,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
             handleScroll();
-            const scrollContainer = document.getElementById('scrollContainer');
-            if (scrollContainer) {
-                scrollContainer.addEventListener('scroll', handleScroll);
-            }
+            window.addEventListener('scroll', handleScroll);
         });
         
         document.addEventListener('livewire:navigated', () => {

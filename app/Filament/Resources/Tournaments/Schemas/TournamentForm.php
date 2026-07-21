@@ -33,23 +33,29 @@ class TournamentForm
                     TextInput::make('min_slots_per_player')
                         ->label('Minimal Slot per Pemain')
                         ->numeric()
+                        ->minValue(1)
                         ->required()
                         ->markAsRequired(false)
-                        ->placeholder('1'),
+                        ->placeholder('1')
+                        ->extraInputAttributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*', 'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"]),
 
                     TextInput::make('max_slot_per_player')
                         ->label('Maksimal Slot per Pemain')
                         ->numeric()
+                        ->minValue(1)
                         ->required()
                         ->markAsRequired(false)
-                        ->placeholder('5'),
+                        ->placeholder('5')
+                        ->extraInputAttributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*', 'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"]),
 
                     TextInput::make('max_entries')
                         ->label('Total Slot Turnamen')
                         ->numeric()
+                        ->minValue(1)
                         ->required()
                         ->markAsRequired(false)
-                        ->placeholder('128'),
+                        ->placeholder('128')
+                        ->extraInputAttributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*', 'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"]),
 
                     Select::make('status')
                         ->label('Status')
@@ -68,10 +74,12 @@ class TournamentForm
                     TextInput::make('price_per_slot')
                         ->label('Harga per Slot')
                         ->numeric()
+                        ->minValue(0)
                         ->required()
                         ->markAsRequired(false)
                         ->prefix('Rp')
-                        ->placeholder('0'),
+                        ->placeholder('0')
+                        ->extraInputAttributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*', 'oninput' => "this.value = this.value.replace(/[^0-9]/g, '')"]),
 
                     DateTimePicker::make('registration_start')
                         ->label('Pendaftaran Dibuka')

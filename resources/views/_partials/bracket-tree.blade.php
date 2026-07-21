@@ -102,12 +102,8 @@
 @endphp
 
 <style>
-    .bracket-tree-desktop { display: none; }
-    .bracket-tree-mobile { display: flex; }
-    @media (min-width: 1024px) {
-        .bracket-tree-desktop { display: block !important; }
-        .bracket-tree-mobile { display: none !important; }
-    }
+    .bracket-tree-desktop { display: block; }
+    .bracket-tree-mobile { display: none; }
 </style>
 
 @if(empty($filteredRounds) && !$thirdPlaceMatch)

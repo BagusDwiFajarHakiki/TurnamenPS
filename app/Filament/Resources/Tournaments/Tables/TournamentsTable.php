@@ -22,15 +22,13 @@ class TournamentsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nama')
                     ->searchable()
                     ->sortable()
                     ->url(fn ($record) => TournamentResource::getUrl('recap', ['record' => $record])),
 
-                TextColumn::make('game_title')
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('price_per_slot')
+                    ->label('Harga per Slot')
                     ->money('IDR')
                     ->sortable(),
 
@@ -47,6 +45,7 @@ class TournamentsTable
                     }),
 
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
@@ -58,11 +57,13 @@ class TournamentsTable
                     ->sortable(),
 
                 TextColumn::make('registration_start')
+                    ->label('Pendaftaran Dibuka')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('tournament_start')
+                    ->label('Turnamen Dimulai')
                     ->dateTime()
                     ->sortable(),
             ])

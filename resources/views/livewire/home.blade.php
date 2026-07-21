@@ -11,9 +11,12 @@
                 Welcome to the Arena
             </div>
             
-            <h1 style="font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 900; margin-bottom: 1.5rem; line-height: 1.1; letter-spacing: -2px; color: var(--text-main); display: flex; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                <span class="typewriter-text" style="display: inline-block; overflow: hidden; white-space: nowrap; border-right: .15em solid var(--primary); margin: 0 auto; letter-spacing: -2px;">
-                    Infinity <span class="gradient-text">Boxzone</span>
+            <h1 style="font-size: clamp(3.5rem, 15vw, 5.5rem); font-weight: 900; margin-bottom: 1.5rem; line-height: 1.1; letter-spacing: -2px; color: var(--text-main); display: flex; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                <span style="display: inline-block; width: max-content; margin: 0 auto; max-width: 100%;">
+                    <span class="typewriter-text hero-title-text">
+                        <span>Infinity</span>
+                        <span class="gradient-text">Boxzone</span>
+                    </span>
                 </span>
             </h1>
             
@@ -33,17 +36,9 @@
                 }
                }" 
                x-init="setTimeout(() => typeWriter(), 1800)"
-               style="font-size: clamp(1.1rem, 2vw, 1.35rem); color: var(--text-main); text-shadow: 0 2px 10px rgba(0,0,0,0.6); margin-bottom: 3.5rem; line-height: 1.6; max-width: 650px; margin-left: auto; margin-right: auto; font-weight: 400; min-height: 4.5rem; animation: fadeInUp 1s ease-out 1s forwards; opacity: 0;">
+               style="font-size: clamp(1.1rem, 2vw, 1.35rem); text-align: center; color: var(--text-main); text-shadow: 0 2px 10px rgba(0,0,0,0.6); margin-bottom: 3.5rem; line-height: 1.6; max-width: 650px; margin-left: auto; margin-right: auto; font-weight: 400; min-height: 4.5rem; animation: fadeInUp 1s ease-out 1s forwards; opacity: 0;">
                 <span x-text="text"></span><span x-show="text.length < fullText.length" style="border-right: .15em solid var(--primary); animation: blink-caret .75s step-end infinite;">&nbsp;</span>
             </p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 1s ease-out 1.2s forwards; opacity: 0;">
-                <a href="#open-tournaments" class="btn btn-primary" style="padding: 1rem 3rem; border-radius: 100px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 10px 25px rgba(57, 211, 83, 0.25); text-transform: uppercase; letter-spacing: 1px;">
-                    Daftar Turnamen
-                </a>
-                <a href="#ongoing-tournaments" class="btn btn-secondary" style="padding: 1rem 3rem; border-radius: 100px; font-weight: 700; font-size: 1.1rem; background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: var(--text-main); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 1px 4px rgba(0,0,0,0.4);">
-                    Jelajahi Bagan Live
-                </a>
-            </div>
         </div>
         
         <!-- Scroll indicator -->
@@ -131,21 +126,41 @@
         </div>
 
         @foreach($ongoingTournaments as $tournament)
-        <div class="glass-card" style="margin-bottom: 3rem; padding: 2rem; border-radius: 16px; overflow-x: auto;">
-            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; color: var(--text-main);">
-                {{ $tournament->name }}
-            </h3>
-            
-            <div class="bracket-wrapper" style="width: 100%;">
+        <div style="margin-bottom: 3rem;">
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; text-align: center; color: var(--text-main);">
+                    {{ $tournament->name }}
+                </h3>
+                
                 @if($tournament->baganLiveMatches->isNotEmpty())
-                    @include('_partials.bracket-tree', ['bracketRounds' => $tournament->baganLiveMatches->toArray()])
+                    @if (!empty($playersInTournaments[$tournament->id]))
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; margin-bottom: 1rem; width: 100%;">
+                            <label for="playerHighlight_{{ $tournament->id }}" style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Sorot Pemain:</label>
+                            <select wire:model.live="highlightedPlayers.{{ $tournament->id }}" id="playerHighlight_{{ $tournament->id }}" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); font-size: 0.95rem; min-width: 200px;">
+                                <option value="">-- Tampilkan Semua --</option>
+                                @foreach($playersInTournaments[$tournament->id] as $p)
+                                    <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                 @endif
             </div>
-
-            <!-- Jadwal dan Hasil Pertandingan -->
-            <div class="grid grid-cols-1" style="margin-top: 3rem; gap: 2rem; display: grid;">
-                <!-- Jadwal & Sedang Berjalan -->
-                <div>
+            
+            @if($tournament->baganLiveMatches->isNotEmpty())
+            <div style="width: 100%; overflow-x: auto; margin-bottom: 2rem;">
+                @include('_partials.bracket-tree', [
+                    'bracketRounds' => $tournament->baganLiveMatches->toArray(),
+                    'activeEntryIds' => $activeEntryIdsByTournament[$tournament->id] ?? []
+                ])
+            </div>
+            @endif
+            
+            <div>
+                <!-- Jadwal dan Hasil Pertandingan -->
+                <div class="grid grid-cols-1" style="margin-top: 1rem; gap: 2rem; display: grid;">
+                    <!-- Jadwal & Sedang Berjalan -->
+                    <div>
                     <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-main); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
                         <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--primary); box-shadow: 0 0 8px var(--primary); animation: pulse 2s infinite;"></span> Jadwal Aktif
                     </h4>
@@ -226,7 +241,7 @@
                 <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 500px;">Turnamen terakhir yang diadakan beserta bagan dan jadwal pertandingannya.</p>
             </div>
 
-            <div class="glass-card" style="padding: 2rem; border-radius: 16px; overflow-x: auto;">
+            <div>
                 <!-- Tournament Header -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
                     <div>
@@ -274,17 +289,36 @@
                     </div>
                 </div>
 
+                <!-- Tournament Bracket Header -->
+                @if($latestTournament->baganLiveMatches->isNotEmpty())
+                    <h4 style="margin-top: 2rem; margin-bottom: 1.5rem; font-weight: 700; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                        <span>{{ __('Tournament Bracket') }}</span>
+                    </h4>
+                    
+                    @if (!empty($playersInTournaments[$latestTournament->id]))
+                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.5rem; margin-bottom: 1rem; width: 100%;">
+                            <label for="playerHighlight_{{ $latestTournament->id }}" style="font-size: 0.95rem; font-weight: 600; color: var(--text-main);">Sorot Pemain:</label>
+                            <select wire:model.live="highlightedPlayers.{{ $latestTournament->id }}" id="playerHighlight_{{ $latestTournament->id }}" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-main); font-size: 0.95rem; min-width: 200px;">
+                                <option value="">-- Tampilkan Semua --</option>
+                                @foreach($playersInTournaments[$latestTournament->id] as $p)
+                                    <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+                @endif
+                
                 <!-- Bracket -->
                 @if($latestTournament->baganLiveMatches->isNotEmpty())
-                    <div style="margin-bottom: 2rem;">
-                        <h4 style="font-weight: 700; color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem;">
-                            Bagan Pertandingan
-                        </h4>
-                        <div class="bracket-wrapper" style="width: 100%;">
-                            @include('_partials.bracket-tree', ['bracketRounds' => $latestTournament->baganLiveMatches->toArray()])
-                        </div>
+                    <div style="width: 100%; overflow-x: auto; margin-bottom: 2rem;">
+                        @include('_partials.bracket-tree', [
+                            'bracketRounds' => $latestTournament->baganLiveMatches->toArray(),
+                            'activeEntryIds' => $activeEntryIdsByTournament[$latestTournament->id] ?? []
+                        ])
                     </div>
                 @endif
+                
+                <div>
 
                 <!-- Match Schedule (Disembunyikan) -->
             </div>
@@ -359,6 +393,46 @@
         }
         @keyframes hide-caret {
             to { border-color: transparent; border-right-width: 0; }
+        }
+        .hero-title-text {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: .15em solid var(--primary);
+            margin: 0 auto;
+            letter-spacing: -2px;
+        }
+        .typewriter-text {
+            animation: typing 1.5s steps(15, end) forwards;
+        }
+        @keyframes typing-mobile {
+            from { clip-path: inset(-10px 100% -10px -10px); }
+            to { clip-path: inset(-10px -20px -10px -10px); }
+        }
+        @media (max-width: 768px) {
+            .typewriter-text {
+                animation: none !important;
+                border-right: none !important;
+                width: auto !important;
+            }
+            .hero-title-text {
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+                border-right: none;
+                clip-path: none;
+            }
+            .hero-title-text > span {
+                clip-path: inset(-10px 100% -10px -10px);
+            }
+            .hero-title-text > span:first-child {
+                animation: typing-mobile 0.8s steps(15, end) 0.2s forwards;
+            }
+            .hero-title-text > span:last-child {
+                animation: typing-mobile 0.8s steps(15, end) 1.0s forwards;
+            }
         }
         .typewriter-text {
             animation: 

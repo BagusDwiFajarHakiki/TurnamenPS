@@ -16,8 +16,6 @@ class ClubsTable
     {
         return $table
             ->columns([
-                ImageColumn::make('logo')
-                    ->circular(),
 
                 TextColumn::make('name')
                     ->label('Nama Klub')
