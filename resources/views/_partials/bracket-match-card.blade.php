@@ -33,7 +33,7 @@
 <div class="bracket-player border-b border-gray-200 dark:border-gray-700/50" style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; font-size: 0.82rem; background: {{ ($home && $home['is_winner']) ? 'rgba(16, 185, 129, 0.08)' : ($isHomeActive ? 'rgba(16, 185, 129, 0.05)' : '') }}">
     <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; min-width: 0;">
         <span class="text-gray-900 dark:text-white" style="font-weight: {{ $isHomeActive ? '800' : '700' }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: {{ $homeEmpty ? 'var(--text-muted)' : ($isHomeActive ? 'var(--primary)' : 'inherit') }}; font-style: {{ $homeEmpty ? 'italic' : 'normal' }};">
-            {{ $homeEmpty ? 'Menunggu Check-in' : ($homeTbd ? 'TBD' : ($home['player_name'] ?? 'BYE')) }}
+            {{ $homeEmpty ? 'TBD' : ($homeTbd ? 'TBD' : ($home['player_name'] ?? 'BYE')) }}
         </span>
         @if($home && ($home['club_name'] ?? null))
             <span class="text-gray-500 dark:text-gray-400" style="font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $home['club_name'] }}</span>
@@ -47,7 +47,7 @@
 <div class="bracket-player" style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; font-size: 0.82rem; background: {{ ($away && $away['is_winner']) ? 'rgba(16, 185, 129, 0.08)' : ($isAwayActive ? 'rgba(16, 185, 129, 0.05)' : '') }}">
     <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; min-width: 0;">
         <span class="text-gray-900 dark:text-white" style="font-weight: {{ $isAwayActive ? '800' : '700' }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: {{ $awayEmpty ? 'var(--text-muted)' : ($isAwayActive ? 'var(--primary)' : 'inherit') }}; font-style: {{ $awayEmpty ? 'italic' : 'normal' }};">
-            {{ $awayEmpty ? 'Menunggu Check-in' : ($awayTbd ? 'TBD' : ($away['player_name'] ?? 'BYE')) }}
+            {{ $awayEmpty ? 'TBD' : ($awayTbd ? 'TBD' : ($away['player_name'] ?? 'BYE')) }}
         </span>
         @if($away && ($away['club_name'] ?? null))
             <span class="text-gray-500 dark:text-gray-400" style="font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $away['club_name'] }}</span>

@@ -121,7 +121,7 @@ class TournamentService
      * Uses 4-quadrant spread to ensure same player's slots are in different quadrants.
      * Ensures same player cannot appear twice in the same match card.
      */
-    public function fillSlotOnCheckIn(TournamentEntry $entry): void
+    public function assignSlot(TournamentEntry $entry): void
     {
         $stage = TournamentStage::where('tournament_id', $entry->tournament_id)
             ->where('status', 'ongoing')
@@ -144,11 +144,32 @@ class TournamentService
         $emptySlots = $allParts->whereNull('tournament_entry_id');
         if ($emptySlots->isEmpty()) return;
 
+        // Load entry relation to check player_id
+        $allParts->loadMissing('entry');
+
         // Find existing matches for this player (same player, different slots)
         $existingMatchIds = $allParts
-            ->where('tournament_entry_id', $entry->id)
+            ->filter(function ($p) use ($entry) {
+                return $p->tournament_entry_id && 
+                       $p->entry &&
+                       $p->entry->player_id === $entry->player_id;
+            })
             ->pluck('match_id')
             ->toArray();
+
+        // Find all player_ids that this player is already facing in Round 1
+        $facedOpponentIds = [];
+        foreach ($existingMatchIds as $mid) {
+            $opponents = $allParts->where('match_id', $mid)
+                                  ->whereNotNull('tournament_entry_id')
+                                  ->filter(function($p) use ($entry) {
+                                      return $p->entry && $p->entry->player_id !== $entry->player_id;
+                                  });
+            foreach ($opponents as $opp) {
+                $facedOpponentIds[] = $opp->entry->player_id;
+            }
+        }
+        $facedOpponentIds = array_unique($facedOpponentIds);
 
         // Split into empty matches (0 filled) and half-filled (1 filled)
         $emptyMatches = collect();
@@ -170,22 +191,34 @@ class TournamentService
         $safeEmpty = $emptyMatches->reject(fn($m) => in_array($m->id, $existingMatchIds));
         $safeHalf = $halfMatches->reject(fn($m) => in_array($m->id, $existingMatchIds));
 
-        $candidates = $safeEmpty->isNotEmpty() ? $safeEmpty :
-                      ($safeHalf->isNotEmpty() ? $safeHalf :
-                      ($emptyMatches->isNotEmpty() ? $emptyMatches : $halfMatches));
+        // Further filter safeHalf to avoid playing the same opponent again
+        $superSafeHalf = $safeHalf->reject(function($m) use ($allParts, $facedOpponentIds) {
+            $occupant = $allParts->where('match_id', $m->id)->whereNotNull('tournament_entry_id')->first();
+            if ($occupant && $occupant->entry) {
+                return in_array($occupant->entry->player_id, $facedOpponentIds);
+            }
+            return false;
+        });
 
-        if ($candidates->isEmpty()) return;
-
-        // 4-quadrant assignment
         $totalMatches = $allRound1Matches->count();
-        $quadrants = [0 => collect(), 1 => collect(), 2 => collect(), 3 => collect()];
 
-        foreach ($candidates as $match) {
+        // 1. Group all available matches by quadrant and type
+        $quads = [0 => [], 1 => [], 2 => [], 3 => []];
+
+        $addToQuad = function($match, $type) use (&$quads, $totalMatches) {
             $qi = (int) floor( (($match->match_order - 1) / max(1, $totalMatches)) * 4 );
-            $quadrants[min($qi, 3)]->push($match);
-        }
+            $qi = min($qi, 3);
+            if (!isset($quads[$qi][$type])) $quads[$qi][$type] = collect();
+            $quads[$qi][$type]->push($match);
+        };
 
-        // Find which quadrants the player already occupies
+        foreach ($safeEmpty as $m) $addToQuad($m, 'safeEmpty');
+        foreach ($superSafeHalf as $m) $addToQuad($m, 'superSafeHalf');
+        foreach ($safeHalf as $m) $addToQuad($m, 'safeHalf');
+        foreach ($emptyMatches as $m) $addToQuad($m, 'emptyMatches');
+        foreach ($halfMatches as $m) $addToQuad($m, 'halfMatches');
+
+        // 2. Determine which quadrants the player already occupies
         $usedQuads = [];
         foreach ($existingMatchIds as $mid) {
             $m = $allRound1Matches->firstWhere('id', $mid);
@@ -197,46 +230,62 @@ class TournamentService
         $usedQuads = array_unique($usedQuads);
         $existingCount = count($existingMatchIds);
 
-        // Prefer unused quadrants with candidates, applying Left/Right rule if exactly 1 slot already exists
-        $availableQuads = [];
-        foreach ($quadrants as $qi => $matches) {
-            if ($matches->isNotEmpty() && !in_array($qi, $usedQuads)) {
-                if ($existingCount === 1) {
-                    $existingQuad = array_values($usedQuads)[0];
-                    $isExistingLeft = in_array($existingQuad, [0, 1]);
-                    $isCandidateLeft = in_array($qi, [0, 1]);
-                    
-                    if ($isExistingLeft !== $isCandidateLeft) {
-                        $availableQuads[] = $qi;
-                    }
-                } else {
-                    $availableQuads[] = $qi;
+        // 3. Score each quadrant. Lower score is better.
+        $quadScores = [];
+        for ($qi = 0; $qi < 4; $qi++) {
+            if (empty($quads[$qi])) continue; // No candidates here
+
+            $score = 0;
+
+            // Penalty for already having a slot in this exact quadrant
+            if (in_array($qi, $usedQuads)) $score += 1000;
+
+            // Penalty for violating Left/Right split if exactly 1 slot exists
+            if ($existingCount === 1) {
+                $existingQuad = array_values($usedQuads)[0];
+                $isExistingLeft = in_array($existingQuad, [0, 1]);
+                $isCandidateLeft = in_array($qi, [0, 1]);
+                
+                if ($isExistingLeft === $isCandidateLeft) {
+                    $score += 500; // Strong penalty for being on the same side
                 }
+            }
+
+            // Quality of the best match available in this quadrant
+            if (isset($quads[$qi]['safeEmpty']) && $quads[$qi]['safeEmpty']->isNotEmpty()) {
+                $score += 1; // Best (Empty match)
+            } elseif (isset($quads[$qi]['superSafeHalf']) && $quads[$qi]['superSafeHalf']->isNotEmpty()) {
+                $score += 2; // (Half match without facing someone they already face)
+            } elseif (isset($quads[$qi]['safeHalf']) && $quads[$qi]['safeHalf']->isNotEmpty()) {
+                $score += 3; // (Half match)
+            } elseif (isset($quads[$qi]['emptyMatches']) && $quads[$qi]['emptyMatches']->isNotEmpty()) {
+                $score += 4; // Fallback
+            } else {
+                $score += 5; // Worst Fallback
+            }
+
+            $quadScores[$qi] = $score;
+        }
+
+        if (empty($quadScores)) return;
+
+        // 4. Find the best quadrant(s)
+        $minScore = min($quadScores);
+        $bestQuads = array_keys(array_filter($quadScores, fn($s) => $s === $minScore));
+        
+        $chosenQuadIndex = $bestQuads[array_rand($bestQuads)];
+
+        // 5. Pick the best match from the chosen quadrant
+        $matchTypes = ['safeEmpty', 'superSafeHalf', 'safeHalf', 'emptyMatches', 'halfMatches'];
+        $targetMatch = null;
+        foreach ($matchTypes as $type) {
+            if (isset($quads[$chosenQuadIndex][$type]) && $quads[$chosenQuadIndex][$type]->isNotEmpty()) {
+                $targetMatch = $quads[$chosenQuadIndex][$type]->random();
+                break;
             }
         }
 
-        // Fallback 1: any unused quadrant (ignores left/right rule if no choices left)
-        if (empty($availableQuads)) {
-            foreach ($quadrants as $qi => $matches) {
-                if ($matches->isNotEmpty() && !in_array($qi, $usedQuads)) {
-                    $availableQuads[] = $qi;
-                }
-            }
-        }
-
-        // Fallback 2: any quadrant with candidates
-        if (empty($availableQuads)) {
-            foreach ($quadrants as $qi => $matches) {
-                if ($matches->isNotEmpty()) {
-                    $availableQuads[] = $qi;
-                }
-            }
-        }
-
-        if (empty($availableQuads)) return;
-
-        shuffle($availableQuads);
-        $targetMatch = $quadrants[$availableQuads[0]]->random();
+        if (!$targetMatch) return;
 
         // Find empty slot in the target match
         $emptySlot = MatchParticipant::where('match_id', $targetMatch->id)

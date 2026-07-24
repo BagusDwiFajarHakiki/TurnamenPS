@@ -21,6 +21,7 @@
     
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
+    @filamentStyles
     @livewireStyles
 </head>
 <body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
@@ -57,6 +58,8 @@
         </footer>
     </div>
 
+    @livewire('notifications')
+    @filamentScripts
     @livewireScripts
 
     <!-- Theme Script -->

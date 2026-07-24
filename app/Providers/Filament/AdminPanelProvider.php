@@ -80,13 +80,40 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 \Filament\View\PanelsRenderHook::HEAD_END,
                 fn (): string => '<style>
+                    /* Desktop Layout: Force scrollbar to be below header */
+                    @media (min-width: 1025px) {
+                        html, body {
+                            overflow: hidden !important;
+                        }
+                        /* Kontainer utama (di bawah topbar) disesuaikan tingginya */
+                        .fi-layout {
+                            height: calc(100vh - 64px) !important; /* Topbar Filament umumnya setinggi 64px */
+                            margin-top: 64px !important;
+                        }
+                        /* Topbar dibuat fixed di atas agar tidak ikut scroll */
+                        .fi-topbar {
+                            position: fixed !important;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 64px;
+                            z-index: 40;
+                        }
+                        /* Konten utama yang akan memunculkan scrollbar */
+                        .fi-main-ctn {
+                            height: 100% !important;
+                            overflow-y: auto !important;
+                            overflow-x: hidden !important;
+                        }
+                    }
+
+                    /* Mobile Layout: Default scrolling */
                     @media (max-width: 1024px) {
-                        html, body, .fi-layout, .fi-main, .fi-layout-main {
+                        html, body, .fi-layout, .fi-main-ctn {
                             height: auto !important;
                             overflow: visible !important;
                             overscroll-behavior-y: auto !important;
                         }
-                        /* Ensure the sidebar overlay still works correctly when scrolling */
                         .fi-sidebar { position: fixed !important; }
                     }
                 </style>'

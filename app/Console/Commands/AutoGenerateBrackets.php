@@ -73,9 +73,15 @@ class AutoGenerateBrackets extends Command
                 $service->generateBracket($stage);
 
                 $tournament->update(['status' => 'ongoing']);
+                
+                // Assign verified slots automatically to the bracket
+                $verifiedEntries = $tournament->entries()->where('status', 'verified')->get();
+                foreach ($verifiedEntries as $entry) {
+                    $service->assignSlot($entry);
+                }
             });
 
-            $this->info("  Empty bracket generated! ({$verifiedCount} verified slots)");
+            $this->info("  Empty bracket generated and slots assigned! ({$verifiedCount} verified slots)");
 
         } catch (\Exception $e) {
             $this->error("  Error processing tournament {$tournament->name}: {$e->getMessage()}");

@@ -37,7 +37,6 @@ class Dashboard extends Component
     public $selectedMatchId = null;
     public $disputeReason = '';
 
-    // Toast notification
     public $toastMessage = '';
     public $toastType = 'success';
 
@@ -422,8 +421,8 @@ class Dashboard extends Component
 
         $this->showToast(
             app()->getLocale() == 'id'
-                ? 'Pembelian slot berhasil diajukan! Menunggu verifikasi admin.'
-                : 'Slot purchase submitted successfully! Pending admin verification.'
+                ? 'Pembelian slot berhasil diajukan!'
+                : 'Slot purchase submitted successfully!'
         );
 
         $this->selectedTournamentId = null;

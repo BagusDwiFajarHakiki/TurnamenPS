@@ -32,40 +32,81 @@ class EntryBatch extends Model
 
     protected static function booted()
     {
-        static::updated(function ($batch) {
-            if ($batch->wasChanged('status') && $batch->status === 'verified') {
-                $batch->loadMissing('player');
+        static::updating(function ($batch) {
+            if ($batch->isDirty('status') && $batch->status === 'verified') {
+                $batch->loadMissing('tournament');
                 
+                // Cek batas slot per peserta
                 $existingCount = \App\Models\TournamentEntry::where('tournament_id', $batch->tournament_id)
                     ->where('player_id', $batch->player_id)
                     ->count();
 
-                for ($i = 1; $i <= $batch->slot_count; $i++) {
-                    $slotNum = $existingCount + $i;
-                    $entry = \App\Models\TournamentEntry::create([
-                        'tournament_id' => $batch->tournament_id,
-                        'player_id' => $batch->player_id,
-                        'entry_batch_id' => $batch->id,
-                        'entry_label' => $batch->player->name . " {$slotNum}",
-                        'entry_number' => $slotNum,
-                        'status' => 'verified',
-                        'payment_proof_path' => $batch->payment_proof_path,
-                        'payment_verified_at' => now(),
-                        'payment_verified_by' => auth()->id(),
-                        'registered_at' => now(),
+                if ($existingCount + $batch->slot_count > $batch->tournament->max_slot_per_player) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'status' => 'Total slot peserta ini melebihi batas maksimal (' . $batch->tournament->max_slot_per_player . ' slot per peserta).'
+                    ]);
+                }
+
+                // Cek batas total slot turnamen
+                $totalVerified = \App\Models\TournamentEntry::where('tournament_id', $batch->tournament_id)->count();
+                if ($totalVerified + $batch->slot_count > $batch->tournament->max_entries) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'status' => 'Total slot melebihi sisa kuota turnamen yang tersedia.'
+                    ]);
+                }
+            }
+        });
+
+        static::updated(function ($batch) {
+            if ($batch->wasChanged('status')) {
+                if ($batch->status === 'verified') {
+                    $batch->loadMissing('player');
+                    
+                    $existingCount = \App\Models\TournamentEntry::where('tournament_id', $batch->tournament_id)
+                        ->where('player_id', $batch->player_id)
+                        ->count();
+
+                    for ($i = 1; $i <= $batch->slot_count; $i++) {
+                        $slotNum = $existingCount + $i;
+                        $entry = \App\Models\TournamentEntry::create([
+                            'tournament_id' => $batch->tournament_id,
+                            'player_id' => $batch->player_id,
+                            'entry_batch_id' => $batch->id,
+                            'entry_label' => $batch->player->name . " {$slotNum}",
+                            'entry_number' => $slotNum,
+                            'status' => 'verified',
+                            'payment_proof_path' => $batch->payment_proof_path,
+                            'payment_verified_at' => now(),
+                            'payment_verified_by' => auth()->id(),
+                            'registered_at' => now(),
+                        ]);
+
+                        app(\App\Services\TournamentService::class)->assignSlot($entry);
+                    }
+                    
+                    $batch->updateQuietly([
+                        'verified_by' => auth()->id(),
+                        'verified_at' => now(),
                     ]);
 
-                    app(\App\Services\TournamentService::class)->fillSlotOnCheckIn($entry);
-                }
-                
-                $batch->updateQuietly([
-                    'verified_by' => auth()->id(),
-                    'verified_at' => now(),
-                ]);
-
-                $tournament = \App\Models\Tournament::find($batch->tournament_id);
-                if ($tournament) {
-                    $tournament->tryAutoGenerateBracket();
+                    $tournament = \App\Models\Tournament::find($batch->tournament_id);
+                    if ($tournament) {
+                        $tournament->tryAutoGenerateBracket();
+                    }
+                } elseif ($batch->status === 'rejected') {
+                    // Tarik slot aktif yang sebelumnya disetujui (jika ada)
+                    $entries = \App\Models\TournamentEntry::where('entry_batch_id', $batch->id)->get();
+                    
+                    foreach ($entries as $entry) {
+                        // Kosongkan slot di bagan turnamen sebelum menghapus entry agar slot tidak terhapus permanen oleh cascadeOnDelete
+                        $entry->matchParticipants()->update([
+                            'tournament_entry_id' => null,
+                            'club_id' => null,
+                            'goals_scored' => 0,
+                            'is_winner' => null
+                        ]);
+                        $entry->delete();
+                    }
                 }
             }
         });

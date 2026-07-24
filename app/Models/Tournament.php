@@ -43,6 +43,19 @@ class Tournament extends Model
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($allProofs);
             }
         });
+
+        static::updated(function ($tournament) {
+            // Jika waktu pendaftaran diundur (menjadi di masa depan) dan bagan sudah terbuat
+            if ($tournament->wasChanged('registration_end') && $tournament->registration_end->isFuture()) {
+                if ($tournament->stages()->exists()) {
+                    // Hapus bagan yang sudah ada
+                    $tournament->stages()->delete();
+                    
+                    // Kembalikan status ke registration
+                    $tournament->updateQuietly(['status' => 'registration']);
+                }
+            }
+        });
     }
 
     protected $fillable = [
@@ -57,7 +70,6 @@ class Tournament extends Model
         'qris_image_path',
         'rules_content',
         'no_show_deadline_minutes',
-        'check_in_open_minutes_before',
         'registration_start',
         'registration_end',
         'tournament_start',
@@ -72,7 +84,6 @@ class Tournament extends Model
         'max_entries' => 'integer',
         'entry_expiry_hours' => 'integer',
         'no_show_deadline_minutes' => 'integer',
-        'check_in_open_minutes_before' => 'integer',
         'registration_start' => 'datetime',
         'registration_end' => 'datetime',
         'tournament_start' => 'datetime',
@@ -194,9 +205,24 @@ class Tournament extends Model
             $this->update(['status' => 'ongoing']);
 
             $verifiedEntries = $this->entries()->where('status', 'verified')->get();
+            
+            // Kelompokkan berdasarkan peserta agar pembagian slot yang kosong (TBD) adil
+            $groupedByPlayer = $verifiedEntries->groupBy('player_id');
+            $interleavedEntries = collect();
+            
+            $maxSlots = $groupedByPlayer->max(fn($group) => $group->count());
+            
+            for ($i = 0; $i < $maxSlots; $i++) {
+                foreach ($groupedByPlayer as $playerEntries) {
+                    if ($playerEntries->has($i)) {
+                        $interleavedEntries->push($playerEntries[$i]);
+                    }
+                }
+            }
+
             $service = app(TournamentService::class);
-            foreach ($verifiedEntries as $entry) {
-                $service->fillSlotOnCheckIn($entry);
+            foreach ($interleavedEntries as $entry) {
+                $service->assignSlot($entry);
             }
         });
 

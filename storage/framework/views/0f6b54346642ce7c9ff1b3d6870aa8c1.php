@@ -33,7 +33,7 @@
 <div class="bracket-player border-b border-gray-200 dark:border-gray-700/50" style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; font-size: 0.82rem; background: <?php echo e(($home && $home['is_winner']) ? 'rgba(16, 185, 129, 0.08)' : ($isHomeActive ? 'rgba(16, 185, 129, 0.05)' : '')); ?>">
     <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; min-width: 0;">
         <span class="text-gray-900 dark:text-white" style="font-weight: <?php echo e($isHomeActive ? '800' : '700'); ?>; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: <?php echo e($homeEmpty ? 'var(--text-muted)' : ($isHomeActive ? 'var(--primary)' : 'inherit')); ?>; font-style: <?php echo e($homeEmpty ? 'italic' : 'normal'); ?>;">
-            <?php echo e($homeEmpty ? 'Menunggu Check-in' : ($homeTbd ? 'TBD' : ($home['player_name'] ?? 'BYE'))); ?>
+            <?php echo e($homeEmpty ? 'TBD' : ($homeTbd ? 'TBD' : ($home['player_name'] ?? 'BYE'))); ?>
 
         </span>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($home && ($home['club_name'] ?? null)): ?>
@@ -48,7 +48,7 @@
 <div class="bracket-player" style="display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0.75rem; font-size: 0.82rem; background: <?php echo e(($away && $away['is_winner']) ? 'rgba(16, 185, 129, 0.08)' : ($isAwayActive ? 'rgba(16, 185, 129, 0.05)' : '')); ?>">
     <div style="display: flex; flex-direction: column; overflow: hidden; flex: 1; min-width: 0;">
         <span class="text-gray-900 dark:text-white" style="font-weight: <?php echo e($isAwayActive ? '800' : '700'); ?>; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: <?php echo e($awayEmpty ? 'var(--text-muted)' : ($isAwayActive ? 'var(--primary)' : 'inherit')); ?>; font-style: <?php echo e($awayEmpty ? 'italic' : 'normal'); ?>;">
-            <?php echo e($awayEmpty ? 'Menunggu Check-in' : ($awayTbd ? 'TBD' : ($away['player_name'] ?? 'BYE'))); ?>
+            <?php echo e($awayEmpty ? 'TBD' : ($awayTbd ? 'TBD' : ($away['player_name'] ?? 'BYE'))); ?>
 
         </span>
         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($away && ($away['club_name'] ?? null)): ?>

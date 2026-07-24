@@ -19,8 +19,8 @@
         <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.35rem 0.75rem; border-radius: 6px; background: {{ $sc['bg'] }}; color: {{ $sc['text'] }};">
             {{ strtoupper($tournament->status) }}
         </span>
-        <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;">
-            {{ $tournament->max_entries }} Slot
+        <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(57,211,83,0.15);">
+            {{ $tournament->entries()->count() }} / {{ $tournament->max_entries }} Slot
         </span>
     </div>
 </div>
@@ -41,6 +41,6 @@
     </div>
     <div style="background: var(--bg-input); padding: 1rem; border-radius: 10px;">
         <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Total Peserta</div>
-        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);">{{ $tournament->entries_count ?? $tournament->entries()->where('status', 'verified')->count() }}</div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);">{{ $tournament->entries()->distinct('player_id')->count('player_id') }} Orang</div>
     </div>
 </div>

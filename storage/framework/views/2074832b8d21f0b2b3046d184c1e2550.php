@@ -274,7 +274,7 @@
 
                         
                         <div style="margin-bottom: 2rem;">
-                            <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-main);">
+                            <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--primary);">
                                 <?php echo e(__('Tournament Bracket')); ?>
 
                             </h4>
@@ -540,25 +540,69 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
 
     <!-- TOAST ALERT -->
     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($toastMessage): ?>
+        <style>
+            .toast-enter { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            .toast-enter-start { opacity: 0; transform: translateY(-1rem) translateX(-50%); }
+            .toast-enter-end { opacity: 1; transform: translateY(0) translateX(-50%); }
+            .toast-leave { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+            .toast-leave-start { opacity: 1; transform: translateY(0) translateX(-50%); }
+            .toast-leave-end { opacity: 0; transform: translateY(-1rem) translateX(-50%); }
+        </style>
         <div
-            x-data="{ timer: null }"
+            x-data="{ timer: null, show: false }"
             x-init="
-                if (timer) clearTimeout(timer);
-                timer = setTimeout(() => { $wire.dismissToast(); }, 5000);
+                setTimeout(() => { show = true; }, 10);
+                timer = setTimeout(() => { show = false; setTimeout(() => { $wire.dismissToast(); }, 300); }, 5000);
             "
             x-effect="
                 if (timer) clearTimeout(timer);
                 if ($wire.toastMessage) {
-                    timer = setTimeout(() => { $wire.dismissToast(); }, 5000);
+                    setTimeout(() => { show = true; }, 10);
+                    timer = setTimeout(() => { show = false; setTimeout(() => { $wire.dismissToast(); }, 300); }, 5000);
                 }
             "
-            class="toast-alert"
-            style="position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; border-radius: 50px; font-weight: 600; box-shadow: 0 10px 15px rgba(0,0,0,0.3); z-index: 9999; max-width: calc(100vw - 2rem); cursor: pointer; text-align: center; white-space: nowrap;"
-            :style="$wire.toastType === 'error' ? 'background: var(--danger); color: white;' : 'background: var(--primary); color: #000;'"
-            wire:click="dismissToast"
+            x-show="show"
+            x-transition:enter="toast-enter"
+            x-transition:enter-start="toast-enter-start"
+            x-transition:enter-end="toast-enter-end"
+            x-transition:leave="toast-leave"
+            x-transition:leave-start="toast-leave-start"
+            x-transition:leave-end="toast-leave-end"
+            style="position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 9999; background-color: #18181b; padding: 1rem; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5); border: 1px solid #27272a; min-width: 320px; max-width: 450px; width: 90vw;"
         >
-            <?php echo e($toastType === 'error' ? '' : ''); ?> <?php echo e($toastMessage); ?>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <!-- Icon -->
+                    <div style="flex-shrink: 0;">
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($toastType === 'success'): ?>
+                            <svg style="width: 1.5rem; height: 1.5rem; color: #10b981;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        <?php else: ?>
+                            <svg style="width: 1.5rem; height: 1.5rem; color: #ef4444;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                            </svg>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                    </div>
+                    <!-- Title -->
+                    <div style="font-size: 1rem; font-weight: 600; color: white;">
+                        <?php echo e($toastType === 'success' ? 'Berhasil' : 'Gagal'); ?>
 
+                    </div>
+                </div>
+                <!-- Close Button -->
+                <button wire:click="dismissToast" style="background: none; border: none; color: #a1a1aa; cursor: pointer; padding: 0.125rem; margin-left: 1rem; border-radius: 0.375rem; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#a1a1aa'">
+                    <svg style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Message -->
+            <div style="font-size: 0.875rem; color: #a1a1aa; line-height: 1.5; padding-left: 2.25rem;">
+                <?php echo e($toastMessage); ?>
+
+            </div>
         </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 

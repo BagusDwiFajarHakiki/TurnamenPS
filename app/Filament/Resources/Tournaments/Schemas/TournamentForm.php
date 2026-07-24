@@ -112,9 +112,6 @@ class TournamentForm
                         ->maxSize(10240),
                 ])->columnSpan(1),
 
-                \Filament\Forms\Components\Hidden::make('check_in_open_minutes_before')
-                    ->default(0),
-
                 \Filament\Forms\Components\Hidden::make('tournament_end')
                     ->default(fn () => now()->addYears(5)),
             ]);

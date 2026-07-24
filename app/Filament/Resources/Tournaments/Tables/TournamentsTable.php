@@ -78,6 +78,7 @@ class TournamentsTable
             ])
             ->recordActions([
                 static::makeGenerateBracketAction(),
+                static::makeRecapAction(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
@@ -89,11 +90,20 @@ class TournamentsTable
             ->defaultSort('created_at', 'desc');
     }
 
+    protected static function makeRecapAction(): Action
+    {
+        return Action::make('recap')
+            ->label('Recap')
+            ->icon('heroicon-o-presentation-chart-line')
+            ->color('info')
+            ->url(fn (\App\Models\Tournament $record) => \App\Filament\Resources\Tournaments\TournamentResource::getUrl('recap', ['record' => $record]));
+    }
+
     protected static function makeGenerateBracketAction(): Action
     {
         return Action::make('generateBracket')
+            ->label('Generate Bagan')
             ->icon('heroicon-o-sparkles')
-            ->iconButton()
             ->color('success')
             ->requiresConfirmation()
             ->modalHeading('Buat Bagan Turnamen')
@@ -124,7 +134,7 @@ class TournamentsTable
                     $verifiedEntries = $record->entries()->where('status', 'verified')->get();
                     $service = app(TournamentService::class);
                     foreach ($verifiedEntries as $entry) {
-                        $service->fillSlotOnCheckIn($entry);
+                        $service->assignSlot($entry);
                     }
                 });
 

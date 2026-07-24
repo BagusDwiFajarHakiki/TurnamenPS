@@ -21,8 +21,8 @@
             <?php echo e(strtoupper($tournament->status)); ?>
 
         </span>
-        <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;">
-            <?php echo e($tournament->max_entries); ?> Slot
+        <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.75rem; border-radius: 6px; background: rgba(57,211,83,0.15);">
+            <?php echo e($tournament->entries()->count()); ?> / <?php echo e($tournament->max_entries); ?> Slot
         </span>
     </div>
 </div>
@@ -43,7 +43,7 @@
     </div>
     <div style="background: var(--bg-input); padding: 1rem; border-radius: 10px;">
         <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Total Peserta</div>
-        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);"><?php echo e($tournament->entries_count ?? $tournament->entries()->where('status', 'verified')->count()); ?></div>
+        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);"><?php echo e($tournament->entries()->distinct('player_id')->count('player_id')); ?> Orang</div>
     </div>
 </div>
 <?php /**PATH C:\laragon\www\TurnamenPS\resources\views/_partials/tournament-header.blade.php ENDPATH**/ ?>

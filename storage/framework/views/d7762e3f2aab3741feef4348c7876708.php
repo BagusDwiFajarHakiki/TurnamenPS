@@ -8,9 +8,8 @@
         <!-- BLOCK 01 - PODIUM -->
         <div class="card" style="display: flex; flex-direction: column; gap: 1rem; border-top: 4px solid #10b981;">
             <div>
-                <span class="text-emerald-500" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">01 - PODIUM</span>
                 <h3 class="text-gray-900 dark:text-white" style="font-size: 1.25rem; font-weight: 800; margin-top: 0.25rem;">
-                    JUARA 1, 2 & 3
+                    JUARA
                 </h3>
             </div>
             
@@ -53,7 +52,6 @@
         <!-- BLOCK 02 - TOP SKOR -->
         <div class="card" style="display: flex; flex-direction: column; gap: 1rem; border-top: 4px solid #3b82f6;">
             <div>
-                <span class="text-blue-500" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">02 - STATISTIK</span>
                 <h3 class="text-gray-900 dark:text-white" style="font-size: 1.25rem; font-weight: 800; margin-top: 0.25rem;">
                     TOP SKOR
                 </h3>
