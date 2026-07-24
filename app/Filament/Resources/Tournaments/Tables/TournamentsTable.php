@@ -20,12 +20,12 @@ class TournamentsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->poll('3s')
             ->columns([
                 TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
-                    ->sortable()
-                    ->url(fn ($record) => TournamentResource::getUrl('recap', ['record' => $record])),
+                    ->sortable(),
 
                 TextColumn::make('price_per_slot')
                     ->label('Harga per Slot')

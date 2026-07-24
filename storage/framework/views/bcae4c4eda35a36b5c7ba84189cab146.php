@@ -179,8 +179,11 @@
                             <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 12px;">
                                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; margin-bottom: 0.5rem;">
                                     <div style="text-align: left;">
-                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
-                                            <?php echo e(strtoupper($match->status)); ?>
+                                        <?php
+                                            $statusLabel = $match->status === 'ongoing' ? 'LIVE' : 'MENUNGGU';
+                                        ?>
+                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(245,158,11,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#f59e0b'); ?>;">
+                                            <?php echo e($statusLabel); ?>
 
                                         </span>
                                     </div>
@@ -239,7 +242,7 @@
     </div>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
         <!-- LATEST TOURNAMENT -->
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestTournament): ?>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestTournament && count($ongoingTournaments) === 0): ?>
         <div style="margin-bottom: 5rem; padding-top: 2rem;">
             <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 3.5rem; text-align: center;">
                 <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text-main); letter-spacing: -0.5px;">
@@ -249,54 +252,7 @@
             </div>
 
             <div>
-                <!-- Tournament Header -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
-                    <div>
-                        <h3 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
-                            <?php echo e($latestTournament->name); ?>
-
-                        </h3>
-                        <p style="color: var(--text-muted); font-size: 0.95rem;"><?php echo e($latestTournament->game_title); ?></p>
-                    </div>
-                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                        <?php
-                            $statusColors = [
-                                'draft' => ['bg' => 'rgba(107,114,128,0.15)', 'text' => '#6B7280'],
-                                'registration' => ['bg' => 'rgba(57,211,83,0.15)', 'text' => 'var(--primary)'],
-                                'ongoing' => ['bg' => 'rgba(255,193,7,0.15)', 'text' => '#FFC107'],
-                                'completed' => ['bg' => 'rgba(59,130,246,0.15)', 'text' => '#3B82F6'],
-                            ];
-                            $sc = $statusColors[$latestTournament->status] ?? $statusColors['draft'];
-                        ?>
-                        <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.35rem 0.75rem; border-radius: 6px; background: <?php echo e($sc['bg']); ?>; color: <?php echo e($sc['text']); ?>;">
-                            <?php echo e(strtoupper($latestTournament->status)); ?>
-
-                        </span>
-                        <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem;">
-                            <?php echo e($latestTournament->entries_count); ?> Peserta
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Tournament Info -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 10px;">
-                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Pendaftaran Ditutup</div>
-                        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);"><?php echo e($latestTournament->registration_end->format('d M Y H:i')); ?> WIB</div>
-                    </div>
-                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 10px;">
-                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Turnamen Dimulai</div>
-                        <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary);"><?php echo e($latestTournament->tournament_start->format('d M Y H:i')); ?> WIB</div>
-                    </div>
-                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 10px;">
-                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Biaya Per Slot</div>
-                        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);">Rp <?php echo e(number_format($latestTournament->price_per_slot, 0, ',', '.')); ?></div>
-                    </div>
-                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 10px;">
-                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;">Total Slot</div>
-                        <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);"><?php echo e($latestTournament->max_entries); ?></div>
-                    </div>
-                </div>
+                <?php echo $__env->make('_partials.tournament-header', ['tournament' => $latestTournament], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
                 <!-- Tournament Bracket Header -->
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestTournament->baganLiveMatches->isNotEmpty()): ?>
@@ -325,6 +281,10 @@
                             'activeEntryIds' => $activeEntryIdsByTournament[$latestTournament->id] ?? []
                         ], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                     </div>
+                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($latestTournament->status === 'completed'): ?>
+                    <?php echo $__env->make('_partials.tournament-recap', ['tournament' => $latestTournament], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                 
                 <div>
@@ -363,12 +323,12 @@
                                 </div>
                                 <div>
                                     <div style="font-weight: 800; font-size: 1.05rem; color: var(--text-main); margin-bottom: 0.15rem;"><?php echo e($player->name); ?></div>
-                                    <div style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);"><?php echo e($player->total_goals ?? 0); ?> Gol Dicetak</div>
+                                    <div style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted);"><?php echo e($player->total_wins ?? 0); ?> Kemenangan</div>
                                 </div>
                             </div>
                             <div style="text-align: center; background: var(--bg-input); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.05);">
-                                <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);"><?php echo e($player->total_wins ?? 0); ?></div>
-                                <div style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Wins</div>
+                                <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary);"><?php echo e($player->total_goals ?? 0); ?></div>
+                                <div style="font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">Goals</div>
                             </div>
                         </div>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

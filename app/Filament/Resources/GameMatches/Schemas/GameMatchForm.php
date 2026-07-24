@@ -33,6 +33,7 @@ class GameMatchForm
                         'completed' => 'Selesai',
                         'walkover' => 'Walkover (WO)',
                     ])
+                    ->disabled(fn ($record) => $record && $record->is_bye)
                     ->live(),
 
                 Select::make('ps_unit_id')

@@ -46,6 +46,7 @@ class Dashboard extends Component
     public $slot_count = 1;
     public $total_price = 0.00;
     public $payment_info = '';
+    public $qris_image_path = null;
     public $payment_proof;
     public int $maxPurchasable = 1;
     public int $remainingOverall = 0;
@@ -55,9 +56,7 @@ class Dashboard extends Component
 
 
 
-    protected array $rules = [
-        'disputeReason' => 'required|string|min:5|max:1000',
-    ];
+    protected array $rules = [];
 
     public function mount()
     {
@@ -118,7 +117,7 @@ class Dashboard extends Component
             ->get()
             ->each(function ($match) {
                 if ($match->bracket_position === '3rd_place') {
-                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Posisi 3' : '3rd Place';
                     return;
                 }
                 $maxRound = GameMatch::where('tournament_stage_id', $match->tournament_stage_id)->max('round_number') ?? 1;
@@ -145,7 +144,7 @@ class Dashboard extends Component
             ->get()
             ->each(function ($match) {
                 if ($match->bracket_position === '3rd_place') {
-                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Posisi 3' : '3rd Place';
                     return;
                 }
                 $maxRound = GameMatch::where('tournament_stage_id', $match->tournament_stage_id)->max('round_number') ?? 1;
@@ -288,6 +287,7 @@ class Dashboard extends Component
         $this->payment_proof = null;
         $this->total_price = $minSlots * $t->price_per_slot;
         $this->payment_info = $t->payment_info ?: '';
+        $this->qris_image_path = $t->qris_image_path;
         $this->purchaseStep = 1;
         $this->payment_method = 'qris';
     }
@@ -430,44 +430,6 @@ class Dashboard extends Component
         $this->loadDashboardData();
     }
 
-    public function initiateDispute($matchId)
-    {
-        $this->selectedMatchId = $matchId;
-        $this->disputeReason = '';
-    }
-
-    public function submitDispute()
-    {
-        $this->validate();
-
-        $match = GameMatch::where('id', $this->selectedMatchId)
-            ->whereHas('participants', function ($query) {
-                $query->whereIn('tournament_entry_id', $this->activeEntryIds);
-            })
-            ->first();
-
-        if ($match) {
-            $playerEntry = $match->participants->whereIn('tournament_entry_id', $this->activeEntryIds)->first()->entry;
-
-            MatchDispute::create([
-                'match_id' => $match->id,
-                'raised_by_entry_id' => $playerEntry->id,
-                'reason' => $this->disputeReason,
-                'status' => 'open',
-            ]);
-
-            $this->showToast(
-                app()->getLocale() == 'id'
-                    ? 'Sengketa berhasil dilaporkan dan sedang diproses admin.'
-                    : 'Dispute submitted and is being processed by the admin.'
-            );
-
-            $this->selectedMatchId = null;
-            $this->loadDashboardData();
-        }
-    }
-
-
     public $bracketMyMatches = [];
     public function selectBracketTournament($tournamentId)
     {
@@ -487,9 +449,29 @@ class Dashboard extends Component
             })
             ->with(['participants.entry.player', 'participants.club', 'psUnit', 'stage.tournament'])
             ->orderByRaw("FIELD(status, 'ongoing', 'ready', 'scheduled', 'completed', 'walkover', 'pending')")
+            ->orderBy('round_number', 'asc')
+            ->orderBy('match_order', 'asc')
             ->orderBy('scheduled_at')
             ->orderByDesc('finished_at')
-            ->get();
+            ->get()
+            ->each(function ($match) {
+                if ($match->bracket_position === '3rd_place') {
+                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Posisi 3' : '3rd Place';
+                    return;
+                }
+                $maxRound = GameMatch::where('tournament_stage_id', $match->tournament_stage_id)->max('round_number') ?? 1;
+                $stagesLeft = $maxRound - $match->round_number;
+                if ($stagesLeft === 0) {
+                    $match->computedRoundName = 'Final';
+                } elseif ($stagesLeft === 1) {
+                    $match->computedRoundName = 'Semifinal';
+                } elseif ($stagesLeft === 2) {
+                    $match->computedRoundName = app()->getLocale() == 'id' ? 'Perempat Final' : 'Quarter-final';
+                } else {
+                    $teamsInRound = pow(2, $stagesLeft + 1);
+                    $match->computedRoundName = app()->getLocale() == 'id' ? "Babak {$teamsInRound} Besar" : "Round of {$teamsInRound}";
+                }
+            });
 
 
 

@@ -260,7 +260,7 @@ class Home extends Component
                 ->each(function ($match) use ($maxRoundByStage) {
                     $maxRound = $maxRoundByStage[$match->tournament_stage_id] ?? 1;
                     if ($match->bracket_position === '3rd_place') {
-                        $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                        $match->computedRoundName = app()->getLocale() == 'id' ? 'Posisi 3' : '3rd Place';
                     } else {
                         $stagesLeft = $maxRound - $match->round_number;
                         if ($stagesLeft === 0) {
@@ -284,7 +284,7 @@ class Home extends Component
                 ->each(function ($match) use ($maxRoundByStage) {
                     $maxRound = $maxRoundByStage[$match->tournament_stage_id] ?? 1;
                     if ($match->bracket_position === '3rd_place') {
-                        $match->computedRoundName = app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+                        $match->computedRoundName = app()->getLocale() == 'id' ? 'Posisi 3' : '3rd Place';
                     } else {
                         $stagesLeft = $maxRound - $match->round_number;
                         if ($stagesLeft === 0) {

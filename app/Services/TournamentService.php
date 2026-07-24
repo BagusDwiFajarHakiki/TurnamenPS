@@ -68,7 +68,7 @@ class TournamentService
                         'round_number' => $r,
                         'match_order' => $m,
                         'bracket_position' => "{$r}.{$m}",
-                        'status' => 'ready',
+                        'status' => $r === 1 ? 'ready' : 'pending',
                     ]);
                 }
             }
@@ -177,12 +177,12 @@ class TournamentService
         if ($candidates->isEmpty()) return;
 
         // 4-quadrant assignment
-        $matchesPerQuadrant = max(1, (int) ceil($bracketSize / 4));
+        $totalMatches = $allRound1Matches->count();
         $quadrants = [0 => collect(), 1 => collect(), 2 => collect(), 3 => collect()];
 
         foreach ($candidates as $match) {
-            $idx = (int) (($match->match_order - 1) / $matchesPerQuadrant);
-            $quadrants[min($idx, 3)]->push($match);
+            $qi = (int) floor( (($match->match_order - 1) / max(1, $totalMatches)) * 4 );
+            $quadrants[min($qi, 3)]->push($match);
         }
 
         // Find which quadrants the player already occupies
@@ -190,21 +190,41 @@ class TournamentService
         foreach ($existingMatchIds as $mid) {
             $m = $allRound1Matches->firstWhere('id', $mid);
             if ($m) {
-                $q = (int) (($m->match_order - 1) / $matchesPerQuadrant);
-                $usedQuads[] = min($q, 3);
+                $qi = (int) floor( (($m->match_order - 1) / max(1, $totalMatches)) * 4 );
+                $usedQuads[] = min($qi, 3);
             }
         }
         $usedQuads = array_unique($usedQuads);
+        $existingCount = count($existingMatchIds);
 
-        // Prefer unused quadrants with candidates
+        // Prefer unused quadrants with candidates, applying Left/Right rule if exactly 1 slot already exists
         $availableQuads = [];
         foreach ($quadrants as $qi => $matches) {
             if ($matches->isNotEmpty() && !in_array($qi, $usedQuads)) {
-                $availableQuads[] = $qi;
+                if ($existingCount === 1) {
+                    $existingQuad = array_values($usedQuads)[0];
+                    $isExistingLeft = in_array($existingQuad, [0, 1]);
+                    $isCandidateLeft = in_array($qi, [0, 1]);
+                    
+                    if ($isExistingLeft !== $isCandidateLeft) {
+                        $availableQuads[] = $qi;
+                    }
+                } else {
+                    $availableQuads[] = $qi;
+                }
             }
         }
 
-        // Fallback: any quadrant with candidates
+        // Fallback 1: any unused quadrant (ignores left/right rule if no choices left)
+        if (empty($availableQuads)) {
+            foreach ($quadrants as $qi => $matches) {
+                if ($matches->isNotEmpty() && !in_array($qi, $usedQuads)) {
+                    $availableQuads[] = $qi;
+                }
+            }
+        }
+
+        // Fallback 2: any quadrant with candidates
         if (empty($availableQuads)) {
             foreach ($quadrants as $qi => $matches) {
                 if ($matches->isNotEmpty()) {
@@ -251,7 +271,8 @@ class TournamentService
                 ->where('tournament_entry_id', '!=', $winnerEntry->id)
                 ->first();
             if ($loserParticipant && $loserParticipant->entry) {
-                $this->placeInMatch($completedMatch->loser_next_match_id, $loserParticipant->entry);
+                $side = ($completedMatch->match_order % 2 !== 0) ? 'home' : 'away';
+                $this->placeInMatch($completedMatch->loser_next_match_id, $loserParticipant->entry, $side);
             }
         }
 
@@ -261,18 +282,16 @@ class TournamentService
             return;
         }
 
-        $this->placeInMatch($completedMatch->next_match_id, $winnerEntry);
+        $side = ($completedMatch->match_order % 2 !== 0) ? 'home' : 'away';
+        $this->placeInMatch($completedMatch->next_match_id, $winnerEntry, $side);
     }
 
     /**
-     * Place a participant into a specific match slot.
-     * Home side first, then away. Uses updateQuietly to avoid event chains.
+     * Place a participant into a specific match slot based on path (home/away).
+     * Uses updateQuietly to avoid event chains.
      */
-    private function placeInMatch(int $matchId, TournamentEntry $entry): void
+    private function placeInMatch(int $matchId, TournamentEntry $entry, string $side): void
     {
-        $home = MatchParticipant::where('match_id', $matchId)->where('side', 'home')->first();
-        $side = $home ? 'away' : 'home';
-
         $participant = MatchParticipant::where('match_id', $matchId)->where('side', $side)->first();
 
         if ($participant) {
@@ -290,9 +309,6 @@ class TournamentService
                 'goals_scored' => 0,
             ]);
         }
-
-        // Check if match is full
-        // (Removed auto-update to 'ready' as per user request, admin sets it manually)
     }
 
     /**
@@ -316,6 +332,8 @@ class TournamentService
                         ->get();
 
                     foreach ($matches as $match) {
+                        if ($match->status === 'completed') continue;
+
                         $filled = MatchParticipant::where('match_id', $match->id)
                             ->whereNotNull('tournament_entry_id')
                             ->get();

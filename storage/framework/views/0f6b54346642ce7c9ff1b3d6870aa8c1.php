@@ -1,8 +1,9 @@
 <?php
     $activeEntryIntIds = $activeEntryIds ?? [];
     $isThirdPlace = ($match['bracket_position'] ?? '') === '3rd_place';
-    $homeEmpty = $home && !($home['tournament_entry_id'] ?? null) && !$match['is_bye'];
-    $awayEmpty = $away && !($away['tournament_entry_id'] ?? null) && !$match['is_bye'];
+    $isRound1 = ($match['round_number'] ?? 1) == 1;
+    $homeEmpty = $isRound1 && $home && !($home['tournament_entry_id'] ?? null) && !$match['is_bye'];
+    $awayEmpty = $isRound1 && $away && !($away['tournament_entry_id'] ?? null) && !$match['is_bye'];
     $homeTbd = $isThirdPlace ? (!($home['tournament_entry_id'] ?? null)) : (!$match['is_bye'] && (!$home || !($home['tournament_entry_id'] ?? null)));
     $awayTbd = $isThirdPlace ? (!($away['tournament_entry_id'] ?? null)) : (!$match['is_bye'] && (!$away || !($away['tournament_entry_id'] ?? null)));
 ?>
@@ -18,7 +19,7 @@
     <?php elseif($match['status'] === 'ongoing'): ?>
         <span style="font-weight: 800; color: var(--primary);">LIVE</span>
     <?php else: ?>
-        <span class="text-gray-400 dark:text-gray-500" style="font-weight: 800;">PENDING</span>
+        <span class="text-amber-500" style="font-weight: 800;">MENUNGGU</span>
     <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 </div>
 

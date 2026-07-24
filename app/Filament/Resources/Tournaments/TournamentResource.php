@@ -50,7 +50,6 @@ class TournamentResource extends Resource
             'index' => ListTournaments::route('/'),
             'create' => CreateTournament::route('/create'),
             'edit' => EditTournament::route('/{record}/edit'),
-            'recap' => RecapTournament::route('/{record}/recap'),
         ];
     }
 }

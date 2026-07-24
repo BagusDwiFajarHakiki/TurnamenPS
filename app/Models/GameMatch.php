@@ -13,6 +13,25 @@ class GameMatch extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::updated(function (GameMatch $match) {
+            if ($match->isDirty('status')) {
+                $originalStatus = $match->getOriginal('status');
+                $newStatus = $match->status;
+
+                $wasCompleted = in_array($originalStatus, ['completed', 'walkover']);
+                $isCompleted = in_array($newStatus, ['completed', 'walkover']);
+
+                if ($wasCompleted && !$isCompleted) {
+                    $match->revokeAdvancement();
+                } elseif (!$wasCompleted && $isCompleted) {
+                    $match->resolveResultAndAdvance();
+                }
+            }
+        });
+    }
+
     protected $table = 'matches';
 
     protected $fillable = [
@@ -116,7 +135,7 @@ class GameMatch extends Model
     public function getComputedRoundNameAttribute()
     {
         if ($this->bracket_position === '3rd_place') {
-            return app()->getLocale() == 'id' ? 'Perebutan Juara 3' : '3rd Place';
+            return app()->getLocale() == 'id' ? 'Posisi 3' : '3rd Place';
         }
 
         if (!isset(self::$maxRoundsByStage[$this->tournament_stage_id])) {
@@ -246,6 +265,23 @@ class GameMatch extends Model
                         $nextParticipant->updateQuietly([
                             'tournament_entry_id' => null,
                             'club_id' => null,
+                            'goals_scored' => 0,
+                            'is_winner' => null,
+                        ]);
+                    }
+                }
+
+                if ($this->loser_next_match_id && $part->tournament_entry_id) {
+                    $loserParticipant = MatchParticipant::where('match_id', $this->loser_next_match_id)
+                        ->where('tournament_entry_id', $part->tournament_entry_id)
+                        ->first();
+
+                    if ($loserParticipant) {
+                        $loserParticipant->updateQuietly([
+                            'tournament_entry_id' => null,
+                            'club_id' => null,
+                            'goals_scored' => 0,
+                            'is_winner' => null,
                         ]);
                     }
                 }
@@ -258,16 +294,40 @@ class GameMatch extends Model
                         ->whereNotNull('tournament_entry_id')
                         ->count();
 
-                    if ($nextMatch->status === 'completed' && $nextMatch->is_bye && $filled < 2) {
-                        $nextMatch->updateQuietly([
-                            'status' => 'ready',
-                            'is_bye' => false,
-                            'finished_at' => null,
-                        ]);
+                    if (in_array($nextMatch->status, ['completed', 'walkover'])) {
                         $nextMatch->revokeAdvancement();
-                    } elseif (in_array($nextMatch->status, ['ready', 'scheduled'])) {
-                        $nextMatch->updateQuietly(['status' => 'ready']);
                     }
+
+                    $newStatus = $filled > 0 ? 'ready' : 'pending';
+                    $nextMatch->updateQuietly([
+                        'status' => $newStatus,
+                        'is_bye' => false,
+                        'finished_at' => null,
+                        'walkover_reason' => null,
+                        'no_show_entry_id' => null,
+                    ]);
+                }
+            }
+
+            if ($this->loser_next_match_id) {
+                $loserNextMatch = GameMatch::find($this->loser_next_match_id);
+                if ($loserNextMatch) {
+                    $filled = MatchParticipant::where('match_id', $loserNextMatch->id)
+                        ->whereNotNull('tournament_entry_id')
+                        ->count();
+
+                    if (in_array($loserNextMatch->status, ['completed', 'walkover'])) {
+                        $loserNextMatch->revokeAdvancement();
+                    }
+
+                    $newStatus = $filled > 0 ? 'ready' : 'pending';
+                    $loserNextMatch->updateQuietly([
+                        'status' => $newStatus,
+                        'is_bye' => false,
+                        'finished_at' => null,
+                        'walkover_reason' => null,
+                        'no_show_entry_id' => null,
+                    ]);
                 }
             }
 

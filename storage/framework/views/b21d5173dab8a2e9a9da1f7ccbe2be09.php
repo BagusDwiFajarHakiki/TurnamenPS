@@ -235,13 +235,14 @@
                 flex: none;
             }
             .score-layout {
-                flex-direction: column;
-                gap: 1rem;
+                flex-direction: row;
+                gap: 0.5rem;
             }
             .vs-divider {
-                flex-direction: row;
-                width: 100%;
-                padding: 0.5rem 0;
+                flex-direction: column;
+                width: auto;
+                min-width: 40px;
+                padding: 0;
             }
             .hide-on-mobile {
                 display: none !important;
@@ -291,14 +292,16 @@
                             $rounds = [];
                             foreach(range(1, $maxRoundNumForDropdown) as $r) {
                                 $stagesLeft = $maxRoundNumForDropdown - $r;
-                                if ($stagesLeft === 0) { $name = 'Final'; }
+                                if ($stagesLeft === 0) { 
+                                    if ($allMatchesForDropdown->where('bracket_position', '3rd_place')->count() > 0) {
+                                        $rounds["3rd_place"] = "Posisi 3";
+                                    }
+                                    $name = 'Final'; 
+                                }
                                 elseif ($stagesLeft === 1) { $name = 'Semifinal'; }
                                 elseif ($stagesLeft === 2) { $name = 'Perempat Final'; }
                                 else { $name = 'Babak ' . pow(2, $stagesLeft + 1); }
                                 $rounds["round_{$r}"] = $name;
-                            }
-                            if ($allMatchesForDropdown->where('bracket_position', '3rd_place')->count() > 0) {
-                                $rounds["3rd_place"] = "Perebutan Juara 3";
                             }
                         ?>
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $rounds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -463,8 +466,8 @@
                             }
                         ?>
                         <div class="round-group">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: #f59e0b; text-transform: uppercase; margin-bottom: 0.5rem; padding-left: 0.25rem;">
-                                Perebutan Juara 3
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #cd7f32; text-transform: uppercase; margin-bottom: 0.5rem; padding-left: 0.25rem;">
+                                Posisi 3
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                                 <div
@@ -536,7 +539,7 @@
                             }
                         ?>
                         <div class="round-group">
-                            <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; padding-left: 0.25rem;">
+                            <div style="font-size: 0.8rem; font-weight: 800; color: #ffd700; text-transform: uppercase; margin-bottom: 0.5rem; padding-left: 0.25rem;">
                                 Final
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -713,7 +716,7 @@ endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                         <div style="width: 100%; margin-top: 0.5rem;">
-                                            <label style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; text-align: left; text-transform: uppercase; letter-spacing: 0.5px;">Pilihan Klub:</label>
+                                            <label style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">Pilihan Klub:</label>
                                             <select wire:model.live="homeClubId" style="width: 100%;">
                                                 <option value="">-- Pilih Klub --</option>
                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $allClubs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $club): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -767,7 +770,7 @@ endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
                                         <div style="width: 100%; margin-top: 0.5rem;">
-                                            <label style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; text-align: left; text-transform: uppercase; letter-spacing: 0.5px;">Pilihan Klub:</label>
+                                            <label style="display: block; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.25rem; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">Pilihan Klub:</label>
                                             <select wire:model.live="awayClubId" style="width: 100%;">
                                                 <option value="">-- Pilih Klub --</option>
                                                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $allClubs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $club): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -791,8 +794,8 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                             
                             <div class="sub-panel" style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; padding: 1.25rem !important;">
                                 <div style="flex: 1; min-width: 180px;">
-                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">STATUS PERTANDINGAN</label>
-                                    <select wire:model.live="status" style="width: 100%;">
+                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">STATUS PERTANDINGAN</label>
+                                    <select wire:model.live="status" style="width: 100%;" <?php echo e($isBye ? 'disabled' : ''); ?>>
                                         <option value="ready">Siap Dimainkan</option>
                                         <option value="ongoing">Sedang Main</option>
                                         <option value="completed">Selesai (Completed)</option>
@@ -801,7 +804,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                                 </div>
 
                                 <div style="flex: 1; min-width: 180px;">
-                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">PILIH UNIT PLAYSTATION</label>
+                                    <label style="display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">PILIH UNIT PLAYSTATION</label>
                                     <select wire:model.live="psUnitId" style="width: 100%;">
                                         <option value="">-- Pilih Unit PS (Auto/FIFO) --</option>
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $allPsUnits; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
@@ -822,7 +825,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                             <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($this->status !== 'walkover' && $this->decidedByPenalty): ?>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; background: rgba(57,211,83,0.03); border: 1px dashed rgba(57, 211, 83, 0.2); padding: 1.25rem; border-radius: 12px;">
                                     <div>
-                                        <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">SKOR PENALTI (HOME)</label>
+                                        <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">SKOR PENALTI (HOME)</label>
                                         <input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" wire:model.live.debounce.500ms="penaltyScoreHome" required style="width: 100%; background: #1c1d22; border: 1px solid #343742; border-radius: 6px; padding: 0.45rem; text-align: center; font-size: 1.1rem; font-weight: 800; color: #39d353; outline: none;">
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['penaltyScoreHome'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -834,7 +837,7 @@ endif;
 unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                                     </div>
                                     <div>
-                                        <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px;">SKOR PENALTI (AWAY)</label>
+                                        <label style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.35rem; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">SKOR PENALTI (AWAY)</label>
                                         <input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" wire:model.live.debounce.500ms="penaltyScoreAway" required style="width: 100%; background: #1c1d22; border: 1px solid #343742; border-radius: 6px; padding: 0.45rem; text-align: center; font-size: 1.1rem; font-weight: 800; color: #f43f5e; outline: none;">
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['penaltyScoreAway'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');

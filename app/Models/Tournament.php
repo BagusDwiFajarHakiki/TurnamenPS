@@ -20,6 +20,29 @@ class Tournament extends Model
                 $tournament->slug = \Illuminate\Support\Str::slug($tournament->name);
             }
         });
+
+        static::deleting(function ($tournament) {
+            if ($tournament->qris_image_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($tournament->qris_image_path);
+            }
+
+            // Hapus bukti pembayaran pendaftaran yang terkait dengan turnamen ini
+            $batchProofs = \App\Models\EntryBatch::where('tournament_id', $tournament->id)
+                ->whereNotNull('payment_proof_path')
+                ->pluck('payment_proof_path')
+                ->toArray();
+
+            $entryProofs = \App\Models\TournamentEntry::where('tournament_id', $tournament->id)
+                ->whereNotNull('payment_proof_path')
+                ->pluck('payment_proof_path')
+                ->toArray();
+
+            $allProofs = array_unique(array_merge($batchProofs, $entryProofs));
+
+            if (!empty($allProofs)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($allProofs);
+            }
+        });
     }
 
     protected $fillable = [
@@ -31,6 +54,7 @@ class Tournament extends Model
         'max_entries',
         'entry_expiry_hours',
         'payment_info',
+        'qris_image_path',
         'rules_content',
         'no_show_deadline_minutes',
         'check_in_open_minutes_before',
@@ -74,6 +98,55 @@ class Tournament extends Model
     {
         return $this->hasMany(TournamentPlayerAggregate::class);
     }
+
+    public function getJuara(int $position): ?string
+    {
+        $stageIds = $this->stages()->pluck('id')->toArray();
+        if (empty($stageIds)) {
+            return null;
+        }
+
+        if ($position === 3) {
+            $match = GameMatch::whereIn('tournament_stage_id', $stageIds)
+                ->where('bracket_position', '3rd_place')
+                ->whereIn('status', ['completed', 'walkover'])
+                ->with('participants.entry.player')
+                ->first();
+
+            if ($match) {
+                $winner = $match->participants->firstWhere('is_winner', true);
+                return $winner?->entry?->player?->name;
+            }
+            return null;
+        }
+
+        if ($position === 1 || $position === 2) {
+            // Final match is the highest round match that is not 3rd_place
+            $match = GameMatch::whereIn('tournament_stage_id', $stageIds)
+                ->where('bracket_position', '!=', '3rd_place')
+                ->whereIn('status', ['completed', 'walkover'])
+                ->orderByDesc('round_number')
+                ->with('participants.entry.player')
+                ->first();
+
+            if ($match) {
+                $targetParticipant = $position === 1 
+                    ? $match->participants->firstWhere('is_winner', true)
+                    : $match->participants->firstWhere('is_winner', false);
+                    
+                return $targetParticipant?->entry?->player?->name;
+            }
+            return null;
+        }
+
+        return null;
+    }
+
+    public function getTopScorers(int $limit = 5)
+    {
+        return $this->aggregates()->with('player')->where('total_goals_scored', '>', 0)->orderByDesc('total_goals_scored')->limit($limit)->get();
+    }
+
 
     /**
      * Try to auto-generate bracket when registration ends.
@@ -148,7 +221,14 @@ class Tournament extends Model
 
         $hasUnscheduled = $this->stages()->where('status', 'ongoing')
             ->whereHas('matches', function ($q) {
-                $q->whereIn('status', ['pending']);
+                $q->whereIn('status', ['pending'])
+                  ->orWhere(function ($q2) {
+                      $q2->where('round_number', 1)
+                         ->where('status', 'ready')
+                         ->whereHas('participants', function ($pq) {
+                             $pq->whereNull('tournament_entry_id');
+                         });
+                  });
             })->exists();
 
         if (!$hasUnscheduled) {

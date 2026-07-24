@@ -42,6 +42,7 @@ class InputHasil extends Page
     public $paymentProof = null;
     public $existingProofPath = null;
     public $status = 'ready';
+    public bool $isBye = false;
 
     public bool $showWoOptions = false;
     public $noShowEntryId = null;
@@ -123,6 +124,7 @@ class InputHasil extends Page
             $this->psUnitId = $match->ps_unit_id;
             $this->existingProofPath = $match->result_proof_path;
             $this->status = $match->status;
+            $this->isBye = (bool) $match->is_bye;
             $this->noShowEntryId = $match->no_show_entry_id;
             $this->walkoverReason = $match->walkover_reason;
         }

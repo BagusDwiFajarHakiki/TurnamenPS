@@ -1,4 +1,4 @@
-<div class="container" wire:poll.3s="checkIncomingCalls">
+<div class="container" <?php echo e(($selectedTournamentId || $selectedMatchId) ? '' : 'wire:poll.3s=checkIncomingCalls'); ?>>
     
     <!-- Top Header & Audio Settings -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;">
@@ -101,10 +101,7 @@
                     <div>
                         <span class="badge badge-success" style="margin-bottom: 0.75rem;">REGISTRATION OPEN</span>
                         <h4 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;"><?php echo e($t->name); ?></h4>
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.25rem;">
-                            <?php echo e(__('Game')); ?>: <?php echo e($t->game_title); ?>
 
-                        </p>
                         <?php
                             $verifiedCount = $t->entries()->count();
                             $pendingOverall = \App\Models\EntryBatch::where('tournament_id', $t->id)->where('status', 'pending')->sum('slot_count');
@@ -241,6 +238,10 @@
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selTournament): ?>
                     <div style="display: flex; flex-direction: column; gap: 1rem;">
                         
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selTournament->status === 'completed'): ?>
+                            <?php echo $__env->make('_partials.tournament-header', ['tournament' => $selTournament], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                        
                         
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(count($this->bracketStages) > 1): ?>
                             <div style="display: flex; justify-content: flex-start; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
@@ -273,7 +274,7 @@
 
                         
                         <div style="margin-bottom: 2rem;">
-                            <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--primary);">
+                            <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-main);">
                                 <?php echo e(__('Tournament Bracket')); ?>
 
                             </h4>
@@ -287,17 +288,19 @@
                             <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
                         </div>
 
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selTournament->status !== 'completed'): ?>
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($selTournament->status === 'completed'): ?>
+                            <?php echo $__env->make('_partials.tournament-recap', ['tournament' => $selTournament], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                        <?php else: ?>
                             
                             <div class="grid grid-cols-1" style="margin-top: 1rem; gap: 2rem; display: grid;">
                                 <!-- Jadwal & Sedang Berjalan -->
                                 <div>
-                                    <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--secondary); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
-                                        Jadwal Aktif
+                                    <h4 style="margin-bottom: 1.5rem; font-weight: 700; color: var(--text-main); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--primary); box-shadow: 0 0 8px var(--primary); animation: pulse 2s infinite;"></span> Jadwal Aktif
                                     </h4>
                                     <div style="display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem;">
                                         <?php
-                                            $upcomingMatches = collect($this->bracketMyMatches)->filter(fn($m) => !in_array($m->status, ['completed', 'walkover']));
+                                            $upcomingMatches = collect($this->bracketMyMatches)->filter(fn($m) => in_array($m->status, ['ready', 'ongoing']));
                                         ?>
                                     <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 400px; overflow-y: auto;">
                                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__empty_1 = true; $__currentLoopData = $upcomingMatches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
@@ -312,8 +315,11 @@
                                             <div class="soft-well" style="padding: 1rem 1.25rem; border-left: 3px solid <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : 'var(--border-color)'); ?>; border-radius: 12px;">
                                                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; margin-bottom: 0.5rem;">
                                                     <div style="text-align: left;">
-                                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(255,193,7,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#FFC107'); ?>;">
-                                                            <?php echo e(strtoupper($match->status)); ?>
+                                                        <?php
+                                                            $statusLabel = $match->status === 'ongoing' ? 'LIVE' : 'MENUNGGU';
+                                                        ?>
+                                                        <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.2rem 0.6rem; border-radius: 6px; background: <?php echo e($match->status === 'ongoing' ? 'rgba(57,211,83,0.15)' : 'rgba(245,158,11,0.15)'); ?>; color: <?php echo e($match->status === 'ongoing' ? 'var(--primary)' : '#f59e0b'); ?>;">
+                                                            <?php echo e($statusLabel); ?>
 
                                                         </span>
                                                     </div>
@@ -450,7 +456,15 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                         </div>
 
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment_method === 'qris'): ?>
-                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($payment_info): ?>
+                            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($qris_image_path): ?>
+                                <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; text-align: center;">
+                                    <strong style="color: var(--primary); display: block; margin-bottom: 0.5rem; font-size: 0.95rem;">Scan QRIS Pembayaran:</strong>
+                                    <div style="background: #ffffff; padding: 0.75rem; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+                                        <img src="<?php echo e(Storage::disk('public')->url($qris_image_path)); ?>" alt="Kode QRIS Turnamen" style="max-width: 260px; width: 100%; height: auto; border-radius: 8px; display: block; margin: 0 auto;">
+                                    </div>
+                                    <small style="color: var(--text-muted); display: block; margin-top: 0.5rem; font-size: 0.78rem;">Silakan scan QRIS di atas dengan aplikasi E-Wallet / Mobile Banking Anda.</small>
+                                </div>
+                            <?php elseif($payment_info): ?>
                                 <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem; font-size: 0.9rem;">
                                     <strong style="color: var(--primary); display: block; margin-bottom: 0.25rem;">Informasi QRIS:</strong>
                                     <p style="white-space: pre-line; margin: 0;"><?php echo e($payment_info); ?></p>

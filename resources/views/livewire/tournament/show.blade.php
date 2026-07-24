@@ -102,7 +102,7 @@
                                 
                                 $roundName = "Round {$match['round_number']}";
                                 if (($match['bracket_position'] ?? '') === '3rd_place') {
-                                    $roundName = app()->getLocale() == 'id' ? 'Juara 3' : '3rd Place';
+                                    $roundName = app()->getLocale() == 'id' ? 'Posisi 3' : '3rd Place';
                                 } elseif ($match['round_number'] == $maxRoundNumber && $maxRoundNumber > 1) {
                                     $roundName = "Final";
                                 }

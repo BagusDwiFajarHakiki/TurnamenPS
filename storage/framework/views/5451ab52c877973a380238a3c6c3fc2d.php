@@ -71,7 +71,7 @@ unset($__errorArgs, $__bag); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendB
                     <label class="form-label" for="password"><?php echo e(__('Password')); ?></label>
                     <input type="password" id="password" wire:model.defer="password" class="form-control" placeholder="••••••••" required>
                     <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 0.25rem;">
-                        <?php echo e(app()->getLocale() == 'id' ? 'Minimal 8 karakter, harus mengandung huruf besar, huruf kecil, dan angka.' : 'Minimum 8 characters, must contain uppercase, lowercase, and numbers.'); ?>
+                        <?php echo e(app()->getLocale() == 'id' ? 'Maksimal 8 karakter.' : 'Maximum 8 characters.'); ?>
 
                     </small>
                     <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__errorArgs = ['password'];

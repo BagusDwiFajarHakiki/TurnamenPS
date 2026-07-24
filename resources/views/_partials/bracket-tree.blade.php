@@ -134,8 +134,8 @@
                         @foreach($leftGrid['data'][$roundNum] as $item)
                             @php
                                 $match = $item['match'];
-                                $home = $match['participants'][0] ?? null;
-                                $away = $match['participants'][1] ?? null;
+                                $home = collect($match['participants'] ?? [])->firstWhere('side', 'home');
+                                $away = collect($match['participants'] ?? [])->firstWhere('side', 'away');
                                 $homeId = $home['tournament_entry_id'] ?? 0;
                                 $awayId = $away['tournament_entry_id'] ?? 0;
                                 $isHighlighted = in_array($homeId, $activeEntryIntIds) || in_array($awayId, $activeEntryIntIds);
@@ -226,8 +226,8 @@
             @if(!empty($finalRoundMatches))
                 @php
                     $fm = $finalRoundMatches[0] ?? null;
-                    $fh = $fm['participants'][0] ?? null;
-                    $fa = $fm['participants'][1] ?? null;
+                    $fh = collect($fm['participants'] ?? [])->firstWhere('side', 'home');
+                    $fa = collect($fm['participants'] ?? [])->firstWhere('side', 'away');
                     
                     $hasThirdPlace = !empty($thirdPlaceMatch);
                     $offset = $hasThirdPlace ? 130 : 0;
@@ -235,7 +235,7 @@
                 @if($fm)
                     @php $isHighlighted = $isMatchHighlighted($fm); @endphp
                     <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px - {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
-                        <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(20,184,166,0.2); color: var(--primary); text-align: center;">
+                        <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(255,215,0,0.2); color: #ffd700; text-align: center;">
                             {{ $getRoundName($maxRound) }}
                         </div>
                         <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5); box-shadow: 0 0 0 2px rgba(20,184,166,0.25);' }}">
@@ -245,13 +245,13 @@
                 @endif
                 @if($thirdPlaceMatch)
                     @php
-                        $tp3h = $thirdPlaceMatch['participants'][0] ?? null;
-                        $tp3a = $thirdPlaceMatch['participants'][1] ?? null;
+                        $tp3h = collect($thirdPlaceMatch['participants'] ?? [])->firstWhere('side', 'home');
+                        $tp3a = collect($thirdPlaceMatch['participants'] ?? [])->firstWhere('side', 'away');
                         $isHighlighted = $isMatchHighlighted($thirdPlaceMatch);
                     @endphp
                     <div style="position: absolute; top: calc({{ $centerPct }}% + {{ 28 - 28 * $centerPct / 100 }}px + {{ $offset }}px); left: 0.5rem; right: 0.5rem; transform: translateY(-50%); z-index: 2;">
-                        <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b; text-align: center;">
-                            PEREBUTAN JUARA 3
+                        <div style="font-weight: 800; font-size: 0.75rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(205,127,50,0.2); color: #cd7f32; text-align: center;">
+                            POSISI 3
                         </div>
                         <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); margin-top: 0.75rem; border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);' }}">
                             @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])
@@ -303,8 +303,8 @@
                         @foreach($rightGrid['data'][$roundNum] as $item)
                             @php
                                 $match = $item['match'];
-                                $home = $match['participants'][0] ?? null;
-                                $away = $match['participants'][1] ?? null;
+                                $home = collect($match['participants'] ?? [])->firstWhere('side', 'home');
+                                $away = collect($match['participants'] ?? [])->firstWhere('side', 'away');
                                 $homeId = $home['tournament_entry_id'] ?? 0;
                                 $awayId = $away['tournament_entry_id'] ?? 0;
                                 $isHighlighted = in_array($homeId, $activeEntryIntIds) || in_array($awayId, $activeEntryIntIds);
@@ -366,12 +366,12 @@
 <div class="bracket-tree-mobile" style="max-width: 100%; overflow-x: auto; padding: 1.5rem; border-radius: 12px; background: rgba(128,128,128,0.03); border: 1px solid rgba(128,128,128,0.1); gap: 2.5rem; align-items: stretch;">
     @foreach($filteredRounds as $roundNum => $roundMatches)
         <div style="display: flex; flex-direction: column; gap: 0.5rem; min-width: 260px;">
-            <div style="text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(20,184,166,0.2); color: var(--primary);">
+            <div style="text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid {{ $roundNum == $maxRound ? 'rgba(255,215,0,0.2)' : 'rgba(20,184,166,0.2)' }}; color: {{ $roundNum == $maxRound ? '#ffd700' : 'var(--primary)' }};">
                 {{ $getRoundName($roundNum) }}
             </div>
             @foreach($roundMatches as $match)
                 @php 
-                    $home = $match['participants'][0] ?? null; $away = $match['participants'][1] ?? null; 
+                    $home = collect($match['participants'] ?? [])->firstWhere('side', 'home'); $away = collect($match['participants'] ?? [])->firstWhere('side', 'away'); 
                     $isHighlighted = $isMatchHighlighted($match);
                 @endphp
                 <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);' }}">
@@ -383,12 +383,12 @@
 
     @if($thirdPlaceMatch)
         @php 
-            $tp3h = $thirdPlaceMatch['participants'][0] ?? null; $tp3a = $thirdPlaceMatch['participants'][1] ?? null; 
+            $tp3h = collect($thirdPlaceMatch['participants'] ?? [])->firstWhere('side', 'home'); $tp3a = collect($thirdPlaceMatch['participants'] ?? [])->firstWhere('side', 'away'); 
             $isHighlighted = $isMatchHighlighted($thirdPlaceMatch);
         @endphp
         <div style="min-width: 260px; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
-            <div style="text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(245,158,11,0.2); color: #f59e0b;">
-                PEREBUTAN JUARA 3
+            <div style="text-align: center; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; padding-bottom: 0.5rem; border-bottom: 2px solid rgba(205,127,50,0.2); color: #cd7f32;">
+                POSISI 3
             </div>
             <div class="bracket-match" style="width: 100%; border-radius: 8px; overflow: hidden; background: rgba(128,128,128,0.03); border: {{ $isHighlighted ? '2px solid var(--primary); box-shadow: 0 0 12px rgba(16,185,129,0.3);' : '1px solid rgba(209,213,219,0.5);' }}">
                 @include('_partials.bracket-match-card', ['match' => $thirdPlaceMatch, 'home' => $tp3h, 'away' => $tp3a, 'activeEntryIds' => $activeEntryIntIds])
